@@ -1,4 +1,4 @@
-package com.redhat.cajun.navy.process;
+package com.redhat.naps.process;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package com.redhat.cajun.navy.process.message.model;
+package com.redhat.naps.process.message.model;
 
 import java.net.URI;
 import java.time.OffsetDateTime;

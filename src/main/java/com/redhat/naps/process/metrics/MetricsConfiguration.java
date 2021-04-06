@@ -1,4 +1,4 @@
-package com.redhat.cajun.navy.process.metrics;
+package com.redhat.naps.process.metrics;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import org.jbpm.services.api.RuntimeDataService;

@@ -8,6 +8,15 @@
    $ podman start postgresql
    `````
 
+3. Clone, build and deploy pneumonia-patient-processing-kjar
+   `````
+   $ git clone https://github.com/redhat-naps-da/pneumonia-patient-processing-kjar.git
+   $ cd pneumonia-patient-processing-kjar
+   $ mvn clean install
+   $ mvn deploy \
+        -DaltDeploymentRepository="nexus::default::http://admin:admin123@$NEXUS_ROUTE/repository/redhat-naps/"
+   `````
+
 3. Build and Start app
    `````
    $ mvn clean package -DskipTests && \

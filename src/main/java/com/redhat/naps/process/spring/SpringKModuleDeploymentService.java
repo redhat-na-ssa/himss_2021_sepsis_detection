@@ -1,4 +1,4 @@
-package com.redhat.cajun.navy.process.spring;
+package com.redhat.naps.process.spring;
 
 import java.util.Map;
 

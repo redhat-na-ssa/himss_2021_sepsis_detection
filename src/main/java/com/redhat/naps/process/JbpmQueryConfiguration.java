@@ -1,4 +1,4 @@
-package com.redhat.cajun.navy.process;
+package com.redhat.naps.process;
 
 import org.jbpm.kie.services.impl.query.SqlQueryDefinition;
 import org.jbpm.services.api.query.QueryNotFoundException;

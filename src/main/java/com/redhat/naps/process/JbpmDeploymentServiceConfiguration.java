@@ -1,8 +1,8 @@
-package com.redhat.cajun.navy.process;
+package com.redhat.naps.process;
 
 import javax.persistence.EntityManagerFactory;
 
-import com.redhat.cajun.navy.process.spring.SpringKModuleDeploymentService;
+import com.redhat.naps.process.spring.SpringKModuleDeploymentService;
 import org.jbpm.kie.services.impl.FormManagerService;
 import org.jbpm.kie.services.impl.bpmn2.BPMN2DataServiceImpl;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;

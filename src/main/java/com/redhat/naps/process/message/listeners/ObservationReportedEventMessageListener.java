@@ -1,4 +1,4 @@
-package com.redhat.cajun.navy.process.message.listeners;
+package com.redhat.naps.process.message.listeners;
 
 import java.util.HashMap;
 import java.util.Map;

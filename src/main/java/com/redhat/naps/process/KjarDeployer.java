@@ -1,4 +1,4 @@
-package com.redhat.cajun.navy.process;
+package com.redhat.naps.process;
 
 import java.util.Collection;
 
