@@ -33,7 +33,12 @@ import org.hl7.fhir.r4.model.Observation.ObservationStatus;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Encounter;
 
+// https://github.com/hapifhir/hapi-fhir/blob/master/hapi-fhir-base/src/main/java/ca/uhn/fhir/context/FhirContext.java
+import ca.uhn.fhir.context.FhirContext;
+
 public class ObservationReportedEventMessageListenerTest {
+
+    private static FhirContext fhirCtx = FhirContext.forR4();
 
     private ObservationReportedEventMessageListener messageListener;
 
@@ -59,7 +64,7 @@ public class ObservationReportedEventMessageListenerTest {
     private ArgumentCaptor<Map<String, Object>> parametersCaptor;
 
     private final String processId = "pneumonia_patient_processing.Pneumonia_Case";
-
+    
     @Before
     public void init() {
         initMocks(this);
@@ -74,33 +79,48 @@ public class ObservationReportedEventMessageListenerTest {
 
     @Test
     public void testProcessIncidentReportedEventMessage() {
-        String json = "{\"id\":\"incident123\"," +
-                "\"lat\": \"34.14338\"," +
-                "\"lon\": \"-77.86569\"," +
-                "\"numberOfPeople\": 3," +
-                "\"medicalNeeded\": true," +
-                "\"timestamp\": 1521148332350," +
-                "\"victimName\":\"John Doe\"," +
-                "\"victimPhoneNumber\":\"111-222-333\"," +
-                "\"status\":\"REPORTED\"" +
-                "}";
+
+        String obsId = "observation12345";
+        Observation obs = createInitialObservation(obsId);
+        String obsString = fhirCtx.newJsonParser().setPrettyPrint(true).encodeResourceToString(obs);
 
         CloudEvent event = CloudEventBuilder.v1()
-                .withId("000")
+                .withId(obsId)
                 .withType("ObservationReportedEvent")
                 .withSource(URI.create("http://example.com"))
                 .withDataContentType("application/json")
-                .withData(json.getBytes())
+                .withData(obsString.getBytes())
                 .build();
 
-        messageListener.processMessage(event, "observation123", "topic1", 1, ack);
+        messageListener.processMessage(event, "topic1", 1, ack);
         
         verify(processService).startProcess(any(), processIdCaptor.capture(), correlationKeyCaptor.capture(), parametersCaptor.capture());
         assertThat(processIdCaptor.getValue(), equalTo(processId));
+
         CorrelationKey correlationKey = correlationKeyCaptor.getValue();
-        assertThat(correlationKey.getName(), equalTo("observation123"));
+        assertThat(correlationKey.getName(), equalTo("Observation/"+obsId));
+
         Map<String, Object> parameters = parametersCaptor.getValue();
         assertThat(parameters.size(), equalTo(1));
         verify(ack).acknowledge();
+    }
+
+    private Observation createInitialObservation(String obsId) {
+        Observation obs = new Observation();
+
+        Patient pt = new Patient();
+        pt.setId("#1");
+        pt.addName().setFamily("FAM");
+        obs.getSubject().setReference("#1");
+        obs.getContained().add(pt);
+
+        Encounter enc = new Encounter();
+        enc.setStatus(Encounter.EncounterStatus.ARRIVED);
+        obs.getEncounter().setResource(enc);
+
+        obs.setStatus(ObservationStatus.PRELIMINARY);
+        obs.setId(obsId);
+
+        return obs;
     }
 }

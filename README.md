@@ -17,7 +17,7 @@
         -DaltDeploymentRepository="nexus::default::http://admin:admin123@$NEXUS_ROUTE/repository/redhat-naps/"
    `````
 
-3. Build and Start app
+4. Build and Start app
    `````
    $ mvn clean package -DskipTests && \
          java -jar target/pneumonia-patient-processing-pam-0.0.1.jar
