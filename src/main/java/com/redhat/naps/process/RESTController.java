@@ -39,7 +39,7 @@ import ca.uhn.fhir.context.FhirContext;
 @RequestMapping("/")
 public class RESTController {
 
-    private static final Logger logger = LoggerFactory.getLogger("RESTController");
+    private static final Logger log = LoggerFactory.getLogger("RESTController");
     private static FhirContext fhirCtx = FhirContext.forR4();
     private final List<Integer> statesToAbort = new ArrayList<>();
 
@@ -67,7 +67,7 @@ public class RESTController {
     public ResponseEntity<Integer> abortAll() {
         
         Collection<ProcessInstanceDesc> pInstances = runtimeDataService.getProcessInstancesByDeploymentId(deploymentId, statesToAbort, null);
-        logger.info("abortAll() aborting the following # of pInstances: "+pInstances.size());
+        log.info("abortAll() aborting the following # of pInstances: "+pInstances.size());
         for(ProcessInstanceDesc pInstance : pInstances){
             processService.abortProcessInstance(pInstance.getId());
         }
@@ -75,6 +75,7 @@ public class RESTController {
         return new ResponseEntity<>(pInstances.size(), HttpStatus.OK);
     }
 
+    // Example:  curl -X POST localhost:8080/sendSampleCloudEvent/azra1234
     @Transactional
     @RequestMapping(value = "/sendSampleCloudEvent/{observationId}", method = RequestMethod.POST, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> sendSampleCloudEvent(@PathVariable("observationId") String observationId) {
