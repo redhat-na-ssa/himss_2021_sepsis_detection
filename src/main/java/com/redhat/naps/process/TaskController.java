@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.jbpm.services.api.ProcessService;
 import org.jbpm.services.api.RuntimeDataService;
@@ -28,6 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -53,6 +55,7 @@ public class TaskController {
 
     private static final Logger log = LoggerFactory.getLogger("TaskController");
     private static FhirContext fhirCtx = FhirContext.forR4();
+    private static final String OBSERVATION_TASK_VARIABLE_NAME = "taskObservation";
 
     @Value("${observation.deployment.id}")
     private String deploymentId; 
@@ -153,17 +156,42 @@ public class TaskController {
         return new ResponseEntity<>(responseMap, HttpStatus.OK);
     }
 
-    // Example:  curl -X PUT localhost:8080/tasks/1/contents/input
+    // Example:  curl -X PUT localhost:8080/tasks/4/claim?user=jeff
     @Transactional
-    @RequestMapping(value = "/{taskId}/contents/input", method = RequestMethod.PUT, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Long> updateTaskContentInput(@PathVariable("taskId") Long taskId) {
+    @RequestMapping(value = "/{taskId}/claim", method = RequestMethod.PUT)
+    public ResponseEntity<Long> claimTask(@PathVariable("taskId") Long taskId, @RequestParam(name = "user") String userId){
+        uTaskService.claim(taskId, userId);
+        return new ResponseEntity<>(taskId, HttpStatus.OK);
+    }
+
+    // Example:  curl -X PUT localhost:8080/tasks/4/start?user=jeff
+    @Transactional
+    @RequestMapping(value = "/{taskId}/start", method = RequestMethod.PUT)
+    public ResponseEntity<Long> startTask(@PathVariable("taskId") Long taskId, @RequestParam(name = "user") String userId){
+        uTaskService.start(taskId, userId);
+        return new ResponseEntity<>(taskId, HttpStatus.OK);
+    }
+
+    /*
+       Example:  curl -v -X PUT -H "Content-Type: text/plain" --data "@src/test/resources/fhir/Observation1.json" localhost:8080/tasks/4/completeWithObservation?user=jeff 
+    */
+    @Transactional
+    @RequestMapping(value = "/{taskId}/completeWithObservation", method = RequestMethod.PUT, consumes = MimeTypeUtils.TEXT_PLAIN_VALUE)
+    public ResponseEntity<Long> completeTaskWithObservation(
+        @PathVariable("taskId") Long taskId,
+        @RequestParam(name = "user") String userId,
+        @RequestBody String payload
+        ) {
+
+        Map<String, Object> completeParams = new HashMap<String, Object>();
+        if(StringUtils.isNotEmpty(payload)) {
+            // NOTE:  assume that entire payload is a FHIR resource
+            Observation obs = fhirCtx.newJsonParser().parseResource(Observation.class, payload );
+            completeParams.put(OBSERVATION_TASK_VARIABLE_NAME, obs);
+        }
     
         String topic = "observation-topic";
-        //Observation obs = createInitialObservation(observationId);
-        //String obsString = fhirCtx.newJsonParser().setPrettyPrint(true).encodeResourceToString(obs);
-
-        Task tObj = uTaskService.getTask(taskId);
-        TaskData taskData = tObj.getTaskData();
+        uTaskService.complete(taskId, userId, completeParams);
    
         return new ResponseEntity<>(taskId, HttpStatus.OK);
     }

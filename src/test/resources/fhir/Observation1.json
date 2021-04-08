@@ -1,0 +1,22 @@
+{
+  "resourceType": "Observation",
+  "id": "azra12351",
+  "contained": [ {
+    "resourceType": "Patient",
+    "id": "1",
+    "name": [ {
+      "family": "FAM"
+    } ]
+  }, {
+    "resourceType": "Encounter",
+    "id": "2",
+    "status": "arrived"
+  } ],
+  "status": "preliminary",
+  "subject": {
+    "reference": "#1"
+  },
+  "encounter": {
+    "reference": "#2"
+  }
+}
