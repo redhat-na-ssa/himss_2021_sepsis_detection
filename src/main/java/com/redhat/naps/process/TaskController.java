@@ -3,10 +3,13 @@ package com.redhat.naps.process;
 import com.redhat.naps.process.message.producer.CloudEventProducer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
+import java.util.Map;
 import javax.annotation.PostConstruct;
 
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.jbpm.services.api.ProcessService;
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.UserTaskService;
@@ -103,7 +106,52 @@ public class TaskController {
         log.info("getTasksAssignedAsPotentialOwner() # of tasks returned = "+tasks.size());
    
         return new ResponseEntity<>(tasks, HttpStatus.OK);
-    }    
+    }
+
+    // Example:  curl -X GET localhost:8080/tasks/1/contents/input | jq .
+    @Transactional
+    @RequestMapping(value = "/{taskId}/contents/input", method = RequestMethod.GET, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Object>> getTaskInputContentByTaskId(@PathVariable("taskId") Long taskId) {
+
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        Map<String, Object> contentMap = uTaskService.getTaskInputContentByTaskId(taskId);
+
+        for(String contentKey : contentMap.keySet()){
+            Object contentObj = contentMap.get(contentKey);
+            if(IBaseResource.class.isInstance(contentObj)) {
+                log.info("getTaskInputContentByTaskId() contentKey = "+contentKey+" instanceof = "+contentObj.getClass().toString());
+                String jsonFhir = fhirCtx.newJsonParser().encodeResourceToString((IBaseResource)contentObj);
+                responseMap.put(contentKey, jsonFhir);
+            }else {
+                responseMap.put(contentKey, contentMap.get(contentKey));
+            }
+        }
+
+        return new ResponseEntity<>(responseMap, HttpStatus.OK);
+    }
+
+    // Example:  curl -X GET localhost:8080/tasks/1/contents/output | jq .
+    @Transactional
+    @RequestMapping(value = "/{taskId}/contents/output", method = RequestMethod.GET, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Object>> getTaskOutputContentByTaskId(@PathVariable("taskId") Long taskId) {
+
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        Map<String, Object> contentMap = uTaskService.getTaskOutputContentByTaskId(taskId);
+
+        for(String contentKey : contentMap.keySet()){
+            Object contentObj = contentMap.get(contentKey);
+            if(IBaseResource.class.isInstance(contentObj)) {
+                log.info("getTaskOutputContentByTaskId() contentKey = "+contentKey+" instanceof = "+contentObj.getClass().toString());
+                String jsonFhir = fhirCtx.newJsonParser().encodeResourceToString((IBaseResource)contentObj);
+                responseMap.put(contentKey, jsonFhir);
+            }else {
+                responseMap.put(contentKey, contentMap.get(contentKey));
+            }
+        }
+
+
+        return new ResponseEntity<>(responseMap, HttpStatus.OK);
+    }
 
     // Example:  curl -X PUT localhost:8080/tasks/1/contents/input
     @Transactional

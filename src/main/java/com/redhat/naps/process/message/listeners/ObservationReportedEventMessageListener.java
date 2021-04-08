@@ -1,8 +1,11 @@
 package com.redhat.naps.process.message.listeners;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.hl7.fhir.r4.model.IdType;
+import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Observation;
 import io.cloudevents.CloudEvent;
 
@@ -33,6 +36,7 @@ public class ObservationReportedEventMessageListener {
     private final static Logger log = LoggerFactory.getLogger(ObservationReportedEventMessageListener.class);
 
     private static final String TYPE_OBSERVATION_REPORTED_EVENT = "ObservationReportedEvent";
+    private static final String OBSERVATION_PROCESS_VARIABLE_NAME = "Observation";
 
     private static FhirContext fhirCtx = FhirContext.forR4();
 
@@ -73,11 +77,17 @@ public class ObservationReportedEventMessageListener {
 
             validate(oEvent);
 
+            /* NOTE:  
+                FHIR data object uses id convention of:   <FHIR data type>/id
+                Will use just the latter substring (after the "/") as the process instance correlation key
+            */
+            String idBase = oEvent.getIdBase();
+            String cKey = idBase.substring(idBase.indexOf("/")+1);
+            //log.info("doProcessMessage() correlationKey = "+cKey);
+            CorrelationKey correlationKey = correlationKeyFactory.newCorrelationKey(cKey);
 
             Map<String, Object> parameters = new HashMap<>();
-            parameters.put("observation", oEvent);
-
-            CorrelationKey correlationKey = correlationKeyFactory.newCorrelationKey(oEvent.getId());
+            parameters.put(OBSERVATION_PROCESS_VARIABLE_NAME, oEvent);
 
             TransactionTemplate template = new TransactionTemplate(transactionManager);
             template.execute((TransactionStatus s) -> {
@@ -111,5 +121,6 @@ public class ObservationReportedEventMessageListener {
     }
 
     private void validate(Observation obs) {
+        //TO_DO
     }
 }
