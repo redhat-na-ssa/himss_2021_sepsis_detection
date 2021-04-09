@@ -25,28 +25,41 @@
 
 ## Test
 
-1. Health Check Report
+1. Set environment variables to support testing:
    `````
-   $ curl -X GET -H 'Content-type:application/json' localhost:8080/rest/server/healthcheck?report=true
+   $ export KJAR_VERSION=1.0.3
+   $ export KIE_SERVER_CONTAINER_NAME=fhir-bpm
    `````
 
-2. List containers
+2. Health Check Report
+   `````
+   $ curl -X GET -H 'Content-Type:application/json' localhost:8080/rest/server/healthcheck?report=true
+   `````
+
+3. Create a container in kie-server:
+   `````
+   $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" config/kie_container.json \
+     | sed "s/{KJAR_VERSION}/$KJAR_VERSION/g" \
+     > /tmp/kie_container.json && \
+     curl -X PUT -H 'Content-type:application/json' localhost:8080/rest/server/containers/$KIE_SERVER_CONTAINER_ID-$KJAR_VERSION -d '@/tmp/kie_container.json'
+   `````
+
+4. List containers
    `````
    $ curl -X GET http://localhost:8080/rest/server/containers
    `````
 
-
-3. Start a business process
+5. Start a business process
    `````
    $ curl -X POST localhost:8080/fhir/processes/sendSampleCloudEvent/azra12350
    `````
 
-4. List cases
+6. List cases in JSON representation:
    `````
    $ curl -X GET -H 'Content-type:application/json' localhost:8080/rest/server/queries/cases/
    `````
 
-4. List process definitions
+7. List process definitions in JSON representation:
    `````
-   $ curl -X GET -H 'Content-type:application/json' localhost:8080/rest/server/containers/*/processes/
+   $ curl -X GET -H 'Content-type:application/json' localhost:8080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION/processes/
    `````
