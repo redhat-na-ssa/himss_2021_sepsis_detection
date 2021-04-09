@@ -104,14 +104,14 @@
     </dependency>
     <dependency>
       <groupId>org.kie</groupId>
-      <artifactId>jbpm-spring-boot-starter-basic</artifactId>
+      <artifactId>kie-server-spring-boot-starter-jbpm</artifactId>
       <version>${version.rhpam}</version>
-      <exclusions>
+      <!--exclusions>
         <exclusion>
           <artifactId>spring-boot-starter-security</artifactId>
           <groupId>org.springframework.boot</groupId>
         </exclusion>
-      </exclusions>
+      </exclusions-->
     </dependency>
     <dependency>
       <groupId>org.kie</groupId>

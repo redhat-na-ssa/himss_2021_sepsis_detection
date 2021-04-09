@@ -43,7 +43,7 @@ import io.cloudevents.CloudEvent;
 import ca.uhn.fhir.context.FhirContext;
 
 @RestController
-@RequestMapping("/process")
+@RequestMapping("/fhir/processes")
 public class ProcessController {
 
     private static final Logger log = LoggerFactory.getLogger("RESTController");
@@ -70,7 +70,7 @@ public class ProcessController {
         statesToAbort.add(ProcessInstance.STATE_SUSPENDED);
     } 
 
-    // Example:  curl -X GET localhost:8080/process/instance?correlationKey=azra12350 | jq .
+    // Example:  curl -X GET localhost:8080/fhir/processes/instance?correlationKey=azra12350 | jq .
     @Transactional
     @RequestMapping(value = "/instance", method = RequestMethod.GET, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProcessInstanceDesc> getProcessInstanceByCorrelationKey(@RequestParam(name = "correlationKey") String correlationKey) {
@@ -81,7 +81,7 @@ public class ProcessController {
         return new ResponseEntity<>(pInstanceDesc, HttpStatus.OK);
     }
 
-    // Example:  curl -X GET localhost:8080/process/instance/6/variables | jq .
+    // Example:  curl -X GET localhost:8080/fhir/processes/instance/6/variables | jq .
     @Transactional
     @RequestMapping(value = "/instance/{processInstanceId}/variables", method = RequestMethod.GET, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> getProcessVariables(@PathVariable("processInstanceId") long pInstanceId) {
@@ -103,7 +103,7 @@ public class ProcessController {
         return new ResponseEntity<>(vResponse, HttpStatus.OK);
     }
 
-    // Example:  curl -X POST localhost:8080/process/abortAll
+    // Example:  curl -X POST localhost:8080/fhir/processes/abortAll
     @Transactional
     @RequestMapping(value = "/abortAll", method = RequestMethod.POST, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<Integer> abortAll() {
@@ -117,7 +117,7 @@ public class ProcessController {
         return new ResponseEntity<>(pInstances.size(), HttpStatus.OK);
     }
 
-    // Example:  curl -X POST localhost:8080/process/sendSampleCloudEvent/azra12350
+    // Example:  curl -X POST localhost:8080/fhir/processes/sendSampleCloudEvent/azra12350
     @Transactional
     @RequestMapping(value = "/sendSampleCloudEvent/{observationId}", method = RequestMethod.POST, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> sendSampleCloudEvent(@PathVariable("observationId") String observationId) {
