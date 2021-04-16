@@ -33,7 +33,7 @@
 
 2. Health Check Report
    `````
-   $ curl -X GET -H 'Content-Type:application/json' localhost:8080/rest/server/healthcheck?report=true
+   $ curl -X GET -H 'Accept:application/json' localhost:8080/rest/server/healthcheck?report=true
    `````
 
 3. Create a container in kie-server:
@@ -56,10 +56,10 @@
 
 6. List cases in JSON representation:
    `````
-   $ curl -X GET -H 'Content-type:application/json' localhost:8080/rest/server/queries/cases/
+   $ curl -X GET -H 'Accept:application/json' localhost:8080/rest/server/queries/cases/
    `````
 
 7. List process definitions in JSON representation:
    `````
-   $ curl -X GET -H 'Content-type:application/json' localhost:8080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION/processes/
+   $ curl -X GET -H 'Accept:application/json' localhost:8080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION/processes/
    `````

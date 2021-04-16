@@ -68,11 +68,15 @@
       <artifactId>pneumonia-patient-processing-kjar</artifactId>
       <version>1.0.3</version>
     </dependency>
+
+    <!-- https://github.com/hapifhir/hapi-fhir/tree/master/hapi-fhir-structures-dstu2 -->
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-structures-dstu2</artifactId>
       <version>${hapi.fhir.version}</version>
     </dependency>
+
+    <!-- https://github.com/hapifhir/hapi-fhir/tree/master/hapi-fhir-structures-r4 -->
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-structures-r4</artifactId>

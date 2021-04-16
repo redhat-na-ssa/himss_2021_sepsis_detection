@@ -1,6 +1,6 @@
 package com.redhat.naps.process;
 
-import com.redhat.naps.process.message.producer.CloudEventProducer;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 
-import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.jbpm.services.api.ProcessService;
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
@@ -32,15 +31,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.cloudevents.core.builder.CloudEventBuilder;
-import java.net.URI;
+import io.cloudevents.CloudEvent;
+
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Observation.ObservationStatus;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Encounter;
-import io.cloudevents.CloudEvent;
 
 // https://github.com/hapifhir/hapi-fhir/blob/master/hapi-fhir-base/src/main/java/ca/uhn/fhir/context/FhirContext.java
 import ca.uhn.fhir.context.FhirContext;
+
+import com.redhat.naps.process.message.producer.CloudEventProducer;
 
 @RestController
 @RequestMapping("/fhir/processes")
