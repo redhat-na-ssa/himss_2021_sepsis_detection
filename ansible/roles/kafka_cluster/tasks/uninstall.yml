@@ -1,0 +1,9 @@
+---
+
+- name: remove kafka {{ kafka_cluster }}
+  oc_obj:
+    state: absent
+    oc_binary: "{{ openshift_cli }}"
+    name: "{{ kafka_cluster }}"
+    kind: kafka
+    namespace: "{{ namespace }}"

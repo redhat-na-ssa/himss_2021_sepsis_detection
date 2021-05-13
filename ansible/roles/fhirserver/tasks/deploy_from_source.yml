@@ -1,0 +1,6 @@
+---
+
+# Ansible Tasks to deploy and initiate a Tekton or Jenkins pipeline can be addded here.
+
+# Examples of ansible creating & starting a Jenkins BuildConfig can be found throughout the Emergency Response demo.
+#   ie:  https://github.com/Emergency-Response-Demo/erdemo-operator/blob/main/roles/openshift_responder_simulator_service/tasks/deploy_from_source.yml

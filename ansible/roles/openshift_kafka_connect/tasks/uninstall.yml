@@ -1,0 +1,9 @@
+---
+
+- name: delete kafka connect object
+  oc_obj:
+    state: absent
+    kind: kafkaconnect
+    oc_binary: "{{ openshift_cli }}"
+    name: "{{ kafka_connect }}"
+    namespace: "{{ namespace }}"

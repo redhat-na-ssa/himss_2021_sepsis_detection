@@ -1,0 +1,93 @@
+---
+
+- name: delete route
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+    kind: route
+
+- name: delete service
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+    kind: service
+
+
+- name: delete deployment config
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+    kind: dc
+
+- name: delete imagestream in the {{ namespace }} project
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+    kind: imagestream
+
+- name: "delete configmap {{ application_configmap }}"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    name: "{{ application_configmap }}"
+    namespace: "{{ namespace }}"
+    kind: configmap
+
+- name: delete postgresql dc
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    name: "{{ psql_app_name  }}"
+    namespace: "{{ namespace }}"
+    kind: dc
+  when: undeploy_fhir_db is defined and undeploy_fhir_db == "true"
+
+- name: delete postgresql service
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    name: "{{ psql_app_name }}"
+    namespace: "{{ namespace }}"
+    kind: service
+  when: undeploy_fhir_db is defined and undeploy_fhir_db == "true"
+
+- name: delete postgresql pvc
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    name: "{{ psql_app_name }}"
+    namespace: "{{ namespace }}"
+    kind: pvc
+  when: undeploy_fhir_db is defined and undeploy_fhir_db == "true"
+
+- name: delete postgresql secret
+  oc_secret:
+    oc_binary: "{{ openshift_cli }}"
+    namespace: "{{ namespace }}"
+    name: "{{ psql_app_name }}"
+    state: absent
+  when: undeploy_fhir_db is defined and undeploy_fhir_db == "true"
+
+- name: delete postgresql init configmap
+  oc_configmap:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    name: "{{ postgresql_init_configmap }}"
+    namespace: "{{ namespace }}"
+  when: undeploy_fhir_db is defined and undeploy_fhir_db == "true"
+
+- name: delete {{ postgresql_service_account }} service account
+  oc_serviceaccount:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    name: "{{ postgresql_service_account }}"
+    namespace: "{{ namespace }}"
+  when: undeploy_fhir_db is defined and undeploy_fhir_db == "true"

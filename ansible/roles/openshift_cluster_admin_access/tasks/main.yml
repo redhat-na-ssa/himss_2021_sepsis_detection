@@ -1,0 +1,6 @@
+---
+
+- name: ensure user has cluster admin access
+  shell: "{{ openshift_cli }} auth can-i create clusterroles"
+  register: user_is_admin
+  failed_when: user_is_admin.stdout|bool == false

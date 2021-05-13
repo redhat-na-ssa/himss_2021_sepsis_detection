@@ -1,0 +1,126 @@
+---
+
+kind: List
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: {{ application_name }}
+      expose: "true"
+    name: {{ application_name }}
+  spec:
+    ports:
+      - name: http
+        port: 8080
+        protocol: TCP
+        targetPort: 8080
+    selector:
+      group: fhir-server
+      app: {{ application_name }}
+    sessionAffinity: None
+    type: ClusterIP
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: {{ application_name }}
+    name: {{ application_name }}
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 2
+    selector:
+      group: fhir-server
+      app: {{ application_name }}
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 3600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          group: fhir-server
+          app: {{ application_name }}
+      spec:
+        containers:
+          - env:
+            - name: JAVA_MAX_MEM_RATIO
+              value: "{{ fhirserver_java_max_mem_ratio }}"
+            - name: JAVA_INITIAL_MEM_RATIO
+              value: "{{ fhirserver_java_initial_mem_ratio }}"
+            - name: GC_MAX_METASPACE_SIZE
+              value: "{{ fhirserver_gc_max_metaspace_size }}"
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: SPRING_CONFIG_LOCATION
+              value: file:///deployments/config/{{ application_configmap_key }}
+            imagePullPolicy: IfNotPresent
+            name: {{ application_name }}
+            livenessProbe:
+              failureThreshold: 3
+              httpGet:
+                path: /fhir/TerminologyCapabilities
+                port: 8080
+                scheme: HTTP
+              initialDelaySeconds: 30
+              periodSeconds: 60
+              timeoutSeconds: 3
+            readinessProbe:
+              failureThreshold: 3
+              httpGet:
+                path: /fhir/TerminologyCapabilities
+                port: 8080
+                scheme: HTTP
+              initialDelaySeconds: 30
+              periodSeconds: 60
+              timeoutSeconds: 3
+            resources:
+              limits:
+                cpu: '1000m'
+                memory: '2Gi'
+              requests:
+                cpu: '250m'
+                memory: '250Mi'
+            securityContext:
+              privileged: false
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            volumeMounts:
+            - mountPath: /deployments/config
+              name: config
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: {{ application_name }}
+        serviceAccountName: {{ application_name }}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: {{ application_configmap_key }}
+                path: {{ application_configmap_key }}
+            name: {{ application_configmap }}
+          name: config
+    triggers:
+      - type: ConfigChange
+      - imageChangeParams:
+          automatic: true
+          containerNames:
+            - {{ application_name }}
+          from:
+            kind: ImageStreamTag
+            name: "{{ application_name }}:{{ service_image_tag }}"
+        type: ImageChange
+

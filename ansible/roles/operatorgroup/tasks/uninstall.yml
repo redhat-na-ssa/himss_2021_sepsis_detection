@@ -1,0 +1,9 @@
+---
+
+- name: "Delete operatorgroup in {{ operatorgroup_namespace }}"
+  oc_obj:
+    state: absent
+    oc_binary: "{{ openshift_cli }}"
+    name: "{{ operatorgroup_name }}"
+    namespace: "{{ operatorgroup_namespace }}"
+    kind: operatorgroup

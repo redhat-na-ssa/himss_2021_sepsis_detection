@@ -1,0 +1,66 @@
+---
+
+- name: "get {{ subscription_namespace }} namespace"
+  oc_project:
+    state: list
+    oc_binary: "{{ openshift_cli }}"
+    name: "{{ subscription_namespace }}"
+  register: r_subscription_namespace
+
+- name: "get subscription for {{ operator_name }} operator"
+  oc_obj:
+    state: list
+    oc_binary: "{{ openshift_cli }}"
+    kind: subscription.operators.coreos.com
+    name: "{{ subscription_name }}"
+    namespace: "{{ subscription_namespace }}"
+  register: r_subscription
+  when: r_subscription_namespace.ansible_module_results | length > 0
+
+- name: "remove clusterserviceversion for {{ operator_name }} operator"
+  oc_obj:
+    state: absent
+    oc_binary: "{{ openshift_cli }}"
+    kind: ClusterServiceVersion
+    name: "{{ r_subscription.ansible_module_results.results[0].status.currentCSV }}"
+    namespace: "{{ subscription_namespace }}"
+  when:
+  - r_subscription.ansible_module_results is defined
+  - r_subscription.ansible_module_results.results | length > 0
+  - r_subscription.ansible_module_results.results[0].status.currentCSV is defined
+  - r_subscription.ansible_module_results.results[0].status.currentCSV | length > 0
+
+- name: "remove subscription for {{ operator_name }} operator"
+  oc_obj:
+    state: absent
+    oc_binary: "{{ openshift_cli }}"
+    kind: subscription.operators.coreos.com
+    name: "{{ subscription_name }}"
+    namespace: "{{ subscription_namespace }}"
+
+- name: "find installplans for {{ operator_name }} operator"
+  oc_obj:
+    state: list
+    oc_binary: "{{ openshift_cli }}"
+    kind: InstallPlan
+    namespace: "{{ subscription_namespace }}"
+  register: r_install_plan
+
+- name: "set installplan name"
+  when: r_install_plan.ansible_module_results.results | length > 0
+  set_fact:
+    install_plan: "{{ r_install_plan.ansible_module_results.results[0]['items'] | to_json | from_json | json_query(query) }}"
+  vars:
+    query: >-
+      [?starts_with(spec.clusterServiceVersionNames[0], '{{ csv_prefix }}')].metadata.name|[0]
+
+- name: "remove installplan"
+  when:
+  - install_plan is defined
+  - install_plan | default("") | length > 0
+  oc_obj:
+    state: absent
+    oc_binary: "{{ openshift_cli }}"
+    kind: InstallPlan
+    namespace: "{{ subscription_namespace }}"
+    name: "{{ install_plan }}"

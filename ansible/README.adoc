@@ -1,0 +1,62 @@
+:scrollbar:
+:data-uri:
+:toc2:
+:linkattrs:
+
+= pneumonia-case-mgmt deploy
+:numbered:
+
+== Overview
+
+== Pre-reqs 
+
+. `oc` utility
++
+All versions of this utility are available at either of the following:
+
+.. https://access.redhat.com/downloads/content/290
++
+RHN subscription required
+.. https://mirror.openshift.com/pub/openshift-v4/clients/ocp/?C=M;O=D
++
+Accessible without a RHN subscription
+. `ansible-playbook` command line utility
++
+ie: `dnf install ansible`
+
+== Usage
+
+. Clone this project and at the command line change directories into this project. 
+
+. Log into OpenShift using the `oc` command line utility.
+
+. Execute the following to deploy the HAPI FHIR Server to OpenShift: 
++
+-----
+$ ansible-playbook playbooks/install.yml
+-----
+
+.. At the completion of the installation, expect to see messages similar to the following:
++
+-----
+...
+
+
+PLAY RECAP *******************************************************************************************************************************************************************************************************
+localhost                  : ok=31   changed=16   unreachable=0    failed=0    skipped=3    rescued=0    ignored=0 
+-----
+
+.. Verify successful install. Do so by executing the following command and pointing your browser to the URL returned by the command: 
++
+-----
+$ echo -en "\nhttps://$( oc get route fhir-server -n app-services-deploy-user1 --template='{{ .spec.host }}' )\n"
+----- 
++
+image::docs/images/hapi_fhir_home.png[]
+
+. Execute the following to uninstall:
++
+-----
+$ ansible-playbook playbooks/install.yml \
+    -e ACTION=uninstall
+-----

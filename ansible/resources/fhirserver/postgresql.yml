@@ -1,0 +1,153 @@
+---
+kind: List
+apiVersion: v1
+items:
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: {{ psql_app_name }}
+    annotations:
+      template.openshift.io/expose-uri: postgres://{.spec.clusterIP}:{.spec.ports[?(.name=="postgresql")].port}
+    labels:
+      app: {{ psql_app_name }}
+  spec:
+    ports:
+    - name: postgresql
+      protocol: TCP
+      port: 5432
+      targetPort: 5432
+      nodePort: 0
+    selector:
+      name: {{ psql_app_name }}
+    type: ClusterIP
+    sessionAffinity: None
+  status:
+    loadBalancer: {}
+- kind: PersistentVolumeClaim
+  apiVersion: v1
+  metadata:
+    name: {{ psql_app_name }}
+    labels:
+      app: {{ psql_app_name }}
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: {{ postgresql_pv_capacity }}
+- kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+    name: {{ psql_app_name }}
+    labels:
+      app: {{ psql_app_name }}
+      app.kubernetes.io/part-of: datatier
+  spec:
+    strategy:
+      recreateParams:
+        post:
+          execNewPod:
+            command: 
+            - /bin/bash
+            - /tmp/init-files/wait_for_postgresql.sh
+            - /tmp/init-files/create_database.sh
+            containerName: postgresql
+            volumes:
+            - init-volume
+          failurePolicy: Abort
+        timeoutSeconds: 600
+      resources: {}
+      type: Recreate
+    triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - postgresql
+        from:
+          kind: ImageStreamTag
+          name: postgresql:{{ postgresql_version }}
+          namespace: "{{ postgresql_is_namespace }}"
+        lastTriggeredImage: ''
+    - type: ConfigChange
+    replicas: 1
+    selector:
+      name: {{ psql_app_name }}
+    template:
+      metadata:
+        labels:
+          name: {{ psql_app_name }}
+          app: {{ psql_app_name }}
+      spec:
+        serviceAccountName: "{{ postgresql_service_account }}"
+        containers:
+        - name: postgresql
+          image: " "
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          readinessProbe:
+            timeoutSeconds: 1
+            initialDelaySeconds: 5
+            exec:
+              command:
+              - "/bin/sh"
+              - "-i"
+              - "-c"
+              - psql -h 127.0.0.1 -U {{ psql_user_name }} -q -d {{ psql_db_name }} -c
+                'SELECT 1'
+          livenessProbe:
+            timeoutSeconds: 1
+            initialDelaySeconds: 30
+            tcpSocket:
+              port: 5432
+          env:
+          - name: POSTGRESQL_USER
+            valueFrom:
+              secretKeyRef:
+                name: {{ psql_credentials_secret }}
+                key: database-user
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ psql_credentials_secret }}
+                key: database-password
+          - name: POSTGRESQL_DATABASE
+            valueFrom:
+              secretKeyRef:
+                name: {{ psql_credentials_secret }}
+                key: database-name
+          - name: POSTGRESQL_SERVICE
+            value: {{ psql_app_name }}
+          - name: POSTGRESQL_MAX_PREPARED_TRANSACTIONS
+            value: "{{ postgresql_max_prepared_transactions }}"
+          - name: POSTGRESQL_MAX_CONNECTIONS
+            value: "{{ postgresql_max_connections }}"
+          resources:
+            requests:
+              cpu: '{{ postgresql_cpu_request }}'
+              memory: '{{ postgresql_memory_request }}'
+            limits:
+              cpu: '{{ postgresql_cpu_limit }}'
+              memory: '{{ postgresql_memory_limit }}'
+          volumeMounts:
+          - name: "{{ psql_app_name }}-data"
+            mountPath: "/var/lib/pgsql/data"
+          - name: init-volume
+            mountPath: /tmp/init-files
+          terminationMessagePath: "/dev/termination-log"
+          imagePullPolicy: IfNotPresent
+          capabilities: {}
+          securityContext:
+            capabilities: {}
+            privileged: false
+        volumes:
+        - name: "{{ psql_app_name }}-data"
+          persistentVolumeClaim:
+            claimName: "{{ psql_app_name }}"
+        - configMap:
+            defaultMode: 493
+            name: {{ postgresql_init_configmap }}
+          name: init-volume
+        restartPolicy: Always
+        dnsPolicy: ClusterFirst

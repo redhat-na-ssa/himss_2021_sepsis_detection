@@ -1,0 +1,29 @@
+---
+
+- name: "wait until kafka-cluster-entity-operator is active in {{ namespace }}"
+  oc_obj:
+    state: list
+    oc_binary: "{{ openshift_cli }}" 
+    kind: Deployment
+    name: kafka-cluster-entity-operator
+    namespace: "{{ namespace }}"
+  register: r_kafka_cluster_entity_operator
+  retries: 30
+  delay: 15
+  changed_when: false
+  until:
+    - r_kafka_cluster_entity_operator.ansible_module_results.results[0].status.readyReplicas is defined
+    - r_kafka_cluster_entity_operator.ansible_module_results.results[0].status.replicas is defined
+    - >-
+      r_kafka_cluster_entity_operator.ansible_module_results.results[0].status.readyReplicas ==
+      r_kafka_cluster_entity_operator.ansible_module_results.results[0].status.replicas
+
+# topics
+- name: create topics
+  include_tasks: create_topic.yml
+  with_items:
+    - "{{ kafka_topics }}"
+  loop_control:
+    loop_var: topic
+  vars:
+    topic_kafka_cluster: "{{ kafka_cluster }}"

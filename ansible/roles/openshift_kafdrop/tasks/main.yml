@@ -1,0 +1,25 @@
+---
+
+- name: check if {{ kafdrop_application_name }} application is deployed
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: list
+    namespace: "{{ namespace }}"
+    name: "{{ kafdrop_application_name }}"
+    kind: kservice
+  register: result
+
+- name: copy application template
+  template:
+    src: "{{ resources_dir }}/{{ kafdrop_application_template }}"
+    dest: "{{ work_dir }}/{{ kafdrop_application_template }}"
+
+
+- name: deploy {{ kafdrop_application_name }} application
+  oc_list:
+    oc_binary: "{{ openshift_cli }}"
+    state: present
+    namespace: "{{ namespace }}"
+    files:
+      - "{{ work_dir }}/{{ kafdrop_application_template }}"
+  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != ""

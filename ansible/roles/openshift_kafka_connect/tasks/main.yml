@@ -1,0 +1,26 @@
+---
+- name: copy kafka connect template to work directory
+  template:
+    src: "{{ resources_dir }}/{{ kafka_connect_template }}"
+    dest: "{{ work_dir }}/{{ kafka_connect_template }}"
+
+- name: create kafka connect object 
+  oc_obj:
+    state: present
+    kind: kafkaconnect
+    oc_binary: "{{ openshift_cli }}"
+    name: "{{ kafka_connect }}"
+    namespace: "{{ namespace }}"
+    files:
+      - "{{ work_dir }}/{{ kafka_connect_template }}"
+
+- name: wait until kafka connect is up and running
+  shell: "{{ openshift_cli }} get deployment {{ kafka_connect }}-connect -o template --template={{ json_template }} -n {{ namespace }}"
+  vars:
+    json_template: '\{\{.status.readyReplicas\}\}'
+    replicas: "{{ kafka_connect_replicas|string }}"
+  register: result
+  until: result.stdout == replicas
+  retries: 20
+  delay: 15
+  changed_when: false

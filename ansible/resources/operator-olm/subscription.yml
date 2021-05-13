@@ -1,0 +1,16 @@
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ subscription_name }}
+spec:
+  channel: "{{ subscription_channel }}"
+{% if automatic_installplan_approval| default(True) | bool %}
+  installPlanApproval: Automatic
+{% else %}
+  installPlanApproval: Manual
+{% endif %}
+  name: {{ subscription_package_name }}
+  source: {{ subscription_catalog_source }}
+  sourceNamespace: {{ subscription_catalog_source_namespace }}
+  startingCSV: "{{ subscription_starting_csv }}"

@@ -1,0 +1,35 @@
+---
+
+kafka_lag_exporter_release: '0.6.0'    
+kafka_lag_exporter_service_port: 8000
+kafka_lag_exporter_poll_interval_seconds: 30
+kafka_lag_exporter_lookup_table_size: 60
+kafka_lag_exporter_group_id: kafkalagexporter
+kafka_lag_exporter_timeout_seconds: 10
+kafka_lag_exporter_group_whitelist: '[".*"]'
+kafka_lag_exporter_topic_whitelist: '["^topic-.+"]'
+kafka_lag_exporter_topic_blacklist: '[]'
+kafka_lag_exporter_metric_whitelist: '[".*"]'
+kafka_lag_exporter_akka_loglevel: DEBUG
+kafka_lag_exporter_root_loglevel: INFO
+kafka_lag_exporter_loglevel: INFO
+kafka_lag_exporter_kafka_loglevel: INFO
+
+kafka_bootstrap_service: "{{ kafka_cluster }}-kafka-bootstrap.{{ namespace_kafka_cluster }}.svc"
+kafka_bootstrap_port: 9092
+kafka_bootstrap_address: "{{ kafka_bootstrap_service }}:{{ kafka_bootstrap_port }}"
+
+kafka_lag_exporter_serviceaccount: kafka-lag-exporter
+kafka_lag_exporter_image: lightbend/kafka-lag-exporter:0.6.0
+
+kafka_lag_exporter_configmap_name: kafka-lag-exporter
+kafka_lag_exporter_configmap_template: configmap.yml
+
+kafka_lag_exporter_deployment_name: kafka-lag-exporter
+kafka_lag_exporter_deployment_template: deployment.yml
+
+kafka_lag_exporter_service_name: kafka-lag-exporter
+kafka_lag_exporter_service_template: service.yml
+
+kafka_lag_exporter_servicemonitor_name: kafka-lag-exporter
+kafka_lag_exporter_servicemonitor_template: service-monitor.yml

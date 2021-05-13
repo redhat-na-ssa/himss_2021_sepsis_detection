@@ -1,0 +1,19 @@
+---
+
+- name: list kafka topic instances
+  oc_obj:
+    state: list
+    oc_binary: "{{ openshift_cli }}" 
+    kind: KafkaTopic
+    namespace: "{{ namespace }}"
+  register: r_kafka_topics
+
+- name: remove kafka topics
+  oc_obj:
+    state: absent
+    oc_binary: "{{ openshift_cli }}"
+    name: "{{ item.metadata.name }}"
+    kind: kafkatopic
+    namespace: "{{ namespace }}"
+  with_items:
+    - "{{ r_kafka_topics.ansible_module_results.results[0]['items'] }}"

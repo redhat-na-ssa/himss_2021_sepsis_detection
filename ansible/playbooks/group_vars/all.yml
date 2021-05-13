@@ -1,0 +1,22 @@
+---
+
+home_dir: "{{ playbook_dir }}/.."
+
+# resources dir
+resources_base_dir: "{{ home_dir }}/resources"
+
+# oc executable
+openshift_cli: oc
+
+# The OCP user that will own all resources in the generated OCP namespace
+project_admin: user1
+
+# Name of the OCP project to deploy this application to
+project_name: "pneumonia-case-mgmt-{{ project_admin }}"
+
+# The following two options are allowed:
+#   image  : Use if a container image of your application is already available from a public container image repo:  ie:  quay.io , registry.redhat.io or docker hub
+#   source : Use if this ansible includes tasks to deploy a Jenkins or Tekton BuildConfig that creates the application image from source code
+deploy_from: image
+
+namespace_amq_streams_operator: "{{ project_name }}"

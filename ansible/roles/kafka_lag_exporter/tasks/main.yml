@@ -1,0 +1,68 @@
+---
+
+- name: "create {{ kafka_lag_exporter_serviceaccount }} service account"
+  oc_serviceaccount:
+    oc_binary: "{{ openshift_cli }}"
+    state: present
+    name: "{{ kafka_lag_exporter_serviceaccount }}"
+    namespace: "{{ namespace }}"
+
+- name: "copy kafka lag exporter configmap template"
+  template:
+    src: "{{ resources_dir }}/{{ kafka_lag_exporter_configmap_template }}"
+    dest: "{{ work_dir }}/{{ kafka_lag_exporter_configmap_template }}"
+
+- name: "create kafka lag exporter configmap"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: present
+    kind: ConfigMap
+    name: "{{ kafka_lag_exporter_configmap_name }}"
+    namespace: "{{ namespace }}"
+    files:
+      - "{{ work_dir }}/{{ kafka_lag_exporter_configmap_template }}"
+
+- name: "copy kafka lag exporter deployment template"
+  template:
+    src: "{{ resources_dir }}/{{ kafka_lag_exporter_deployment_template }}"
+    dest: "{{ work_dir }}/{{ kafka_lag_exporter_deployment_template }}"
+
+- name: "create kafka lag exporter deployment"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: present
+    kind: Deployment
+    name: "{{ kafka_lag_exporter_deployment_name }}"
+    namespace: "{{ namespace }}"
+    files:
+      - "{{ work_dir }}/{{ kafka_lag_exporter_deployment_template }}"
+
+- name: "copy kafka lag exporter service template"
+  template:
+    src: "{{ resources_dir }}/{{ kafka_lag_exporter_service_template }}"
+    dest: "{{ work_dir }}/{{ kafka_lag_exporter_service_template }}"
+
+- name: "create kafka lag exporter service"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: present
+    kind: Service
+    name: "{{ kafka_lag_exporter_service_name }}"
+    namespace: "{{ namespace }}"
+    files:
+      - "{{ work_dir }}/{{ kafka_lag_exporter_service_template }}"
+
+- name: "copy kafka lag exporter service monitor template"
+  template:
+    src: "{{ resources_dir }}/{{ kafka_lag_exporter_servicemonitor_template }}"
+    dest: "{{ work_dir }}/{{ kafka_lag_exporter_servicemonitor_template }}"
+
+- name: "create kafka lag exporter servicemonitor"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: present
+    kind: ServiceMonitor
+    name: "{{ kafka_lag_exporter_servicemonitor_name }}"
+    namespace: "{{ namespace }}"
+    files:
+      - "{{ work_dir }}/{{ kafka_lag_exporter_servicemonitor_template }}"

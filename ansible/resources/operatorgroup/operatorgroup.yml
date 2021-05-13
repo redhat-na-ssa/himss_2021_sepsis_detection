@@ -1,0 +1,12 @@
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: {{ operatorgroup_name }}
+{% if operatorgroup_target_namespace | default("") | length > 0 %}
+spec:
+  targetNamespaces:
+  - {{ operatorgroup_target_namespace }}
+{% else %}
+spec: {}
+{% endif %}

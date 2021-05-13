@@ -1,0 +1,41 @@
+---
+
+- name: "delete kafka lag exporter servicemonitor"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    kind: ServiceMonitor
+    name: "{{ kafka_lag_exporter_servicemonitor_name }}"
+    namespace: "{{ namespace }}"
+
+- name: "delete kafka lag exporter service"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    kind: Service
+    name: "{{ kafka_lag_exporter_service_name }}"
+    namespace: "{{ namespace }}"
+
+- name: "delete kafka lag exporter deployment"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    kind: Deployment
+    name: "{{ kafka_lag_exporter_deployment_name }}"
+    namespace: "{{ namespace }}"
+
+- name: "delete kafka lag exporter configmap"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    kind: ConfigMap
+    name: "{{ kafka_lag_exporter_configmap_name }}"
+    namespace: "{{ namespace }}"
+
+- name: "delete {{ kafka_lag_exporter_serviceaccount }} service account"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    kind: serviceaccount
+    name: "{{ kafka_lag_exporter_serviceaccount }}"
+    namespace: "{{ namespace }}"

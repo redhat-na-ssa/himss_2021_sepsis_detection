@@ -1,0 +1,7 @@
+---
+
+application_name: "{{ kafdrop_application_name }}"
+
+application_image: "obsidiandynamics/kafdrop:3.27.0"
+
+kafdrop_application_template: kafdropservice.yml

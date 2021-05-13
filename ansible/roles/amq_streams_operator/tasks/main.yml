@@ -1,0 +1,62 @@
+---
+
+- name: "create operatorgroup in {{ namespace_amq_streams_operator }}"
+  import_role:
+    name: ../roles/operatorgroup
+  vars:
+    operatorgroup_name: "{{ namespace_amq_streams_operator }}"
+    operatorgroup_namespace: "{{ namespace_amq_streams_operator }}"
+    operatorgroup_target_namespace: ""
+
+- name: "deploy amq streams operator in {{ namespace_amq_streams_operator }}"
+  import_role:
+    name: ../roles/operator_olm
+  vars:
+    operator_name: amq-streams-operator
+    packagemanifest: "{{ amq_streams_operator_packagemanifest }}"
+    subscription_channel: "{{ amq_streams_operator_subscription_channel }}"
+    subscription_namespace: "{{ namespace_amq_streams_operator }}"
+    subscription_name: "{{ amq_streams_operator_subscription_name }}"
+    automatic_installplan_approval: "{{ amq_streams_operator_subscription_automatic_installplan_approval }}"
+    subscription_starting_csv: "{{ amq_streams_subscription_starting_csv }}"
+    csv_prefix: "{{ amq_streams_operator_csv_prefix }}"
+
+- name: "wait until amq streams operator deployment is created"
+  oc_obj:
+    state: list
+    oc_binary: "{{ openshift_cli }}"
+    kind: Deployment
+    namespace: "{{ namespace_amq_streams_operator }}"
+  register: r_amq_streams_operator_deployment
+  retries: 30
+  delay: 5
+  until:
+    - r_amq_streams_operator_deployment.ansible_module_results.results | length > 0
+    - r_amq_streams_operator_deployment | to_json | from_json | json_query(jmesquery) | length > 0
+  vars:
+    jmesquery: "ansible_module_results.results[0].items[*].metadata.name[] | [?starts_with(@, '{{ amq_streams_operator_deployment }}') == `true`]"
+
+- name: "set amq streams operator deployment name"
+  set_fact:
+    amq_streams_operator_deployment_name: "{{ r_amq_streams_operator_deployment.ansible_module_results.results[0]['items'] | to_json | from_json | json_query(query) }}"
+  vars:
+    query: >-
+      [?starts_with(metadata.name, '{{ amq_streams_operator_deployment }}')].metadata.name|[0]
+
+- name: "wait until amq streams operator is active"
+  oc_obj:
+    state: list
+    oc_binary: "{{ openshift_cli }}"    
+    kind: Deployment
+    name: "{{ amq_streams_operator_deployment_name }}"
+    namespace: "{{ namespace_amq_streams_operator }}"
+  register: r_amq_streams_operator_deployment
+  retries: 30
+  delay: 10
+  changed_when: false
+  until:
+    - r_amq_streams_operator_deployment.ansible_module_results.results[0].status.readyReplicas is defined
+    - r_amq_streams_operator_deployment.ansible_module_results.results[0].status.replicas is defined
+    - >-
+      r_amq_streams_operator_deployment.ansible_module_results.results[0].status.readyReplicas ==
+      r_amq_streams_operator_deployment.ansible_module_results.results[0].status.replicas
