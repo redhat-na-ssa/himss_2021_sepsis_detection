@@ -18,5 +18,3 @@ project_name: "pneumonia-case-mgmt-{{ project_admin }}"
 #   image  : Use if a container image of your application is already available from a public container image repo:  ie:  quay.io , registry.redhat.io or docker hub
 #   source : Use if this ansible includes tasks to deploy a Jenkins or Tekton BuildConfig that creates the application image from source code
 deploy_from: image
-
-namespace_amq_streams_operator: "{{ project_name }}"

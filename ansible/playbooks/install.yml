@@ -5,12 +5,13 @@
   connection: local
   gather_facts: false
   run_once: true
+  vars_files:
+    - group_vars/kafka_cluster.yml
 
   tasks:
 
     - set_fact:
         namespace: "{{ project_name }}"
-        resources_dir: "{{ resources_base_dir }}/amq-streams"
         work_dir_name: "amq-streams-operator"
     - include_role:
         name: ../roles/amq_streams_operator
@@ -21,6 +22,41 @@
         ACTION|trim() == "install"
     - include_role:
         name: ../roles/amq_streams_operator
+        tasks_from: uninstall
+      when: >
+        ACTION is defined and
+        ACTION|trim() == "uninstall"
+
+    - set_fact:
+        namespace: "{{ project_name }}"
+        resources_dir: "{{ resources_base_dir }}/amq-streams"
+        work_dir_name: "kafka_cluster"
+    - include_role:
+        name: ../roles/kafka_cluster
+      when: >
+        ACTION is not defined or
+        ACTION is none or
+        ACTION|trim() == "" or
+        ACTION|trim() == "install"
+    - include_role:
+        name: ../roles/kafka_cluster
+        tasks_from: uninstall
+      when: >
+        ACTION is defined and
+        ACTION|trim() == "uninstall"
+
+    - set_fact:
+        namespace: "{{ project_name }}"
+        work_dir_name: "kafka_topics"
+    - include_role:
+        name: ../roles/kafka_topics
+      when: >
+        ACTION is not defined or
+        ACTION is none or
+        ACTION|trim() == "" or
+        ACTION|trim() == "install"
+    - include_role:
+        name: ../roles/kafka_topics
         tasks_from: uninstall
       when: >
         ACTION is defined and

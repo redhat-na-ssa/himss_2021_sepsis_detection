@@ -1,0 +1,11 @@
+---
+
+namespace_amq_streams_operator: "{{ project_name }}"
+namespace_kafka_cluster: "{{ project_admin }}-{{ project_name }}"
+
+kafka_cluster: kafka-cluster
+
+kafka_connect: kafka-connect
+
+kafka_topics: >
+  [{"name": "topic-fhir-r4-case-mgmt", "partitions": "15", "replicas": "3", "config": "{}"} ]
