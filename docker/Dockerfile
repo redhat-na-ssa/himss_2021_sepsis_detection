@@ -1,6 +1,6 @@
 # mvn clean package
-# buildah bud -f docker/Dockerfile -t quay.io/redhat_naps_da/fhir-bpm-service:0.0.1 .
-# podman push quay.io/redhat_naps_da/fhir-bpm-service:0.0.1
+# buildah bud -f docker/Dockerfile -t quay.io/redhat_naps_da/fhir-bpm-service:0.0.2 .
+# podman push quay.io/redhat_naps_da/fhir-bpm-service:0.0.2
 
 FROM quay.io/emergencyresponsedemo/ubi8-jdk-11-mvn:0.0.2
 

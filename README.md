@@ -34,7 +34,8 @@
 4. Build and Start app
    `````
    $ mvn clean package -DskipTests && \
-         java -jar target/pneumonia-patient-processing-pam-0.0.1.jar
+         java -Dorg.kie.server.repo=/tmp \
+              -jar target/pneumonia-patient-processing-pam-0.0.1.jar \
    `````
 
 ## Test

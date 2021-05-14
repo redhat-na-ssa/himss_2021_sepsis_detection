@@ -65,7 +65,7 @@ items:
             - name: SPRING_CONFIG_LOCATION
               value: file:///deployments/config/{{ application_configmap_key }}
             - name: JAVA_OPTS_APPEND
-              value: '-Dspring.cloud.bootstrap.location=file:///deployments/config/bootstrap.properties'
+              value: '-Dspring.cloud.bootstrap.location=file:///deployments/config/bootstrap.properties -Dorg.kie.server.repo={{ kie_server_repo_path }}'
             - name: MAVEN_MIRROR_URL
               value: ""
             imagePullPolicy: IfNotPresent
@@ -115,12 +115,12 @@ items:
             items:
               - key: {{ application_configmap_key }}
                 path: {{ application_configmap_key }}
-              - key: logback-spring.xml
-                path: logback-spring.xml
               - key: jbpm-quartz.properties
                 path: jbpm-quartz.properties
               - key: bootstrap.properties
                 path: bootstrap.properties
+              - key: {{ application_name }}.xml
+                path: {{ application_name }}.xml
             name: {{ application_configmap }}
           name: config
     triggers:

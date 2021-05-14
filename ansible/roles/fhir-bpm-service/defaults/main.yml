@@ -26,8 +26,11 @@ application_configmap: "{{ application_name }}"
 application_configmap_key: "{{ application_properties }}"
 binary_imagestream_template: binary-imagestream.yml 
 service_image: quay.io/redhat_naps_da/fhir-bpm-service
-service_image_tag: 0.0.1
+service_image_tag: 0.0.2
 application_template: fhir-bpm-service.yml
 fhir_bpm_service_java_max_mem_ratio: 60
 fhir_bpm_service_java_initial_mem_ratio: 0
 fhir_bpm_service_gc_max_metaspace_size: 500
+
+# Location on image file system where fhir-bpm-service.xml  (which defines deployed KIE containers) will reside
+kie_server_repo_path=/deployments/config
