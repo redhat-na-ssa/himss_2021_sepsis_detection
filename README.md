@@ -3,9 +3,23 @@
    $ podman-compose -f etc/docker-compose.yaml up -d
    `````
 
-2. Start RH-PAM postgresql
+2. Execute rhpam sql scripts on database:
    `````
-   $ podman start postgresql
+   $ podman exec -it etc_db_1 /bin/bash
+   $ cd /opt/sql \
+     && psql -U rhpam -d rhpam -f postgresql-jbpm-schema.sql \
+     && psql -U rhpam -d rhpam -f task_assigning_tables_postgresql.sql \
+     && psql -U rhpam -d rhpam -f postgresql-jbpm-lo-trigger-clob.sql \
+     && psql -U rhpam -d rhpam -f quartz_tables_postgres.sql \
+     && psql rhpam -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO rhpam;" \
+     && psql rhpam -c "GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO rhpam;"
+   `````
+
+   TO-DO:  Create a RH-PAM image seeded with the above tables as per:  https://github.com/sclorg/postgresql-container/tree/generated/12#extending-image
+
+2. Tear down pod:
+   `````
+   $ $ podman-compose -f etc/docker-compose.yaml down
    `````
 
 3. Clone, build and deploy pneumonia-patient-processing-kjar (WHY IS THIS NECESSARY ?)
