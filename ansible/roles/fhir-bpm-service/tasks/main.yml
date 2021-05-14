@@ -20,14 +20,7 @@
     dest: "{{ work_dir }}/{{ postgresql_init_configmap }}/"
   with_fileglob:
     - "{{ resources_dir }}/sql/*.sh"
-
-# Commented out because FHIR server auto-generates the database schema (if it doesn't already exist)
-#- name: download sql scripts from remote repository
-#  get_url:
-#    url: "{{ item }}"
-#    dest: "{{ work_dir }}/{{ postgresql_init_configmap }}/"
-#  with_items:
-#     - "{{ psql_init_scripts }}"
+    - "{{ resources_dir }}/sql/*.sql"
 
 - name: create {{ postgresql_init_configmap }} configmap
   oc_configmap:
@@ -103,10 +96,20 @@
     namespace: "{{ namespace }}"
     rolebinding_name: "{{ service_account }}-admin"
 
-- name: copy {{ application_properties }} template
+- name: create work directory
+  file:
+    path: "{{ work_dir }}/{{ application_name }}"
+    state: directory
+
+- name: copy config files to work directory
   template:
-    src: "{{ resources_dir }}/{{ application_properties }}"
-    dest: "{{ work_dir }}/{{ application_properties }}"
+    src: "{{ item }}"
+    dest: "{{ work_dir }}/{{ application_name }}/"
+  with_fileglob:
+    - "{{ resources_dir }}/application.properties"
+    - "{{ resources_dir }}/jbpm-quartz.properties"
+    - "{{ resources_dir }}/bootstrap.properties"
+    - "{{ resources_dir }}/logback-spring.xml"
 
 - name: create {{ application_configmap }} application configmap
   oc_configmap:
@@ -115,7 +118,7 @@
     name: "{{ application_configmap }}"
     namespace: "{{ namespace }}"
     from_file:
-      dir: "{{ work_dir }}/{{ application_properties }}"
+      dir: "{{ work_dir }}/{{ application_name }}"
 
 - import_tasks: deploy_from_source.yml
   when: deploy_from is defined and deploy_from == "source"

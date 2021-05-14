@@ -52,11 +52,11 @@ items:
         containers:
           - env:
             - name: JAVA_MAX_MEM_RATIO
-              value: "{{ fhirserver_java_max_mem_ratio }}"
+              value: "{{ fhir_bpm_service_java_max_mem_ratio }}"
             - name: JAVA_INITIAL_MEM_RATIO
-              value: "{{ fhirserver_java_initial_mem_ratio }}"
+              value: "{{ fhir_bpm_service_java_initial_mem_ratio }}"
             - name: GC_MAX_METASPACE_SIZE
-              value: "{{ fhirserver_gc_max_metaspace_size }}"
+              value: "{{ fhir_bpm_service_gc_max_metaspace_size }}"
             - name: KUBERNETES_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -64,6 +64,10 @@ items:
                   fieldPath: metadata.namespace
             - name: SPRING_CONFIG_LOCATION
               value: file:///deployments/config/{{ application_configmap_key }}
+            - name: JAVA_OPTS_APPEND
+              value: '-Dspring.cloud.bootstrap.location=file:///deployments/config/bootstrap.properties'
+            - name: MAVEN_MIRROR_URL
+              value: ""
             imagePullPolicy: IfNotPresent
             name: {{ application_name }}
             livenessProbe:
@@ -111,6 +115,12 @@ items:
             items:
               - key: {{ application_configmap_key }}
                 path: {{ application_configmap_key }}
+              - key: logback-spring.xml
+                path: logback-spring.xml
+              - key: jbpm-quartz.properties
+                path: jbpm-quartz.properties
+              - key: bootstrap.properties
+                path: bootstrap.properties
             name: {{ application_configmap }}
           name: config
     triggers:

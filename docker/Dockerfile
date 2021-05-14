@@ -1,12 +1,9 @@
-FROM quay.io/btison/ubi8-java8-mvn
+# mvn clean package
+# buildah bud -f docker/Dockerfile -t quay.io/redhat_naps_da/fhir-bpm-service:0.0.1 .
+# podman push quay.io/redhat_naps_da/fhir-bpm-service:0.0.1
 
-USER root
-
-COPY target/repository /m2/repository
-
-RUN chown -R 1001:0 /m2/repository \
-  && chmod -R 776 /m2/repository
+FROM quay.io/emergencyresponsedemo/ubi8-jdk-11-mvn:0.0.2
 
 USER 1001
 
-COPY target/process-service-1.1.0-SNAPSHOT.jar /deployments/app.jar
+COPY target/pneumonia-patient-processing-pam-0.0.1.jar /deployments/app.jar

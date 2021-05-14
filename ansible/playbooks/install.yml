@@ -61,3 +61,20 @@
       when: >
         ACTION is defined and
         ACTION|trim() == "uninstall"
+
+    - set_fact:
+        namespace: "{{ project_name }}"
+        work_dir_name: "fhir-bpm-service"
+    - include_role:
+        name: ../roles/fhir-bpm-service
+      when: >
+        ACTION is not defined or
+        ACTION is none or
+        ACTION|trim() == "" or
+        ACTION|trim() == "install"
+    - include_role:
+        name: ../roles/fhir-bpm-service
+        tasks_from: uninstall
+      when: >
+        ACTION is defined and
+        ACTION|trim() == "uninstall"

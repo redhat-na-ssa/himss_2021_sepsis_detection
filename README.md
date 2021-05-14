@@ -8,7 +8,7 @@
    $ podman start postgresql
    `````
 
-3. Clone, build and deploy pneumonia-patient-processing-kjar
+3. Clone, build and deploy pneumonia-patient-processing-kjar (WHY IS THIS NECESSARY ?)
    `````
    $ git clone https://github.com/redhat-naps-da/pneumonia-patient-processing-kjar.git
    $ cd pneumonia-patient-processing-kjar

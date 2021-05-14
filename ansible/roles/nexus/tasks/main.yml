@@ -1,0 +1,58 @@
+---
+
+# deploy nexus
+- name: check if Nexus is deployed
+  oc_obj:
+    state: list
+    oc_binary: "{{ openshift_cli }}"
+    name: "{{ nexus_service_name }}"
+    namespace: "{{ namespace }}"
+    kind: dc
+  register: result
+
+- name: deploy nexus
+  shell: |
+    {{ openshift_cli }} process -f {{ nexus_template }} \
+    -p NEXUS_VERSION={{ nexus_version }} \
+    -p VOLUME_CAPACITY={{ nexus_pv_capacity }} \
+    -p MAX_CPU={{ nexus_max_cpu }} \
+    -p MAX_MEMORY={{ nexus_max_memory }} \
+    -p REQUESTED_MEMORY={{ nexus_requested_memory }} \
+    -p REQUESTED_CPU={{ nexus_requested_cpu }} \
+    | {{ openshift_cli }} create -f - -n {{ namespace }}
+  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != ""
+
+- name: wait until nexus is up and running
+  shell: "{{ openshift_cli }} get dc {{ nexus_service_name }} -o template --template={{ json_template }} -n {{ namespace }}"
+  vars:
+    json_template: '\{\{.status.readyReplicas\}\}'
+  register: result
+  until: result.stdout == "1"
+  retries: 20
+  delay: 30
+  changed_when: false
+
+- name: copy nexus configuration script
+  template:
+    src: "{{ resources_dir }}/{{ nexus_configuration_script }}"
+    dest: "{{ work_dir }}/{{ nexus_configuration_script }}"
+
+- name: check if nexus is configured with external repos
+  uri:
+    url: http://{{ nexus_service_name }}-{{ namespace }}.{{ ocp_domain }}/content/repositories/redhat-ga/
+    status_code: 200
+  register: result
+  ignore_errors: true
+  changed_when: false
+
+- name: configure nexus repositories
+  shell: |
+    source {{ work_dir }}/{{ nexus_configuration_script }} && \
+    add_nexus2_redhat_repos {{ nexus_admin_user }} {{ nexus_admin_password }} http://{{ nexus_service_name }}-{{ namespace }}.{{ ocp_domain }}
+  when: >
+    result is failed
+
+- name: ensure nexus releases is allow write many
+  shell: |
+    source {{ work_dir }}/{{ nexus_configuration_script }} && \
+    set_nexus2_repo_write_policy releases ALLOW_WRITE_ONCE ALLOW_WRITE {{ nexus_admin_user }} {{ nexus_admin_password }}  http://{{ nexus_service_name }}-{{ namespace }}.{{ ocp_domain }}

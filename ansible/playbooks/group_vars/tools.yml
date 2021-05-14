@@ -1,0 +1,6 @@
+---
+
+namespace_tools: "{{ project_admin }}"
+namespace_nexus: "{{ project_name }}"
+
+nexus_service_name: nexus

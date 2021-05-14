@@ -1,13 +1,13 @@
-psql_app_name: psql-fhir
-application_name: "{{ fhir_server_application_name }}"
+psql_app_name: psql-rhpam
+application_name: "fhir-bpm-service"
 
 postgresql_pv_capacity: 5Gi 
 postgresql_version: 12-el8
 postgresql_is_namespace: openshift
 postgresql_service_account: "{{ psql_app_name }}"
-psql_user_name: fhir
-psql_user_passwd: fhir
-psql_db_name: fhir
+psql_user_name: rhpam
+psql_user_passwd: rhpam
+psql_db_name: rhpam
 psql_credentials_secret: "{{ psql_app_name }}"
 postgresql_max_prepared_transactions: 100
 postgresql_max_connections: 100
@@ -16,17 +16,18 @@ postgresql_memory_limit: 512Mi
 postgresql_cpu_limit: 500m
 postgresql_memory_request: 256Mi
 postgresql_cpu_request: 100m
-psql_init_scripts:
-undeploy_fhir_db: false
+undeploy_psql_bpm: "false"
+
+quartz_clustered: false
 
 service_account: "{{ application_name }}"
-application_properties: application.yaml
+application_properties: application.properties
 application_configmap: "{{ application_name }}"
 application_configmap_key: "{{ application_properties }}"
 binary_imagestream_template: binary-imagestream.yml 
-service_image: quay.io/redhat_naps_da/hapi-fhir-jpaserver-starter-ocp
-service_image_tag: v5.3.0
-application_template: fhir-server-service.yml
-fhirserver_java_max_mem_ratio: 60
-fhirserver_java_initial_mem_ratio: 0
-fhirserver_gc_max_metaspace_size: 500
+service_image: quay.io/redhat_naps_da/fhir-bpm-service
+service_image_tag: 0.0.1
+application_template: fhir-bpm-service.yml
+fhir_bpm_service_java_max_mem_ratio: 60
+fhir_bpm_service_java_initial_mem_ratio: 0
+fhir_bpm_service_gc_max_metaspace_size: 500

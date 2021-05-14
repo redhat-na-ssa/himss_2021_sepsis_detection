@@ -1,0 +1,15 @@
+---
+
+nexus_template: "{{ resources_dir }}/nexus2-persistent-template.yaml"
+
+nexus_version: 2.14.8
+nexus_pv_capacity: 2Gi
+nexus_max_memory: 2Gi
+nexus_max_cpu: 500m
+nexus_requested_memory: 500Mi
+nexus_requested_cpu: 250m
+
+nexus_configuration_script: "nexus2-functions.sh"
+
+nexus_admin_user: admin
+nexus_admin_password: admin123
