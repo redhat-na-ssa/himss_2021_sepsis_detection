@@ -6,8 +6,6 @@
   <artifactId>pneumonia-patient-processing-pam</artifactId>
   <version>0.0.1</version>
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
     <skipTests>false</skipTests>
     <skipITs>${skipTests}</skipITs>
     <skipUTs>${skipTests}</skipUTs>
@@ -69,117 +67,53 @@
       <version>1.0.3</version>
     </dependency>
 
-    <!-- https://github.com/hapifhir/hapi-fhir/tree/master/hapi-fhir-structures-dstu2 -->
-    <dependency>
-      <groupId>ca.uhn.hapi.fhir</groupId>
-      <artifactId>hapi-fhir-structures-dstu2</artifactId>
-      <version>${hapi.fhir.version}</version>
-    </dependency>
-
     <!-- https://github.com/hapifhir/hapi-fhir/tree/master/hapi-fhir-structures-r4 -->
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-structures-r4</artifactId>
       <version>${hapi.fhir.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-actuator</artifactId>
-    </dependency>
-    <dependency>  
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-kubernetes-config</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-orm</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-entitymanager</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-core</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>org.kie</groupId>
       <artifactId>kie-server-spring-boot-starter-jbpm</artifactId>
       <version>${version.rhpam}</version>
     </dependency>
+
     <dependency>
       <groupId>org.kie</groupId>
       <artifactId>jbpm-spring-boot-data-sources</artifactId>
       <version>${version.rhpam}</version>
     </dependency>
-    <dependency>
-      <groupId>org.jbpm</groupId>
-      <artifactId>jbpm-workitems-bpmn2</artifactId>
-      <version>${version.rhpam}</version>
-    </dependency>
+
+    <!-- AMQ Streams and Cloud Events -->
     <dependency>
       <groupId>org.springframework.kafka</groupId>
       <artifactId>spring-kafka</artifactId>
       <version>${version.spring-kafka}</version>
     </dependency>
     <dependency>
-      <groupId>com.jayway.jsonpath</groupId>
-      <artifactId>json-path</artifactId>
-      <version>${version.json-path}</version>
+      <groupId>io.cloudevents</groupId>
+      <artifactId>cloudevents-kafka</artifactId>
+      <version>2.0.0.RC2</version>
     </dependency>
+
+    <!-- metrics -->
     <dependency>
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-registry-prometheus</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+
+    <!-- database persistence -->
+    <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-dbcp2</artifactId>
-      <version>${version.commons-dbcp2}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>net.logstash.logback</groupId>
-      <artifactId>logstash-logback-encoder</artifactId>
-      <version>${version.logstash-logback-encoder}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.cloudevents</groupId>
-      <artifactId>cloudevents-kafka</artifactId>
-      <version>2.0.0.RC2</version>
-    </dependency>
-    <!-- dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>test</scope>
-    </dependency -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock-standalone</artifactId>
-      <version>${version.wiremock}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
+
 
     <!-- swagger -->
     <dependency>
@@ -203,7 +137,28 @@
       <artifactId>swagger-ui</artifactId>
       <version>2.2.10</version>
     </dependency>
+
+    <!-- Kubernetes -->
+    <!--dependency>  
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-kubernetes-config</artifactId>
+    </dependency -->
+
+    <!-- testing -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock-standalone</artifactId>
+      <version>${version.wiremock}</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
+
   <build>
     <plugins>
       <plugin>
@@ -217,6 +172,14 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.0</version>
+          <configuration>
+                <release>11</release>
+          </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -248,40 +211,7 @@
       </plugin>
     </plugins>
   </build>
-  <profiles>
-    <profile>
-      <id>openshift</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>io.fabric8</groupId>
-            <artifactId>fabric8-maven-plugin</artifactId>
-            <version>${version.fabric8-maven-plugin}</version>
-            <executions>
-              <execution>
-                <id>fmp</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>resource</goal>
-                  <goal>build</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <generator>
-                <config>
-                  <spring-boot>
-                    <fromMode>isTag</fromMode>
-                    <from>redhat-openjdk18-openshift:1.4</from>
-                  </spring-boot>
-                </config>
-              </generator>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
+
   <repositories>
     <repository>
       <id>jboss</id>

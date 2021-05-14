@@ -22,13 +22,13 @@
    $ $ podman-compose -f etc/docker-compose.yaml down
    `````
 
-3. Clone, build and deploy pneumonia-patient-processing-kjar (WHY IS THIS NECESSARY ?)
+3. Clone, build and deploy pneumonia-patient-processing-kjar
    `````
    $ git clone https://github.com/redhat-naps-da/pneumonia-patient-processing-kjar.git
    $ cd pneumonia-patient-processing-kjar
    $ mvn clean install
    $ mvn deploy \
-        -DaltDeploymentRepository="nexus::default::http://admin:admin123@$NEXUS_ROUTE/repository/redhat-naps/"
+        -DaltDeploymentRepository="nexus::default::http://admin:admin123@$NEXUS_ROUTE/repository/redhat-naps/"    # WHY IS THIS NECESSARY ?
    `````
 
 4. Build and Start app
@@ -52,10 +52,10 @@
 
 3. Create a container in kie-server:
    `````
-   $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" config/kie_container.json \
+   $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/kie_container.json \
      | sed "s/{KJAR_VERSION}/$KJAR_VERSION/g" \
      > /tmp/kie_container.json && \
-     curl -X PUT -H 'Content-type:application/json' localhost:8080/rest/server/containers/$KIE_SERVER_CONTAINER_ID-$KJAR_VERSION -d '@/tmp/kie_container.json'
+     curl -X PUT -H 'Content-type:application/json' localhost:8080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION -d '@/tmp/kie_container.json'
    `````
 
 4. List containers
