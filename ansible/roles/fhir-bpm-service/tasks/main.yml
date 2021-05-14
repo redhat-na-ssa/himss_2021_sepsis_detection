@@ -108,6 +108,7 @@
   with_fileglob:
     - "{{ resources_dir }}/application.properties"
     - "{{ resources_dir }}/jbpm-quartz.properties"
+    - "{{ resources_dir }}/logback-spring.xml"
     - "{{ resources_dir }}/{{ application_name }}.xml"
 
 - name: create {{ application_configmap }} application configmap

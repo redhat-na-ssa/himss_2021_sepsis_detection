@@ -117,6 +117,8 @@ items:
                 path: {{ application_configmap_key }}
               - key: jbpm-quartz.properties
                 path: jbpm-quartz.properties
+              - key: logback-spring.xml
+                path: logback-spring.xml
               - key: {{ application_name }}.xml
                 path: {{ application_name }}.xml
             name: {{ application_configmap }}

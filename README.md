@@ -43,7 +43,7 @@
 1. Set environment variables to support testing:
    `````
    $ export KJAR_VERSION=1.0.3
-   $ export KIE_SERVER_CONTAINER_NAME=fhir-bpm
+   $ export KIE_SERVER_CONTAINER_NAME=fhir-bpm-service
    `````
 
 2. Health Check Report

@@ -26,13 +26,13 @@
   </properties>
   <dependencyManagement>
     <dependencies>
-      <dependency>
+      <!--dependency>
         <groupId>dev.snowdrop</groupId>
         <artifactId>snowdrop-dependencies</artifactId>
         <version>${version.spring-boot}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
+      </dependency -->
       <dependency>
         <groupId>org.jboss.narayana.jta</groupId>
         <artifactId>jdbc</artifactId>
@@ -164,14 +164,14 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>${version.spring-boot-maven-plugin}</version>
+        <!--version>${version.spring-boot-maven-plugin}</version>
         <executions>
           <execution>
             <goals>
               <goal>repackage</goal>
             </goals>
           </execution>
-        </executions>
+        </executions -->
       </plugin>
       <plugin>
           <groupId>org.apache.maven.plugins</groupId>

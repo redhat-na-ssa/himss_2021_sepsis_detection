@@ -7,6 +7,7 @@
   run_once: true
   vars_files:
     - group_vars/fhir_bpm_service.yml
+    - group_vars/kafka_cluster.yml
 
   tasks:
     - set_fact:
