@@ -68,7 +68,11 @@
    $ curl -X GET -H 'Accept:application/json' localhost:8080/rest/server/healthcheck?report=true
    `````
 
-3. Create a container in kie-server:
+3. View swagger
+   `````
+   `````
+
+4. Create a container in kie-server:
    `````
    $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/kie_container.json \
      | sed "s/{KJAR_VERSION}/$KJAR_VERSION/g" \
@@ -76,22 +80,22 @@
      curl -X PUT -H 'Content-type:application/json' localhost:8080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION -d '@/tmp/kie_container.json'
    `````
 
-4. List containers
+5. List containers
    `````
    $ curl -X GET http://localhost:8080/rest/server/containers
    `````
 
-5. Start a business process
+6. Start a business process
    `````
    $ curl -X POST localhost:8080/fhir/processes/sendSampleCloudEvent/azra12350
    `````
 
-6. List cases in JSON representation:
+7. List cases in JSON representation:
    `````
    $ curl -X GET -H 'Accept:application/json' localhost:8080/rest/server/queries/cases/
    `````
 
-7. List process definitions in JSON representation:
+8. List process definitions in JSON representation:
    `````
    $ curl -X GET -H 'Accept:application/json' localhost:8080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION/processes/
    `````

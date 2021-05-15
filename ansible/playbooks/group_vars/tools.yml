@@ -1,6 +1,7 @@
 ---
 
-namespace_tools: "{{ project_admin }}"
 namespace_nexus: "{{ project_name }}"
 
 nexus_service_name: nexus
+
+nexus_mirror: "http://{{ nexus_service_name }}.{{ namespace_nexus }}.svc:8081/content/groups/public"

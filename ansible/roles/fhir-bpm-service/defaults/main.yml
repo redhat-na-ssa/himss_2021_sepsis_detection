@@ -37,3 +37,4 @@ kie_server_repo_path: /deployments/config
 
 kie_deployment_name: pneumonia-patient-processing-kjar
 kie_deployment_version: 1.0.3
+kie_process_id: 'pneumonia_patient_processing.Pneumonia_Case_FHIR'
