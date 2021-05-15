@@ -72,19 +72,21 @@ items:
             name: {{ application_name }}
             livenessProbe:
               failureThreshold: 3
-              httpGet:
-                path: /rest/server/healthcheck?report=false
-                port: 8080
-                scheme: HTTP
+              exec:
+                command:
+                - "/bin/bash"
+                - "-c"
+                - "curl --fail --silent -u '{{ kie_admin_user }}:{{ kie_admin_password }}' http://localhost:8080/rest/server/healthcheck"
               initialDelaySeconds: 30
               periodSeconds: 60
               timeoutSeconds: 3
             readinessProbe:
               failureThreshold: 3
-              httpGet:
-                path: /rest/server/healthcheck?report=false
-                port: 8080
-                scheme: HTTP
+              exec:
+                command:
+                - "/bin/bash"
+                - "-c"
+                - "curl --fail --silent -u '{{ kie_admin_user }}:{{ kie_admin_password }}' http://localhost:8080/rest/server/healthcheck"
               initialDelaySeconds: 30
               periodSeconds: 60
               timeoutSeconds: 3

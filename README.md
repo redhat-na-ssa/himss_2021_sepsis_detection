@@ -65,7 +65,7 @@
 
 2. Health Check Report
    `````
-   $ curl -X GET -H 'Accept:application/json' localhost:8080/rest/server/healthcheck?report=true
+   $ curl -u "user:user" -H 'Accept:application/json' localhost:8080/rest/server/healthcheck?report=true
    `````
 
 3. View swagger
@@ -78,12 +78,12 @@
    $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/kie_container.json \
      | sed "s/{KJAR_VERSION}/$KJAR_VERSION/g" \
      > /tmp/kie_container.json && \
-     curl -X PUT -H 'Content-type:application/json' localhost:8080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION -d '@/tmp/kie_container.json'
+     curl -u "user:user" -X PUT -H 'Content-type:application/json' localhost:8080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION -d '@/tmp/kie_container.json'
    `````
 
 5. List containers
    `````
-   $ curl -X GET http://localhost:8080/rest/server/containers
+   $ curl -u "user:user" -X GET http://localhost:8080/rest/server/containers
    `````
 
 6. Start a business process
@@ -93,10 +93,10 @@
 
 7. List cases in JSON representation:
    `````
-   $ curl -X GET -H 'Accept:application/json' localhost:8080/rest/server/queries/cases/
+   $ curl -u "user:user" -X GET -H 'Accept:application/json' localhost:8080/rest/server/queries/cases/
    `````
 
 8. List process definitions in JSON representation:
    `````
-   $ curl -X GET -H 'Accept:application/json' localhost:8080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION/processes/
+   $ curl -u "user:user" -X GET -H 'Accept:application/json' localhost:8080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION/processes/
    `````

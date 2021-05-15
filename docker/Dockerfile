@@ -1,6 +1,6 @@
 # mvn clean package
-# buildah bud -f docker/Dockerfile -t quay.io/redhat_naps_da/fhir-bpm-service:0.0.4 .
-# podman push quay.io/redhat_naps_da/fhir-bpm-service:0.0.4
+# buildah bud -f docker/Dockerfile -t quay.io/redhat_naps_da/fhir-bpm-service:0.0.5 .
+# podman push quay.io/redhat_naps_da/fhir-bpm-service:0.0.5
 
 FROM registry.redhat.io/ubi8/openjdk-11:1.3-15
 
