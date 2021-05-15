@@ -31,7 +31,7 @@ public class DefaultWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors().and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/rest/*").authenticated().and()
+                .antMatchers("/rest/**/*").authenticated().and()
                 .httpBasic().and()
                 .headers().frameOptions().disable();
     }

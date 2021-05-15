@@ -70,6 +70,7 @@
 
 3. View swagger
    `````
+   $ curl -v -u "user:user" localhost:8080/rest/swagger.json | jq .
    `````
 
 4. Create a container in kie-server:
