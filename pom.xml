@@ -5,61 +5,25 @@
   <groupId>com.redhat.naps</groupId>
   <artifactId>pneumonia-patient-processing-pam</artifactId>
   <version>0.0.1</version>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.2.2.RELEASE</version>
+  </parent>
+
   <properties>
     <skipTests>false</skipTests>
     <skipITs>${skipTests}</skipITs>
     <skipUTs>${skipTests}</skipUTs>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.spring-boot>2.2.6.Final-redhat-00001</version.spring-boot>
-    <version.spring-boot-maven-plugin>2.2.6.RELEASE</version.spring-boot-maven-plugin>
     <version.rhpam>7.48.0.Final-redhat-00004</version.rhpam>
-    <version.fabric8-maven-plugin>3.5.41</version.fabric8-maven-plugin>
     <version.narayana>5.9.8.Final-redhat-00002</version.narayana>
-    <version.spring-kafka>2.3.7.RELEASE</version.spring-kafka>
-    <version.commons-dbcp2>2.7.0</version.commons-dbcp2>
     <version.logback>1.2.3</version.logback>
-    <version.json-path>2.4.0</version.json-path>
     <version.logstash-logback-encoder>5.1</version.logstash-logback-encoder>
-    <version.commons-lang3>3.8.1</version.commons-lang3>
     <version.wiremock>2.6.0</version.wiremock>
     <hapi.fhir.version>5.3.0</hapi.fhir.version>
   </properties>
-  <dependencyManagement>
-    <dependencies>
-      <!--dependency>
-        <groupId>dev.snowdrop</groupId>
-        <artifactId>snowdrop-dependencies</artifactId>
-        <version>${version.spring-boot}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency -->
-      <dependency>
-        <groupId>org.jboss.narayana.jta</groupId>
-        <artifactId>jdbc</artifactId>
-        <version>${version.narayana}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.narayana.jta</groupId>
-        <artifactId>jta</artifactId>
-        <version>${version.narayana}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.narayana.jta</groupId>
-        <artifactId>jms</artifactId>
-        <version>${version.narayana}</version>
-      </dependency>
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>${version.logback}</version>
-      </dependency>
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-core</artifactId>
-        <version>${version.logback}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>com.redhat.naps.pneumonia</groupId>
@@ -90,7 +54,6 @@
     <dependency>
       <groupId>org.springframework.kafka</groupId>
       <artifactId>spring-kafka</artifactId>
-      <version>${version.spring-kafka}</version>
     </dependency>
     <dependency>
       <groupId>io.cloudevents</groupId>
@@ -164,14 +127,6 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <!--version>${version.spring-boot-maven-plugin}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>repackage</goal>
-            </goals>
-          </execution>
-        </executions -->
       </plugin>
       <plugin>
           <groupId>org.apache.maven.plugins</groupId>

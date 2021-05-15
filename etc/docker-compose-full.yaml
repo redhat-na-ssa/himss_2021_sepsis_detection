@@ -1,0 +1,57 @@
+# podman-compose -f etc/docker-compose.yaml up -p erdemo-infra -d 
+
+
+version: '3.7'
+
+services:
+
+  zookeeper:
+    image: quay.io/strimzi/kafka:latest-kafka-2.6.0
+    command: [
+      "sh", "-c",
+      "bin/zookeeper-server-start.sh config/zookeeper.properties"
+    ]
+    ports:
+      - "2181:2181"
+    environment:
+      LOG_DIR: /tmp/logs
+    networks:
+      fhir-bpm-service:
+
+  kafka:
+    image: quay.io/strimzi/kafka:latest-kafka-2.6.0
+    command: [
+      "sh", "-c",
+      "bin/kafka-server-start.sh config/server.properties --override listeners=PLAINTEXT://127.0.0.1:9092 --override advertised.listeners=PLAINTEXT://127.0.0.1:9092 --override zookeeper.connect=zookeeper:2181"
+    ]
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      LOG_DIR: "/tmp/logs"
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
+      KAFKA_LISTENERS: PLAINTEXT://127.0.0.1:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    networks:
+      fhir-bpm-service:
+
+  db:
+    image: registry.redhat.io/rhel8/postgresql-12
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRESQL_USER=rhpam
+      - POSTGRESQL_PASSWORD=rhpam
+      - POSTGRESQL_DATABASE=rhpam
+      - POSTGRESQL_MAX_PREPARED_TRANSACTIONS=10
+    volumes:
+      - type: bind
+        source: /u01/services/ba/kiegroup/jbpm/jbpm-db-scripts/src/main/resources/db/ddl-scripts/postgresql/
+        target: /opt/sql
+    networks:
+      fhir-bpm-service:
+
+networks:
+  fhir-bpm-service:

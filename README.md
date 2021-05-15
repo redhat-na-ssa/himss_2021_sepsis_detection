@@ -19,7 +19,7 @@
 
 2. Tear down pod:
    `````
-   $ $ podman-compose -f etc/docker-compose.yaml down
+   $ podman-compose -f etc/docker-compose.yaml down
    `````
 
 3. Clone, build and deploy pneumonia-patient-processing-kjar
@@ -27,15 +27,32 @@
    $ git clone https://github.com/redhat-naps-da/pneumonia-patient-processing-kjar.git
    $ cd pneumonia-patient-processing-kjar
    $ mvn clean install
-   $ mvn deploy \
-        -DaltDeploymentRepository="nexus::default::http://admin:admin123@$NEXUS_ROUTE/repository/redhat-naps/"    # WHY IS THIS NECESSARY ?
    `````
 
-4. Build and Start app
+4. Optional :  Push to nexus:
+   `````
+   $ mvn deploy \
+        -DaltDeploymentRepository="nexus::default::http://admin:admin123@$NEXUS_ROUTE/repository/redhat-naps/" 
+   `````
+
+5. Build and Start app
    `````
    $ mvn clean package -DskipTests && \
          java -Dorg.kie.server.repo=/tmp \
-              -jar target/pneumonia-patient-processing-pam-0.0.1.jar \
+              -jar target/pneumonia-patient-processing-pam-0.0.1.jar 
+   `````
+
+5. Optional:  Run from container
+   `````
+   $ podman run --rm \
+            --name fhir-bpm-service \
+            --publish 8080:8080 \
+            -v ./config:/deployments/config \
+            -m 512m \
+            -e JAVA_MAX_MEM_RATIO=60 \
+            -e JAVA_INITIAL_MEM_RATIO=0 \
+            -e GC_MAX_METASPACE_SIZE=500 \
+            quay.io/redhat_naps_da/fhir-bpm-service:0.0.4
    `````
 
 ## Test
