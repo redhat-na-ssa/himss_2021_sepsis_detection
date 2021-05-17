@@ -7,7 +7,6 @@ kafka_bootstrap_service: "{{ kafka_cluster }}-kafka-bootstrap.{{ namespace_kafka
 kafka_bootstrap_port: 9092
 kafka_bootstrap_address: "{{ kafka_bootstrap_service }}:{{ kafka_bootstrap_port }}"
 
-kafka_connect_connector: debezium-postgres.json
 kafka_connect_template: kafka-connect.yml
 
 kafka_connect_requests_cpu: 100m
@@ -19,12 +18,3 @@ kafka_connect_liveness_probe_initial_delay_seconds: 45
 kafka_connect_liveness_probe_timeout_seconds: 5
 kafka_connect_readiness_probe_initial_delay_seconds: 15
 kafka_connect_readiness_probe_timeout_seconds: 5
-
-debezium_connector_name: debezium-postgres
-debezium_connector_db_host: "{{ postgresql_application_name }}.{{ namespace_postgresql }}.svc"
-debezium_connector_db_user: postgres
-debezium_connector_db_port: 5432
-debezium_connector_db_name: "{{ postgresql_database }}"
-debezium_connector_db_server_name: incident
-debezium_connector_schema_whitelist: public
-debezium_connector_table_whitelist: public.incident_outbox
