@@ -1,14 +1,5 @@
 ---
 
-- name: delete debezium connector
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
-    state: absent
-    name: "{{ kafka_debezium_name }}"
-    namespace: "{{ namespace_kafka_cluster }}"
-    kind: kafkaConnector
-
-
 - name: delete route
   oc_obj:
     oc_binary: "{{ openshift_cli }}"
@@ -57,7 +48,7 @@
     name: "{{ psql_app_name  }}"
     namespace: "{{ namespace }}"
     kind: dc
-  when: undeploy_psql_bpm is defined and undeploy_psql_bpm == "true"
+  when: undeploy_fhir_db is defined and undeploy_fhir_db == "true"
 
 - name: delete postgresql service
   oc_obj:
@@ -66,7 +57,7 @@
     name: "{{ psql_app_name }}"
     namespace: "{{ namespace }}"
     kind: service
-  when: undeploy_psql_bpm is defined and undeploy_psql_bpm == "true"
+  when: undeploy_fhir_db is defined and undeploy_fhir_db == "true"
 
 - name: delete postgresql pvc
   oc_obj:
@@ -75,7 +66,7 @@
     name: "{{ psql_app_name }}"
     namespace: "{{ namespace }}"
     kind: pvc
-  when: undeploy_psql_bpm is defined and undeploy_psql_bpm == "true"
+  when: undeploy_fhir_db is defined and undeploy_fhir_db == "true"
 
 - name: delete postgresql secret
   oc_secret:
@@ -83,7 +74,7 @@
     namespace: "{{ namespace }}"
     name: "{{ psql_app_name }}"
     state: absent
-  when: undeploy_psql_bpm is defined and undeploy_psql_bpm == "true"
+  when: undeploy_fhir_db is defined and undeploy_fhir_db == "true"
 
 - name: delete postgresql init configmap
   oc_configmap:
@@ -91,7 +82,7 @@
     state: absent
     name: "{{ postgresql_init_configmap }}"
     namespace: "{{ namespace }}"
-  when: undeploy_psql_bpm is defined and undeploy_psql_bpm == "true"
+  when: undeploy_fhir_db is defined and undeploy_fhir_db == "true"
 
 - name: delete {{ postgresql_service_account }} service account
   oc_serviceaccount:
@@ -99,4 +90,4 @@
     state: absent
     name: "{{ postgresql_service_account }}"
     namespace: "{{ namespace }}"
-  when: undeploy_psql_bpm is defined and undeploy_psql_bpm == "true"
+  when: undeploy_fhir_db is defined and undeploy_fhir_db == "true"

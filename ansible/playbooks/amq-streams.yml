@@ -85,3 +85,22 @@
       when: >
         ACTION is defined and
         ACTION|trim() == "uninstall"
+
+    # 5) Kafdrop
+    - set_fact:
+        namespace: "{{ project_name }}"
+        work_dir_name: "kafkadrop"
+        resources_dir: "{{ resources_base_dir }}/kafdrop"
+    - include_role:
+        name: ../roles/kafdrop
+      when: >
+        ACTION is not defined or
+        ACTION is none or
+        ACTION|trim() == "" or
+        ACTION|trim() == "install"
+    - include_role:
+        name: ../roles/kafdrop
+        tasks_from: uninstall
+      when: >
+        ACTION is defined and
+        ACTION|trim() == "uninstall"

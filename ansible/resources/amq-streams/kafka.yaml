@@ -8,7 +8,7 @@ spec:
     replicas: {{ kafka_replicas }}
     listeners:
       - name: plain
-        port: 9092
+        port: {{ kafka_bootstrap_port }}
         type: internal
         tls: false
       - name: tls

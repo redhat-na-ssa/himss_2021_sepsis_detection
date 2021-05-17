@@ -1,7 +1,7 @@
 ---
 
 namespace_amq_streams_operator: "{{ project_name }}"
-namespace_kafka_cluster: "{{ project_admin }}-{{ project_name }}"
+namespace_kafka_cluster: "{{ project_name }}"
 
 kafka_cluster: kafka-cluster
 
@@ -10,6 +10,8 @@ kafka_connect: kafka-connect
 kafka_topics: >
   [{"name": "topic-fhir-r4-observation", "partitions": "15", "replicas": "3", "config": "{}"} ]
 
-kafka_bootstrap_service: kafka-cluster-kafka-bootstrap
+kafka_bootstrap_service: "kafka-cluster-kafka-bootstrap.{{ namespace_kafka_cluster }}.svc"
+kafka_bootstrap_port: 9092
+kafka_bootstrap_address: "{{ kafka_bootstrap_service }}:{{ kafka_bootstrap_port }}"
 
-kafka_connect_image: registry.redhat.io/amq7/amq-streams-kafka-26-rhel7:1.7.0
+kafka_connect_image: quay.io/redhat_naps_da/strimzi-debezium-postgresql:1.7.0-1.5.0.Final

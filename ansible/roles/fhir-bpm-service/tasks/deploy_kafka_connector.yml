@@ -1,0 +1,14 @@
+- name: "copy kafka connector template {{ kafka_debezium_template }}"
+  template:
+    src: "{{ resources_dir }}/{{ kafka_debezium_template }}"
+    dest: "{{ work_dir }}/{{ kafka_debezium_template }}"
+
+- name: "deploy kafka connector {{ kafka_debezium_name }}"
+  oc_obj:
+    state: present
+    oc_binary: "{{ openshift_cli }}"
+    name: "{{ kafka_debezium_name }}"
+    namespace: "{{ namespace_kafka_cluster }}"
+    kind: KafkaConnector
+    files:
+      - "{{ work_dir }}/{{ kafka_debezium_template }}"

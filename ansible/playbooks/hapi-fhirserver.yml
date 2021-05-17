@@ -1,30 +1,25 @@
 ---
 
-- name: Deploy fhir-bpm-service
+- name: Deploy FHIR Server
   hosts: localhost
   connection: local
   gather_facts: false
   run_once: true
-  vars_files:
-    - group_vars/fhir_bpm_service.yml
-    - group_vars/kafka_cluster.yml
-    - group_vars/tools.yml
-    - group_vars/hapi_fhirserver.yml
 
   tasks:
     - set_fact:
         namespace: "{{ project_name }}"
-        resources_dir: "{{ resources_base_dir }}/fhir-bpm-service"
-        work_dir_name: fhir-bpm-service
+        resources_dir: "{{ resources_base_dir }}/hapi-fhirserver"
+        work_dir_name: "{{ project_name }}"
     - include_role:
-        name: ../roles/fhir-bpm-service
+        name: ../roles/hapi-fhirserver
       when: >
         ACTION is not defined or
         ACTION is none or
         ACTION|trim() == "" or
         ACTION|trim() == "install"
     - include_role:
-        name: ../roles/fhir-bpm-service
+        name: ../roles/hapi-fhirserver
         tasks_from: uninstall
       when: >
         ACTION is defined and

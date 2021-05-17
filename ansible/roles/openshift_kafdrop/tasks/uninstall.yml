@@ -1,9 +1,0 @@
----
-
-- name: "delete kservice {{ kafdrop_application_name }}"
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
-    state: absent
-    name: "{{ kafdrop_application_name }}"
-    namespace: "{{ namespace }}"
-    kind: kservice

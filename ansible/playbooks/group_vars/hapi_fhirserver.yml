@@ -1,0 +1,10 @@
+---
+
+fhir_server_application_name: fhir-server
+
+hapi_psql_app_name: psql-fhir
+hapi_psql_port: 5432
+hapi_psql_user_name: fhir
+hapi_psql_user_passwd: fhir
+hapi_psql_db_name: fhir
+

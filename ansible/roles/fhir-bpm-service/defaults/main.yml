@@ -40,3 +40,12 @@ kie_admin_password: user
 kie_deployment_name: pneumonia-patient-processing-kjar
 kie_deployment_version: 1.0.3
 kie_process_id: 'pneumonia_patient_processing.Pneumonia_Case_FHIR'
+
+
+# Debezium configs
+kafka_debezium_template: debezium-fhir-server-pgsql.yml
+kafka_debezium_name: debezium-fhir-server-pgsql
+kafka_debezium_tasks_max: 1
+kafka_debezium_db_server_name: fhir
+kafka_debezium_schema_whitelist: public
+kafka_debezium_table_whitelist: public.hfj_res_ver

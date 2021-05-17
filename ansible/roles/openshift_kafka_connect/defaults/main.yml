@@ -3,10 +3,6 @@
 kafka_connect_version: "2.6.0"
 kafka_connect_replicas: 1
 
-kafka_bootstrap_service: "{{ kafka_cluster }}-kafka-bootstrap.{{ namespace_kafka_cluster }}.svc"
-kafka_bootstrap_port: 9092
-kafka_bootstrap_address: "{{ kafka_bootstrap_service }}:{{ kafka_bootstrap_port }}"
-
 kafka_connect_template: kafka-connect.yml
 
 kafka_connect_requests_cpu: 100m

@@ -1,0 +1,21 @@
+# https://debezium.io/documentation/reference/connectors/postgresql.html#postgresql-connector-properties
+
+apiVersion: kafka.strimzi.io/v1alpha1
+kind: KafkaConnector
+metadata:
+  name: {{ kafka_debezium_name }}
+  labels:
+    strimzi.io/cluster: {{ kafka_connect }}
+spec:
+  class: 'io.debezium.connector.postgresql.PostgresConnector'
+  tasksMax: {{ kafka_debezium_tasks_max }}
+  config:
+    plugin.name: pgoutput
+    database.hostname: {{ hapi_psql_app_name }}.{{ project_name }}.svc
+    database.port: '{{ hapi_psql_port }}'
+    database.user: {{ hapi_psql_user_name }}
+    database.password: '{{ hapi_psql_user_passwd }}'
+    database.dbname: {{ hapi_psql_db_name }}
+    database.server.name: {{ kafka_debezium_db_server_name }}
+    schema.include.list: {{ kafka_debezium_schema_whitelist }}
+    table.include.list: {{ kafka_debezium_table_whitelist }}
