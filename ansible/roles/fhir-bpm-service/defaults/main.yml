@@ -26,7 +26,7 @@ application_configmap: "{{ application_name }}"
 application_configmap_key: "{{ application_properties }}"
 binary_imagestream_template: binary-imagestream.yml 
 service_image: quay.io/redhat_naps_da/fhir-bpm-service
-service_image_tag: 0.0.5
+service_image_tag: 0.0.7
 application_template: fhir-bpm-service.yml
 fhir_bpm_service_java_max_mem_ratio: 60
 fhir_bpm_service_java_initial_mem_ratio: 0
