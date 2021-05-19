@@ -1,11 +1,8 @@
 package com.redhat.naps.process.message.listeners;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.hl7.fhir.r4.model.IdType;
-import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Observation;
 import io.cloudevents.CloudEvent;
 

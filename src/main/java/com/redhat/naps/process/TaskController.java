@@ -1,8 +1,6 @@
 package com.redhat.naps.process;
 
-import com.redhat.naps.process.message.producer.CloudEventProducer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,16 +9,10 @@ import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.jbpm.services.api.ProcessService;
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.UserTaskService;
 import org.jbpm.services.api.admin.UserTaskAdminService;
-import org.jbpm.services.api.model.ProcessInstanceDesc;
-import org.kie.api.runtime.process.ProcessInstance;
-import org.kie.api.task.TaskService;
 import org.kie.api.task.model.Status;
-import org.kie.api.task.model.Task;
-import org.kie.api.task.model.TaskData;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.query.QueryFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,13 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.cloudevents.core.builder.CloudEventBuilder;
-import java.net.URI;
 import org.hl7.fhir.r4.model.Observation;
-import org.hl7.fhir.r4.model.Observation.ObservationStatus;
-import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.r4.model.Encounter;
-import io.cloudevents.CloudEvent;
 
 // https://github.com/hapifhir/hapi-fhir/blob/master/hapi-fhir-base/src/main/java/ca/uhn/fhir/context/FhirContext.java
 import ca.uhn.fhir.context.FhirContext;

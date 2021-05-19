@@ -18,3 +18,6 @@ project_name: "{{ project_admin }}-pneumonia-case-mgmt"
 #   image  : Use if a container image of your application is already available from a public container image repo:  ie:  quay.io , registry.redhat.io or docker hub
 #   source : Use if this ansible includes tasks to deploy a Jenkins or Tekton BuildConfig that creates the application image from source code
 deploy_from: image
+
+# Name of kafka topic that triggers BPM process
+topic_fhir_r4_observation: topic-fhir-r4-observation

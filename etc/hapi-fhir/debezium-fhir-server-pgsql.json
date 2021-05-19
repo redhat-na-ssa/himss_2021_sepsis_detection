@@ -1,0 +1,16 @@
+{
+  "name": "debezium-fhir-server-pgsql",  
+  "config": {  
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    "plugin.name": "pgoutput",
+    "database.hostname": "127.0.0.1",  
+    "database.port": "5432",
+    "database.user": "fhir",
+    "database.password": "fhir",
+    "database.dbname": "fhir",  
+    "database.server.name": "kafka_debezium_db_server_name",  
+    "schema.include.list": "public",  
+    "table.include.list": "public.hfj_res_ver"
+  }
+}

@@ -11,7 +11,7 @@ spec:
   tasksMax: {{ kafka_debezium_tasks_max }}
   config:
     plugin.name: pgoutput
-    database.hostname: {{ hapi_psql_app_name }}.{{ project_name }}.svc
+    database.hostname: "{{ hapi_psql_app_name }}.{{ project_name }}.svc"
     database.port: '{{ hapi_psql_port }}'
     database.user: {{ hapi_psql_user_name }}
     database.password: '{{ hapi_psql_user_passwd }}'
@@ -19,3 +19,4 @@ spec:
     database.server.name: {{ kafka_debezium_db_server_name }}
     schema.include.list: {{ kafka_debezium_schema_whitelist }}
     table.include.list: {{ kafka_debezium_table_whitelist }}
+    value.converter: io.debezium.converters.CloudEventsConverter

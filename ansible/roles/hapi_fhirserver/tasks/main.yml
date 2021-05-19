@@ -38,6 +38,15 @@
     from_file:
       dir: "{{ work_dir }}/{{ postgresql_init_configmap }}"
 
+- name: create {{ hapi_psql_debezium_conf_name }} configmap
+  oc_configmap:
+    oc_binary: "{{ openshift_cli }}"
+    state: present
+    name: "{{ hapi_psql_debezium_conf_name }}"
+    namespace: "{{ namespace }}"
+    from_file:
+      dir: "{{ resources_dir }}/sql/{{ hapi_psql_debezium_conf_file }}"
+
 - name: copy postgresql template
   template:
     src: "{{ resources_dir }}/postgresql.yml"

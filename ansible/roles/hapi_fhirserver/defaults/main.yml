@@ -17,7 +17,7 @@ postgresql_cpu_limit: 500m
 postgresql_memory_request: 256Mi
 postgresql_cpu_request: 100m
 psql_init_scripts:
-undeploy_fhir_db: true
+undeploy_fhir_db: "true"
 
 service_account: "{{ application_name }}"
 application_properties: application.yaml
@@ -30,3 +30,6 @@ application_template: fhir-server-service.yml
 fhirserver_java_max_mem_ratio: 60
 fhirserver_java_initial_mem_ratio: 0
 fhirserver_gc_max_metaspace_size: 500
+
+hapi_psql_debezium_conf_name: hapi-psql-debezium-conf
+hapi_psql_debezium_conf_file: "{{ hapi_psql_debezium_conf_name }}.conf"

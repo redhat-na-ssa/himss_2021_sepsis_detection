@@ -60,3 +60,8 @@ image::docs/images/hapi_fhir_home.png[]
 $ ansible-playbook playbooks/install.yml \
     -e ACTION=uninstall
 -----
+
+curl -X POST \
+           -H "Content-Type:application/fhir+json" \
+           https://fhir-server-user1-pneumonia-case-mgmt.apps.cluster-8d18.8d18.sandbox1759.opentlc.com/fhir/Observation \
+           -d "@/$LABS/mw/redhat-naps-da/pneumonia-patient-processing-pam/src/test/resources/fhir/Observation1.json"

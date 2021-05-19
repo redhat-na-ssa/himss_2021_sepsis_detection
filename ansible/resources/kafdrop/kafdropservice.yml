@@ -3,17 +3,6 @@
 kind: List
 apiVersion: v1
 items:
-- apiVersion: v1
-  kind: ImageStream
-  metadata:
-    labels:
-      app: {{ application_name }}
-    name: {{ application_name }}
-  spec:
-    tags:
-    - from:
-        kind: DockerImage
-        name: {{ image_name }}:{{ image_tag }}
 - apiVersion: route.openshift.io/v1
   kind: Route
   metadata:

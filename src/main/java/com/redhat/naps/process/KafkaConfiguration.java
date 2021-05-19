@@ -4,10 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.cloudevents.CloudEvent;
+import io.cloudevents.core.message.Encoding;
 import io.cloudevents.kafka.CloudEventDeserializer;
 import io.cloudevents.kafka.CloudEventSerializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +26,8 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer2;
+import static io.cloudevents.kafka.CloudEventSerializer.ENCODING_CONFIG;
+
 
 @Configuration
 @EnableKafka
@@ -58,11 +62,16 @@ public class KafkaConfiguration {
         configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer2.class);
-        configProps.put(ErrorHandlingDeserializer2.VALUE_DESERIALIZER_CLASS, CloudEventDeserializer.class);
         configProps.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         configProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         configProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, Boolean.FALSE);
-        return new DefaultKafkaConsumerFactory<>(configProps);
+
+        Map<String, Object> ceDeserializerConfigs = new HashMap<>();
+        ceDeserializerConfigs.put(ENCODING_CONFIG, Encoding.STRUCTURED);
+
+        CloudEventDeserializer cloudEventDeserializer = new CloudEventDeserializer();
+        cloudEventDeserializer.configure(ceDeserializerConfigs, false); //isKey always false
+        return new DefaultKafkaConsumerFactory<>(configProps, new StringDeserializer(), (Deserializer)cloudEventDeserializer);
     }
 
     @Bean

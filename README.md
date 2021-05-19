@@ -75,7 +75,7 @@
 
 4. Create a container in kie-server:
    `````
-   $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/kie_container.json \
+   $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/rhpam/kie_container.json \
      | sed "s/{KJAR_VERSION}/$KJAR_VERSION/g" \
      > /tmp/kie_container.json && \
      curl -u "user:user" -X PUT -H 'Content-type:application/json' localhost:8080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION -d '@/tmp/kie_container.json'
@@ -100,3 +100,19 @@
    `````
    $ curl -u "user:user" -X GET -H 'Accept:application/json' localhost:8080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION/processes/
    `````
+
+Post Debezium configs:
+    `````
+    $ curl -X POST \
+        -H "Accept:application/json" -H "Content-Type:application/json" \
+        localhost:8083/connectors/ \
+        -d "@etc/hapi-fhir/debezium-fhir-server-pgsql.json"
+    `````
+
+POST Observation to FHIR server
+    `````
+    $ curl -X POST \
+       -H "Content-Type:application/fhir+json" \
+       http://localhost:8080/fhir/Observation \
+       -d "@src/test/resources/fhir/Observation1.json"
+    `````

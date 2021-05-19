@@ -13,8 +13,10 @@ echo "creating FHIR Server database"
 psql -h $POSTGRESQL_SERVICE -d $POSTGRESQL_DATABASE -U $POSTGRESQL_USER -w -c "grant all privileges on database ${POSTGRESQL_DATABASE} to ${POSTGRESQL_USER};"
 
 echo "Enabling for Debezium"
-psql -h $POSTGRESQL_SERVICE -d $POSTGRESQL_DATABASE -U $POSTGRESQL_USER -w -c "ALTER USER ${POSTGRESQL_USER} with Replication;"
+export PGPASSWORD=$POSTGRESQL_ADMIN_PASSWORD
+psql -h $POSTGRESQL_SERVICE -c "ALTER USER ${POSTGRESQL_USER} with Replication;"
 
 # Debezium needs ability to execute the following (which requires superuser) when using pgoutput plugin: "CREATE PUBLICATION dbz_publication FOR ALL TABLES;"
-psql -h $POSTGRESQL_SERVICE -d $POSTGRESQL_DATABASE -U $POSTGRESQL_USER -w -c "ALTER USER ${POSTGRESQL_USER} with superuser;"
+#   https://debezium.io/documentation/reference/connectors/postgresql.html#postgresql-replication-user-privileges
+psql -h $POSTGRESQL_SERVICE  -c "ALTER USER ${POSTGRESQL_USER} with superuser;"
 

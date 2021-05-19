@@ -17,7 +17,7 @@
     kind: service
 
 
-- name: delete deployment config
+- name: delete deployment config {{ application_name }}
   oc_obj:
     oc_binary: "{{ openshift_cli }}"
     state: absent
@@ -41,7 +41,7 @@
     namespace: "{{ namespace }}"
     kind: configmap
 
-- name: delete postgresql dc
+- name: delete postgresql dc {{ psql_app_name  }}
   oc_obj:
     oc_binary: "{{ openshift_cli }}"
     state: absent

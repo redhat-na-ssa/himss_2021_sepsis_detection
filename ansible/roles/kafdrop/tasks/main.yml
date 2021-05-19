@@ -17,6 +17,21 @@
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
 
+- name: copy imagestream template
+  template:
+    src: "{{ resources_dir }}/{{ binary_imagestream_template }}"
+    dest: "{{ work_dir }}/{{ binary_imagestream_template }}"
+
+- name: create imagestream {{ application_name }} in the {{ namespace }} project
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: present
+    namespace: "{{ namespace }}"
+    kind: imagestream
+    name: "{{ application_name }}"
+    files:
+      - "{{ work_dir }}/{{ binary_imagestream_template }}"
+
 - name: copy application template
   template:
     src: "{{ resources_dir }}/{{ kafdrop_application_template }}"

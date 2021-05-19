@@ -102,6 +102,8 @@ items:
             tcpSocket:
               port: 5432
           env:
+          - name: POSTGRESQL_ADMIN_PASSWORD
+            value: admin
           - name: POSTGRESQL_USER
             valueFrom:
               secretKeyRef:
@@ -135,6 +137,8 @@ items:
             mountPath: "/var/lib/pgsql/data"
           - name: init-volume
             mountPath: /tmp/init-files
+          - name: "{{ hapi_psql_debezium_conf_name }}"
+            mountPath: "/opt/app-root/src/postgresql-cfg/"
           terminationMessagePath: "/dev/termination-log"
           imagePullPolicy: IfNotPresent
           capabilities: {}
@@ -149,5 +153,9 @@ items:
             defaultMode: 493
             name: {{ postgresql_init_configmap }}
           name: init-volume
+        - configMap:
+            defaultMode: 493
+            name: {{ hapi_psql_debezium_conf_name }}
+          name: {{ hapi_psql_debezium_conf_name }}
         restartPolicy: Always
         dnsPolicy: ClusterFirst
