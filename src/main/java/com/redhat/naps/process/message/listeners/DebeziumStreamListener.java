@@ -26,46 +26,44 @@ import org.springframework.stereotype.Component;
 public class DebeziumStreamListener {
 
     private final static Logger log = LoggerFactory.getLogger(DebeziumStreamListener.class);
+    private final static String OBSERVATION="Observation";
 
     private static FhirContext fhirCtx = FhirContext.forR4();
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
-    @KafkaListener(topics = "${listener.destination.debezium-stream}")
+    @KafkaListener(topics = "${listener.destination.debezium-stream}", containerFactory = "debeziumListenerContainerFactory")
     public void processMessage(@Payload String cloudEvent, 
                                @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                @Header(KafkaHeaders.RECEIVED_PARTITION_ID) int partition, 
                                Acknowledgment ack) throws IOException {
 
-        JsonNode rootNode = objectMapper.readTree(cloudEvent);
-        JsonNode after = rootNode.get("after");
-        JsonNode textNode = after.get("res_text");
-        byte[] bytes = textNode.binaryValue();
-        
+        log.info("processMessage() topic = "+topic);
         GZIPInputStream is = null;
         try {
-            is = new GZIPInputStream(new ByteArrayInputStream(bytes));
-            String fhirJson = IOUtils.toString(is, "UTF-8");
-            Observation oObj = fhirCtx.newJsonParser().parseResource(Observation.class, fhirJson);
-            log.info("bytes length = "+bytes.length+ " : fhir json = \n"+ fhirJson+"\n fhir resourceType "+oObj.getResourceType().name());
-
+            JsonNode rootNode = objectMapper.readTree(cloudEvent);
+            JsonNode after = rootNode.get("data").get("payload").get("after");
+            JsonNode resType = after.get("res_type");
+            log.info("resType = "+resType.asText());
+            if(OBSERVATION.equals(resType.asText())) {
+                JsonNode resText = after.get("res_text");
+                byte[] bytes = resText.binaryValue();
+                is = new GZIPInputStream(new ByteArrayInputStream(bytes));
+                String fhirJson = IOUtils.toString(is, "UTF-8");
+                Observation oObj = fhirCtx.newJsonParser().parseResource(Observation.class, fhirJson);
+                log.info("bytes length = "+bytes.length+ " : fhir json = \n"+ fhirJson+"\n fhir resourceType: "+oObj.getResourceType().name());
+            }else {
+                log.warn("Will not process message with FHIR type: "+resType.asText());
+            }
+        }catch(Exception x) {
+            log.error("Unable to process the following debezium stream event: \n"+cloudEvent);
+            x.printStackTrace();
+            
         }finally {
             if(is != null)
                 is.close();
-
+            ack.acknowledge();
         }
-        
-        doProcessMessage(cloudEvent, ack);
-    }
 
-    private void doProcessMessage(String cloudEvent, Acknowledgment ack) {
-        try {
-            log.info("doProcessMessage message = "+cloudEvent);
-
-    
-        } catch (Exception e) {
-            log.error("Error processing CloudEvent " + cloudEvent, e);
-        }
-        ack.acknowledge();
     }
 }

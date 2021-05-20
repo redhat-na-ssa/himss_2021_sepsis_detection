@@ -28,10 +28,14 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer2;
 import static io.cloudevents.kafka.CloudEventSerializer.ENCODING_CONFIG;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Configuration
 @EnableKafka
 public class KafkaConfiguration {
+
+    private static Logger log = LoggerFactory.getLogger("KafkaConfiguration");
 
     @Value(value = "${kafka.bootstrap-address}")
     private String bootstrapAddress;
@@ -57,21 +61,57 @@ public class KafkaConfiguration {
     }
 
     @Bean
+    public ConsumerFactory<String, String> debeziumConsumerFactory() {
+        Map<String, Object> configProps = new HashMap<>();
+        configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+        configProps.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        configProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        configProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, Boolean.FALSE);
+
+        configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        return new DefaultKafkaConsumerFactory<>(configProps);
+        
+
+/* TO-DO:  None of the following seems to be able to deserialize the Structured mode payload of the Debezium event.
+
+        // https://cloudevents.github.io/sdk-java/kafka.html
+        //configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, CloudEventDeserializer.class);
+        
+        // Original configs for consumer binary mode CloudEvent
+        //configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer2.class);
+        //configProps.put(ErrorHandlingDeserializer2.VALUE_DESERIALIZER_CLASS, CloudEventDeserializer.class);
+
+        Map<String, Object> ceDeserializerConfigs = new HashMap<>();
+        ceDeserializerConfigs.put(ENCODING_CONFIG, Encoding.STRUCTURED);
+        CloudEventDeserializer cloudEventDeserializer = new CloudEventDeserializer();
+        cloudEventDeserializer.configure(ceDeserializerConfigs, false); //isKey always false
+        return new DefaultKafkaConsumerFactory<>(configProps, new StringDeserializer(), (Deserializer)cloudEventDeserializer); 
+*/
+        
+    }
+
+    @Bean
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> debeziumListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(debeziumConsumerFactory());
+        factory.setConcurrency(concurrency);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
+        factory.setAutoStartup(true);
+        return factory;
+    }
+
+    @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer2.class);
+        configProps.put(ErrorHandlingDeserializer2.VALUE_DESERIALIZER_CLASS, CloudEventDeserializer.class);
         configProps.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         configProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         configProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, Boolean.FALSE);
-
-        Map<String, Object> ceDeserializerConfigs = new HashMap<>();
-        ceDeserializerConfigs.put(ENCODING_CONFIG, Encoding.STRUCTURED);
-
-        CloudEventDeserializer cloudEventDeserializer = new CloudEventDeserializer();
-        cloudEventDeserializer.configure(ceDeserializerConfigs, false); //isKey always false
-        return new DefaultKafkaConsumerFactory<>(configProps, new StringDeserializer(), (Deserializer)cloudEventDeserializer);
+        return new DefaultKafkaConsumerFactory<>(configProps);
     }
 
     @Bean
