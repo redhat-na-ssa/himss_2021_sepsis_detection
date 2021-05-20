@@ -15,26 +15,23 @@ services:
       - "2181:2181"
     environment:
       LOG_DIR: /tmp/logs
-    networks:
-      - fhir-bpm-service
 
+# https://github.com/pubnub/kafka-bridge/blob/master/kafka/plain/docker-compose.yaml
+#   Allows for kafka client that is external to the container network (ie: on the host) to connect to this Kafka broker and consume messages
+#   NOTE: via this configuration, kafka is available to external clients on port: 9094
   kafka:
     image: quay.io/strimzi/kafka:latest-kafka-2.6.0
     command: [
       "sh", "-c",
-      "bin/kafka-server-start.sh config/server.properties --override listeners=PLAINTEXT://127.0.0.1:9092 --override advertised.listeners=PLAINTEXT://127.0.0.1:9092 --override zookeeper.connect=zookeeper:2181"
+      "bin/kafka-server-start.sh config/server.properties --override listeners=INSIDE://:9092,OUTSIDE://:9094 --override listener.security.protocol.map=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT --override advertised.listeners=INSIDE://:9092,OUTSIDE://localhost:9094 --override zookeeper.connect=zookeeper:2181 --override inter.broker.listener.name=INSIDE"
     ]
     depends_on:
       - zookeeper
     ports:
       - "9092:9092"
+      - "9094:9094"
     environment:
       LOG_DIR: "/tmp/logs"
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
-      KAFKA_LISTENERS: PLAINTEXT://127.0.0.1:9092
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-    networks:
-      - fhir-bpm-service
 
   kafka_connect:
     image: docker.io/debezium/connect:1.5
@@ -43,13 +40,23 @@ services:
     ports:
       - "8083:8083"
     environment:
-      BOOTSTRAP_SERVERS: 127.0.0.1:9092
+      BOOTSTRAP_SERVERS: localhost:9092
       GROUP_ID: 1
       CONFIG_STORAGE_TOPIC: my_connect_configs
       OFFSET_STORAGE_TOPIC: my_connect_offsets
       STATUS_STORAGE_TOPIC: my_connect_statuses
-    networks:
-      - fhir-bpm-service
+
+  kafdrop:
+    image: docker.io/obsidiandynamics/kafdrop:3.27.0
+    restart: always
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "localhost:9092"
+      JVM_OPTS: "-Xms32M -Xmx64M"
+      SERVER_SERVLET_CONTEXTPATH: "/"
+    depends_on:
+      - kafka
 
   psql_fhir:
     image: registry.redhat.io/rhel8/postgresql-12
@@ -57,10 +64,10 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRESQL_USER=fhir
-      - POSTGRESQL_PASSWORD=fhir
-      - POSTGRESQL_DATABASE=fhir
-      - POSTGRESQL_MAX_PREPARED_TRANSACTIONS=10
+      POSTGRESQL_USER: fhir
+      POSTGRESQL_PASSWORD: fhir
+      POSTGRESQL_DATABASE: fhir
+      POSTGRESQL_MAX_PREPARED_TRANSACTIONS: 10
     volumes:
       # https://github.com/sclorg/postgresql-container/tree/generated/12
       - type: bind
@@ -69,29 +76,43 @@ services:
       - type: bind
         source: ./hapi-fhir/hapi-psql-wal.sh
         target: /opt/app-root/src/postgresql-start/hapi-psql-wal.sh
-    networks:
-      - fhir-bpm-service
 
-#  psql_rhpam:
-#    image: registry.redhat.io/rhel8/postgresql-12
-#    restart: always
-#    ports:
-#      - "6432:6432"
-#    environment:
-#      - POSTGRESQL_USER=rhpam
-#      - POSTGRESQL_PASSWORD=rhpam
-#      - POSTGRESQL_DATABASE=rhpam
-#      - POSTGRESQL_MAX_PREPARED_TRANSACTIONS=10
-#    volumes:
-#      - type: bind
-#        source: ./rhpam/rhpam-psql.conf
-#        target: /opt/app-root/src/postgresql-cfg/rhpam-psql.conf
-#      - type: bind
-#        source: ./rhpam/ddl-scripts/postgresql/
-#        target: /opt/sql
-#    networks:
-#      - fhir-bpm-service
+  hapi_fhir:
+    image: quay.io/redhat_naps_da/hapi-fhir-jpaserver-starter-ocp:v5.3.0-psql-bytea-1
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      JAVA_MAX_MEM_RATIO: '60'
+      JAVA_INITIAL_MEM_RATIO: '0'
+      GC_MAX_METASPACE_SIZE: '500'
+      SPRING_CONFIG_LOCATION: "file:///deployments/config/application.yaml"
+    volumes:
+      - type: bind
+        source: ./hapi-fhir/application.yaml
+        target: /deployments/config/application.yaml
+    depends_on:
+      - psql_fhir
 
-networks:
-  fhir-bpm-service:
-    name: fhir-bpm-network
+  psql_rhpam:
+    image: registry.redhat.io/rhel8/postgresql-12
+    restart: always
+    ports:
+      - "6432:6432"
+    environment:
+      PGPORT: 6432
+      POSTGRESQL_USER: rhpam
+      POSTGRESQL_PASSWORD: rhpam
+      POSTGRESQL_DATABASE: rhpam
+      POSTGRESQL_MAX_PREPARED_TRANSACTIONS: 10
+      SCRIPT_DIR: /opt/sql
+    volumes:
+      - type: bind
+        source: ./rhpam/rhpam-psql.conf
+        target: /opt/app-root/src/postgresql-cfg/rhpam-psql.conf
+      - type: bind
+        source: ./rhpam/ddl-scripts/postgresql/
+        target: /opt/sql
+      - type: bind
+        source: ./rhpam/create_rhpam_database.sh
+        target: /opt/app-root/src/postgresql-start/create_rhpam_database.sh

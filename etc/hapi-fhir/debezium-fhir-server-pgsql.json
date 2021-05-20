@@ -9,8 +9,9 @@
     "database.user": "fhir",
     "database.password": "fhir",
     "database.dbname": "fhir",  
-    "database.server.name": "kafka_debezium_db_server_name",  
+    "database.server.name": "fhir",  
     "schema.include.list": "public",  
-    "table.include.list": "public.hfj_res_ver"
+    "table.include.list": "public.hfj_res_ver",
+    "value.converter": "io.debezium.converters.CloudEventsConverter"
   }
 }
