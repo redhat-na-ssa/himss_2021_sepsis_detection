@@ -3,6 +3,7 @@ package com.redhat.naps.process;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,12 +19,19 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /*
  * Purpose:
- *   In a development environment when the user is not connecting to external authorization tools like Keycloak, this is where users, roles and groups are configured
+ *   In a development environment when the user is not connecting to external authorization tools like Red Hat SSO (aka: keycloak), 
+ *   this is where users, roles and groups are configured
  */
 
 @Configuration("kieServerSecurity")
 @EnableWebSecurity
 public class DefaultWebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Value("${basic.auth.rhpam.admin.passwd}")
+    private String adminPasswd;
+
+    @Value("${basic.auth.rhpam.kieserver.passwd}")
+    private String kieServerPasswd;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -39,9 +47,8 @@ public class DefaultWebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 
-        auth.inMemoryAuthentication().withUser("user").password("user").roles("kie-server");
-        auth.inMemoryAuthentication().withUser("wbadmin").password("wbadmin").roles("admin");
-        auth.inMemoryAuthentication().withUser("kieserver").password("kieserver1!").roles("kie-server");
+        auth.inMemoryAuthentication().withUser("admin").password(adminPasswd).roles("admin");
+        auth.inMemoryAuthentication().withUser("kieserver").password(kieServerPasswd).roles("kie-server");
     }
 
     @Bean

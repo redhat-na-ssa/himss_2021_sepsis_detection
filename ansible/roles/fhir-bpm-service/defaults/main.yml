@@ -34,8 +34,9 @@ fhir_bpm_service_gc_max_metaspace_size: 500
 
 # Location on image file system where fhir-bpm-service.xml  (which defines deployed KIE containers) will reside
 kie_server_repo_path: /deployments/config
-kie_admin_user: user
+kie_admin_user: admin
 kie_admin_password: user
+kieserver_user_password: kieserver
 
 kie_deployment_name: pneumonia-patient-processing-kjar
 kie_deployment_version: 1.0.3

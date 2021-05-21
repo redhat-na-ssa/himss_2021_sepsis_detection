@@ -86,12 +86,6 @@
       <version>${cxf.version}</version>
     </dependency>
 
-    <!-- Kubernetes -->
-    <!--dependency>  
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-kubernetes-config</artifactId>
-    </dependency -->
-
     <!-- testing -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

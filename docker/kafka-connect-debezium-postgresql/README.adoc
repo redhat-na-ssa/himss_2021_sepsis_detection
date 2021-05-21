@@ -6,7 +6,7 @@ However, this connector is not _strimzi_ enabled.
 
 When leveraging AMQ Streams, a Debezium enabled Strimzi image is needed.
 
-This image derived from `registry.redhat.io/amq7/amq-streams-kafka-26-rhel7:1.7.0` and augmented with Debezium PostgreSQL connector bits.
+This image is derived from `registry.redhat.io/amq7/amq-streams-kafka-26-rhel7:1.7.0` and augmented with Debezium PostgreSQL connector bits.
 
 == Usage
 Execute the following to build this image

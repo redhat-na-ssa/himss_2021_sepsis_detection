@@ -24,7 +24,7 @@
 5. Build and Start app
    `````
    $ mvn clean package -DskipTests && \
-         java -Dorg.kie.server.repo=/tmp \
+         java -Dorg.kie.server.repo=etc/rhpam/ \
               -jar target/pneumonia-patient-processing-pam-0.0.1.jar 
 
             or
@@ -36,7 +36,7 @@
    `````
    $ podman run --rm \
             --name fhir-bpm-service \
-            --publish 8080:8080 \
+            --publish 9080:9080 \
             -v ./config:/deployments/config \
             -m 512m \
             -e JAVA_MAX_MEM_RATIO=60 \
@@ -55,40 +55,40 @@
 
 2. Health Check Report
    `````
-   $ curl -u "user:user" -H 'Accept:application/json' localhost:8080/rest/server/healthcheck?report=true
+   $ curl -u "kieserver:kieserver" -H 'Accept:application/json' localhost:9080/rest/server/healthcheck?report=true
    `````
 
 3. View swagger
    `````
-   $ curl -v -u "user:user" localhost:8080/rest/swagger.json | jq .
+   $ curl -v -u "kieserver:kieserver" localhost:9080/rest/swagger.json | jq .
    `````
 
-4. Create a container in kie-server:
+4. Optional:  Create a container in kie-server  (kie-container should already be registered as per contents of etc/rhpam/fhir-bpm-service.xml )
    `````
    $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/rhpam/kie_container.json \
      | sed "s/{KJAR_VERSION}/$KJAR_VERSION/g" \
      > /tmp/kie_container.json && \
-     curl -u "user:user" -X PUT -H 'Content-type:application/json' localhost:8080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION -d '@/tmp/kie_container.json'
+     curl -u "kieserver:kieserver" -X PUT -H 'Content-type:application/json' localhost:9080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION -d '@/tmp/kie_container.json'
    `````
 
-5. List containers
+5. List KIE Containers
    `````
-   $ curl -u "user:user" -X GET http://localhost:8080/rest/server/containers
+   $ curl -u "kieserver:kieserver" -X GET http://localhost:9080/rest/server/containers
    `````
 
 6. Start a business process
    `````
-   $ curl -X POST localhost:8080/fhir/processes/sendSampleCloudEvent/azra12350
+   $ curl -X POST localhost:9080/fhir/processes/sendSampleCloudEvent/azra12350
    `````
 
 7. List cases in JSON representation:
    `````
-   $ curl -u "user:user" -X GET -H 'Accept:application/json' localhost:8080/rest/server/queries/cases/
+   $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/queries/cases/
    `````
 
 8. List process definitions in JSON representation:
    `````
-   $ curl -u "user:user" -X GET -H 'Accept:application/json' localhost:8080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION/processes/
+   $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION/processes/
    `````
 
 Post Debezium configs:
@@ -103,6 +103,6 @@ POST Observation to FHIR server
     `````
     $ curl -X POST \
        -H "Content-Type:application/fhir+json" \
-       http://localhost:8080/fhir/Observation \
+       http://localhost:9080/fhir/Observation \
        -d "@src/test/resources/fhir/Observation1.json"
     `````
