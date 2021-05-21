@@ -56,6 +56,9 @@ public class ProcessController {
     @Value("${observation.deployment.id}")
     private String deploymentId;
 
+    @Value("${listener.destination.observation-reported-event}")
+    private String observationReportedTopic;
+
     @Autowired
     private RuntimeDataService runtimeDataService;
 
@@ -123,8 +126,7 @@ public class ProcessController {
     @Transactional
     @RequestMapping(value = "/sendSampleCloudEvent/{observationId}", method = RequestMethod.POST, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> sendSampleCloudEvent(@PathVariable("observationId") String observationId) {
-    
-        String topic = "observation-topic";
+
         Observation obs = createInitialObservation(observationId);
         String obsString = fhirCtx.newJsonParser().setPrettyPrint(true).encodeResourceToString(obs);
 
@@ -136,7 +138,7 @@ public class ProcessController {
                 .withData(obsString.getBytes())
                 .build();
 
-        producer.send(topic, cEvent);    
+        producer.send(observationReportedTopic, cEvent);    
         return new ResponseEntity<>(observationId, HttpStatus.OK);
     }
 
