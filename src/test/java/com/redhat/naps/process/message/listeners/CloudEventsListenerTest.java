@@ -36,11 +36,11 @@ import org.hl7.fhir.r4.model.Encounter;
 // https://github.com/hapifhir/hapi-fhir/blob/master/hapi-fhir-base/src/main/java/ca/uhn/fhir/context/FhirContext.java
 import ca.uhn.fhir.context.FhirContext;
 
-public class ObservationReportedEventMessageListenerTest {
+public class CloudEventsListenerTest {
 
     private static FhirContext fhirCtx = FhirContext.forR4();
 
-    private ObservationReportedEventMessageListener messageListener;
+    private CloudEventsListener messageListener;
 
     @Mock
     private PlatformTransactionManager ptm;
@@ -68,7 +68,7 @@ public class ObservationReportedEventMessageListenerTest {
     @Before
     public void init() {
         initMocks(this);
-        messageListener = new ObservationReportedEventMessageListener();
+        messageListener = new CloudEventsListener();
         setField(messageListener, null, ptm, PlatformTransactionManager.class);
         setField(messageListener, null, processService, ProcessService.class);
         setField(messageListener, "processId", processId, String.class);

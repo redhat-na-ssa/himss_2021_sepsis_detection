@@ -131,7 +131,7 @@ public class ProcessController {
         CloudEvent cEvent = CloudEventBuilder.v1()
                 .withId(observationId)
                 .withType("ObservationReportedEvent")
-                .withSource(URI.create("http://example.com"))
+                .withSource(URI.create("http://redhat.naps.da"))
                 .withDataContentType("application/json")
                 .withData(obsString.getBytes())
                 .build();

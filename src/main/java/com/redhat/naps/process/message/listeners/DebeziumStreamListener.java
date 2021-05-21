@@ -3,24 +3,29 @@ package com.redhat.naps.process.message.listeners;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.zip.GZIPInputStream;
+import org.apache.commons.io.IOUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.commons.io.IOUtils;
-import org.hl7.fhir.r4.model.Observation;
-
-// https://github.com/hapifhir/hapi-fhir/blob/master/hapi-fhir-base/src/main/java/ca/uhn/fhir/context/FhirContext.java
-import ca.uhn.fhir.context.FhirContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
+
+
+// https://github.com/hapifhir/hapi-fhir/blob/master/hapi-fhir-base/src/main/java/ca/uhn/fhir/context/FhirContext.java
+import ca.uhn.fhir.context.FhirContext;
+import org.hl7.fhir.r4.model.Observation;
+import com.redhat.naps.process.FhirProcessMgmt;
+
+
 
 @Component
 public class DebeziumStreamListener {
@@ -31,6 +36,9 @@ public class DebeziumStreamListener {
     private static FhirContext fhirCtx = FhirContext.forR4();
 
     private static ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    FhirProcessMgmt fhirProcessMgmt;
 
     @KafkaListener(topics = "${listener.destination.debezium-stream}", containerFactory = "debeziumListenerContainerFactory")
     public void processMessage(@Payload String cloudEvent, 
@@ -46,12 +54,17 @@ public class DebeziumStreamListener {
             JsonNode resType = after.get("res_type");
             log.info("resType = "+resType.asText());
             if(OBSERVATION.equals(resType.asText())) {
+                JsonNode resId = after.get("res_id");
                 JsonNode resText = after.get("res_text");
                 byte[] bytes = resText.binaryValue();
                 is = new GZIPInputStream(new ByteArrayInputStream(bytes));
                 String fhirJson = IOUtils.toString(is, "UTF-8");
-                Observation oObj = fhirCtx.newJsonParser().parseResource(Observation.class, fhirJson);
-                log.info("bytes length = "+bytes.length+ " : fhir json = \n"+ fhirJson+"\n fhir resourceType: "+oObj.getResourceType().name());
+                Observation oEvent = fhirCtx.newJsonParser().parseResource(Observation.class, fhirJson);
+                oEvent.setId(resId.asText());
+                log.debug("bytes length = "+bytes.length+ " : fhir json = \n"+ fhirJson+"\n fhir resourceType: "+oEvent.getResourceType().name());
+
+                fhirProcessMgmt.startProcess(oEvent);
+
             }else {
                 log.warn("Will not process message with FHIR type: "+resType.asText());
             }
