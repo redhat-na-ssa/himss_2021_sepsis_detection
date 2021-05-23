@@ -26,6 +26,10 @@ $ buildah bud -f docker/fhir-bpm-service/Dockerfile \
 $ podman-compose -f etc/docker-compose.yaml up -d
 -----
 
+. The following diagram depicts the containers instantiated as part of this pod:  
++
+image::docs/images/docker-compose-architecture.png[]
+
 
 == Test
 
