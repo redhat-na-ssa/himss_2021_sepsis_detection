@@ -1,8 +1,8 @@
 {
     "container-id" : "{KIE_SERVER_CONTAINER_NAME}-{KJAR_VERSION}",
     "release-id" : {
-        "group-id" : "com.redhat.naps.pneumonia",
-        "artifact-id" : "pneumonia-patient-processing-kjar",
+        "group-id" : "com.redhat.naps",
+        "artifact-id" : "mortgages",
         "version" : "{KJAR_VERSION}"
     }
 }

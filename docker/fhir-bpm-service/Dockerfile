@@ -1,9 +1,13 @@
 # mvn clean package
-# buildah bud -f docker/fhir-bpm-service/Dockerfile -t quay.io/redhat_naps_da/fhir-bpm-service:0.0.11 .
-# podman push quay.io/redhat_naps_da/fhir-bpm-service:0.0.11
+# buildah bud -f docker/fhir-bpm-service/Dockerfile -t quay.io/redhat_naps_da/fhir-bpm-service:0.0.12 .
+# podman push quay.io/redhat_naps_da/fhir-bpm-service:0.0.12
 
-FROM registry.redhat.io/ubi8/openjdk-11:1.3-15
+# https://github.com/Emergency-Response-Demo/container-images/tree/master/ubi8-java11-mvn
+FROM quay.io/emergencyresponsedemo/ubi8-jdk-11-mvn:0.0.2
+
+RUN chown -R 1001:0 /m2/repository \
+  && chmod -R 776 /m2/repository
 
 USER 1001
 
-COPY target/pneumonia-patient-processing-pam-0.0.1.jar /deployments/app.jar
+COPY target/*.jar /deployments/app.jar

@@ -1,0 +1,40 @@
+<kie-server-state>
+  <controllers/>
+  <configuration>
+    <configItems>
+      <config-item>
+        <name>org.kie.server.location</name>
+        <value>http://localhost:8080/rest/server</value>
+        <type>java.lang.String</type>
+      </config-item>
+      <config-item>
+        <name>org.kie.server.id</name>
+        <value>fhir-bpm-service</value>
+        <type>java.lang.String</type>
+      </config-item>
+      <config-item>
+        <name>org.kie.server.controller</name>
+        <value></value>
+        <type>java.lang.String</type>
+      </config-item>
+      <config-item>
+        <name>org.kie.server.repo</name>
+        <value>/tmp</value>
+        <type>java.lang.String</type>
+      </config-item>
+    </configItems>
+  </configuration>
+  <containers>
+    <container>
+      <containerId>{{ application_name }}-{{ kie_deployment_version }}</containerId>
+      <releaseId>
+        <groupId>com.redhat.naps.pneumonia</groupId>
+        <artifactId>{{ kie_deployment_name }}</artifactId>
+        <version>{{ kie_deployment_version }}</version>
+      </releaseId>
+      <status>STARTED</status>
+      <configItems/>
+      <messages/>
+    </container>
+  </containers>
+</kie-server-state>

@@ -1,5 +1,3 @@
-fhir-bpm-service.xml
-
 transaction-logs/
 *.tlog
 

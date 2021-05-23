@@ -1,0 +1,99 @@
+== Purpose
+
+https://trello.com/c/fbnRjpZu/22-detection-of-pneumonia-from-chest-x-rays
+
+== Build
+
+NOTE: The following commands make use of _podman_, _buildah_ and _podman_compose_.  The equivalent _docker_ family of utilities should also work.
+
+. Build KIE-Server executable :
++
+-----
+$ mvn clean package
+-----
+
+. Build linux container with KIE-Server:
++
+-----
+$ buildah bud -f docker/fhir-bpm-service/Dockerfile \
+              -t quay.io/redhat_naps_da/fhir-bpm-service:0.0.12 \
+              .
+-----
+
+. Start application pod with all linux containers:
++
+-----
+$ podman-compose -f etc/docker-compose.yaml up -d
+-----
+
+
+== Test
+
+. Health Check Report
+   `````
+   $ curl -u "kieserver:kieserver" -H 'Accept:application/json' localhost:9080/rest/server/healthcheck?report=true
+   `````
+
+. View swagger
+   `````
+   $ curl -v -u "kieserver:kieserver" localhost:9080/rest/swagger.json | jq .
+   `````
+
+. List KIE Containers
+   `````
+   $ curl -u "kieserver:kieserver" -X GET http://localhost:9080/rest/server/containers
+   `````
+
+. List process definitions in JSON representation:
+   `````
+   $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION/processes/
+   `````
+
+. Start a business process
+   `````
+   $ curl -X POST localhost:9080/fhir/processes/sendSampleCloudEvent/azra12350
+   `````
+
+. List cases in JSON representation:
+   `````
+   $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/queries/cases/
+   `````
+
+
+== Development
+
+. Build and Start app
++
+-----
+$ mvn clean package -DskipTests && \
+         java -Dorg.kie.server.repo=etc/rhpam/ \
+              -jar target/pneumonia-patient-processing-pam-0.0.1.jar 
+-----
+
+
+. Optional:  Create a container in kie-server  (kie-container should already be registered as per contents of etc/rhpam/fhir-bpm-service.xml )
+   `````
+   $ export KJAR_VERSION=1.0.3
+   $ export KIE_SERVER_CONTAINER_NAME=fhir-bpm-service
+
+   $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/rhpam/kie_container.json \
+     | sed "s/{KJAR_VERSION}/$KJAR_VERSION/g" \
+     > /tmp/kie_container.json && \
+     curl -u "kieserver:kieserver" -X PUT -H 'Content-type:application/json' localhost:9080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION -d '@/tmp/kie_container.json'
+   `````
+
+. Post Debezium configs:
+    `````
+    $ curl -X POST \
+        -H "Accept:application/json" -H "Content-Type:application/json" \
+        localhost:8083/connectors/ \
+        -d "@etc/hapi-fhir/debezium-fhir-server-pgsql.json"
+    `````
+
+. POST Observation to FHIR server
+    `````
+    $ curl -X POST \
+       -H "Content-Type:application/fhir+json" \
+       http://localhost:9080/fhir/Observation \
+       -d "@src/test/resources/fhir/Observation1.json"
+    `````

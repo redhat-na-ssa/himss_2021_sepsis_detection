@@ -17,19 +17,19 @@
     <skipITs>${skipTests}</skipITs>
     <skipUTs>${skipTests}</skipUTs>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.rhpam>7.48.0.Final-redhat-00004</version.rhpam>
-    <version.narayana>5.9.8.Final-redhat-00002</version.narayana>
+    <version.rhpam>7.48.0.Final-redhat-00006</version.rhpam>
     <version.logback>1.2.3</version.logback>
     <version.logstash-logback-encoder>5.1</version.logstash-logback-encoder>
     <version.wiremock>2.6.0</version.wiremock>
     <hapi.fhir.version>5.3.0</hapi.fhir.version>
     <cxf.version>3.2.14</cxf.version>
+    <naps.version>1.0.3</naps.version>
   </properties>
   <dependencies>
     <dependency>
       <groupId>com.redhat.naps.pneumonia</groupId>
       <artifactId>pneumonia-patient-processing-kjar</artifactId>
-      <version>1.0.3</version>
+      <version>${naps.version}</version>
     </dependency>
 
     <!-- https://github.com/hapifhir/hapi-fhir/tree/master/hapi-fhir-structures-r4 -->
@@ -103,6 +103,38 @@
 
   <build>
     <plugins>
+
+      <!-- Purpose of this plugin is to make KJars available in maven repo of linux container.
+           In particular, it'll copy these KJars to target/repository during maven build.
+           Afterwards, when creating linux container, these KJars are added to /m2/repository
+           At runtime, KJars are made available via:  JAVA_OPTS_APPEND='kie.maven.settings.custom=/m2/settings.xml'
+      -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.1.1</version>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <artifactItems>
+            <artifactItem>
+               <groupId>com.redhat.naps.pneumonia</groupId>
+               <artifactId>pneumonia-patient-processing-kjar</artifactId>
+               <version>${naps.version}</version>
+              <type>jar</type>
+              <outputDirectory>${project.build.directory}/repository/com/redhat/naps/pneumonia/${naps.version}</outputDirectory>
+            </artifactItem>
+          </artifactItems>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
