@@ -26,7 +26,7 @@ application_configmap: "{{ application_name }}"
 application_configmap_key: "{{ application_properties }}"
 binary_imagestream_template: binary-imagestream.yml 
 service_image: quay.io/redhat_naps_da/fhir-bpm-service
-service_image_tag: 0.0.11
+service_image_tag: 0.0.14
 application_template: fhir-bpm-service.yml
 fhir_bpm_service_java_max_mem_ratio: 60
 fhir_bpm_service_java_initial_mem_ratio: 0
@@ -41,15 +41,3 @@ kieserver_user_password: kieserver
 kie_deployment_name: pneumonia-patient-processing-kjar
 kie_deployment_version: 1.0.3
 kie_process_id: 'pneumonia_patient_processing.Pneumonia_Case_FHIR'
-
-
-# Debezium configs
-kafka_debezium_template: debezium-fhir-server-pgsql.yml
-kafka_debezium_name: debezium-fhir-server-pgsql
-kafka_debezium_tasks_max: 1
-kafka_debezium_db_server_name: fhir
-kafka_debezium_schema_whitelist: public
-kafka_debezium_table_whitelist: public.hfj_res_ver
-
-# Topic that Debezium will stream to
-kafka_debezium_topic: "{{ kafka_debezium_db_server_name }}.{{ kafka_debezium_table_whitelist }}"

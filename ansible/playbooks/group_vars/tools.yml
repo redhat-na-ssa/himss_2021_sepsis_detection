@@ -4,4 +4,6 @@ namespace_nexus: "{{ project_name }}"
 
 nexus_service_name: nexus
 
-nexus_mirror: "http://{{ nexus_service_name }}.{{ namespace_nexus }}.svc:8081/content/groups/public"
+# Not not currently needed so will not deploy nor reference
+# nexus_mirror: "http://{{ nexus_service_name }}.{{ namespace_nexus }}.svc:8081/content/groups/public"
+nexus_mirror: ""

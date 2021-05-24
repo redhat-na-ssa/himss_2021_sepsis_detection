@@ -64,8 +64,12 @@ items:
                   fieldPath: metadata.namespace
             - name: SPRING_CONFIG_LOCATION
               value: file:///deployments/config/{{ application_configmap_key }}
+
+            # org.kie.server.repo: dictates to kie-server where to find its KIE container configuration file
+            # kie.maven.settings.custom: dictates to kie-server where to fine its artifact repo of KJars
             - name: JAVA_OPTS_APPEND
-              value: '-Dorg.kie.server.repo={{ kie_server_repo_path }}'
+              value: '-Dorg.kie.server.repo={{ kie_server_repo_path }} -Dkie.maven.settings.custom=/m2/settings.xml'
+
             - name: MAVEN_MIRROR_URL
               value: "{{ nexus_mirror }}"
             imagePullPolicy: IfNotPresent

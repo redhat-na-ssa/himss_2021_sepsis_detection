@@ -8,3 +8,9 @@ hapi_psql_user_name: fhir
 hapi_psql_user_passwd: fhir
 hapi_psql_db_name: fhir
 
+kafka_debezium_db_server_name: fhir
+kafka_debezium_table_whitelist: public.hfj_res_ver
+
+# Topic that Debezium will stream to
+kafka_debezium_topic: "{{ kafka_debezium_db_server_name }}.{{ kafka_debezium_table_whitelist }}"
+

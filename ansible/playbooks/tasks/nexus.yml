@@ -1,0 +1,19 @@
+---
+
+- set_fact:
+    namespace: "{{ namespace_nexus }}"
+    resources_dir: "{{ resources_base_dir }}/nexus"
+    work_dir_name: nexus
+- include_role:
+    name: ../roles/nexus
+  when: >
+    ACTION is not defined or
+    ACTION is none or
+    ACTION|trim() == "" or
+    ACTION|trim() == "install"
+- include_role:
+    name: ../roles/nexus
+    tasks_from: uninstall
+  when: >
+    ACTION is defined and
+    ACTION|trim() == "uninstall"

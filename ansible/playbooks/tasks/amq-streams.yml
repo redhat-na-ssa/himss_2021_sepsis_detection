@@ -1,0 +1,96 @@
+---
+
+# 1)  AMQ Streams Operator
+- set_fact:
+    namespace: "{{ project_name }}"
+    work_dir_name: "amq-streams-operator"
+- include_role:
+    name: ../roles/amq_streams_operator
+  when: >
+    ACTION is not defined or
+    ACTION is none or
+    ACTION|trim() == "" or
+    ACTION|trim() == "install"
+- include_role:
+    name: ../roles/amq_streams_operator
+    tasks_from: uninstall
+  when: >
+    ACTION is defined and
+    ACTION|trim() == "uninstall"
+
+# 2) AMQ Streams Kafka cluster
+- set_fact:
+    namespace: "{{ project_name }}"
+    resources_dir: "{{ resources_base_dir }}/amq-streams"
+    work_dir_name: "kafka_cluster"
+- include_role:
+    name: ../roles/kafka_cluster
+  when: >
+    ACTION is not defined or
+    ACTION is none or
+    ACTION|trim() == "" or
+    ACTION|trim() == "install"
+- include_role:
+    name: ../roles/kafka_cluster
+    tasks_from: uninstall
+  when: >
+    ACTION is defined and
+    ACTION|trim() == "uninstall"
+
+# 3) AMQ Streams Topics
+- set_fact:
+    namespace: "{{ project_name }}"
+    work_dir_name: "kafka_topics"
+- include_role:
+    name: ../roles/kafka_topics
+  when: >
+    ACTION is not defined or
+    ACTION is none or
+    ACTION|trim() == "" or
+    ACTION|trim() == "install"
+- include_role:
+    name: ../roles/kafka_topics
+    tasks_from: uninstall
+  when: >
+    ACTION is defined and
+    ACTION|trim() == "uninstall"
+
+
+
+# 4) AMQ Streams Kafka-Connect
+- set_fact:
+    namespace: "{{ project_name }}"
+    work_dir_name: "kafka_connect"
+    resources_dir: "{{ resources_base_dir }}/kafka-connect"
+- include_role:
+    name: ../roles/openshift_kafka_connect
+  when: >
+    ACTION is not defined or
+    ACTION is none or
+    ACTION|trim() == "" or
+    ACTION|trim() == "install"
+- include_role:
+    name: ../roles/openshift_kafka_connect
+    tasks_from: uninstall
+  when: >
+    ACTION is defined and
+    ACTION|trim() == "uninstall"
+
+# 5) Kafdrop
+- set_fact:
+    namespace: "{{ project_name }}"
+    work_dir_name: "kafkadrop"
+    resources_dir: "{{ resources_base_dir }}/kafdrop"
+- include_role:
+    name: ../roles/kafdrop
+  when: >
+    ACTION is not defined or
+    ACTION is none or
+    ACTION|trim() == "" or
+    ACTION|trim() == "install"
+- include_role:
+    name: ../roles/kafdrop
+    tasks_from: uninstall
+  when: >
+    ACTION is defined and
+    ACTION|trim() == "uninstall"

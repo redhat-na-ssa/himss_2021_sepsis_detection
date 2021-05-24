@@ -129,7 +129,7 @@
                <artifactId>pneumonia-patient-processing-kjar</artifactId>
                <version>${naps.version}</version>
               <type>jar</type>
-              <outputDirectory>${project.build.directory}/repository/com/redhat/naps/pneumonia/${naps.version}</outputDirectory>
+              <outputDirectory>${project.build.directory}/repository/com/redhat/naps/pneumonia/pneumonia-patient-processing-kjar/${naps.version}</outputDirectory>
             </artifactItem>
           </artifactItems>
         </configuration>

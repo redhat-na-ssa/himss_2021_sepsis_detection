@@ -9,6 +9,7 @@ spring:
     properties:
       hibernate.format_sql: false
       hibernate.show_sql: false
+      hibernate.dialect: ca.uhn.fhir.jpa.starter.CustomPostgreSQLDialect
 
        # These settings will enable fulltext search with lucene
 #      hibernate.search.enabled: true

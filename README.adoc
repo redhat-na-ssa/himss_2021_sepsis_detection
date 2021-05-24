@@ -16,7 +16,7 @@ $ mvn clean package
 +
 -----
 $ buildah bud -f docker/fhir-bpm-service/Dockerfile \
-              -t quay.io/redhat_naps_da/fhir-bpm-service:0.0.12 \
+              -t quay.io/redhat_naps_da/fhir-bpm-service:0.0.14 \
               .
 -----
 
@@ -33,29 +33,48 @@ image::docs/images/docker-compose-architecture.png[]
 
 == Test
 
+. Optional:  Set FHIR_BPM_HOST env var if testing OCP deployment:
++
+-----
+FHIR_BPM_HOST=$(oc get route fhir-bpm-service -n user1-pneumonia-case-mgmt --template='{{ .spec.host }}')
+-----
+
 . Health Check Report
    `````
    $ curl -u "kieserver:kieserver" -H 'Accept:application/json' localhost:9080/rest/server/healthcheck?report=true
+
+   $ curl -u "kieserver:kieserver" -H 'Accept:application/json' https://$FHIR_BPM_HOST/rest/server/healthcheck?report=true
    `````
 
 . View swagger
    `````
    $ curl -v -u "kieserver:kieserver" localhost:9080/rest/swagger.json | jq .
+
+   $ curl -v -u "kieserver:kieserver" https://$FHIR_BPM_HOST/rest/swagger.json | jq .
    `````
 
 . List KIE Containers
    `````
    $ curl -u "kieserver:kieserver" -X GET http://localhost:9080/rest/server/containers
+
+   $ curl -u "kieserver:kieserver" -X GET https://$FHIR_BPM_HOST/rest/server/containers
    `````
 
 . List process definitions in JSON representation:
    `````
+   export KJAR_VERSION=1.0.3
+   export KIE_SERVER_CONTAINER_NAME=fhir-bpm-service
+
    $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION/processes/
+
+   $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' https://$FHIR_BPM_HOST/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION/processes/
    `````
 
 . Start a business process
    `````
    $ curl -X POST localhost:9080/fhir/processes/sendSampleCloudEvent/azra12350
+
+   $ curl -X POST https://$FHIR_BPM_HOST/fhir/processes/sendSampleCloudEvent/azra12350
    `````
 
 . List cases in JSON representation:
