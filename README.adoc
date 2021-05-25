@@ -62,12 +62,9 @@ FHIR_BPM_HOST=$(oc get route fhir-bpm-service -n user1-pneumonia-case-mgmt --tem
 
 . List process definitions in JSON representation:
    `````
-   export KJAR_VERSION=1.0.3
-   export KIE_SERVER_CONTAINER_NAME=fhir-bpm-service
+   $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/containers/pneumonia-patient-processing-kjar/processes/
 
-   $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION/processes/
-
-   $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' https://$FHIR_BPM_HOST/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION/processes/
+   $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' https://$FHIR_BPM_HOST/rest/server/containers/pneumonia-patient-processing-kjar/processes/
    `````
 
 . Start a business process
@@ -89,7 +86,7 @@ FHIR_BPM_HOST=$(oc get route fhir-bpm-service -n user1-pneumonia-case-mgmt --tem
 +
 -----
 $ mvn clean package -DskipTests && \
-         java -Dorg.kie.server.repo=etc/rhpam/ \
+         java -Dorg.kie.server.repo=etc/fhir-bpm-service/runtime_configs \
               -jar target/pneumonia-patient-processing-pam-0.0.1.jar 
 -----
 

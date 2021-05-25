@@ -4,7 +4,7 @@
     <configItems>
       <config-item>
         <name>org.kie.server.location</name>
-        <value>http://localhost:8080/rest/server</value>
+        <value>http://localhost:9080/rest/server</value>
         <type>java.lang.String</type>
       </config-item>
       <config-item>
@@ -19,7 +19,7 @@
       </config-item>
       <config-item>
         <name>org.kie.server.repo</name>
-        <value>/tmp</value>
+        <value>etc/fhir-bpm-service/runtime_configs</value>
         <type>java.lang.String</type>
       </config-item>
     </configItems>
@@ -35,6 +35,7 @@
       <status>STARTED</status>
       <configItems/>
       <messages/>
+      <containerAlias>pneumonia-patient-processing-kjar</containerAlias>
     </container>
   </containers>
 </kie-server-state>
