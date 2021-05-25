@@ -40,44 +40,50 @@ FHIR_BPM_HOST=$(oc get route fhir-bpm-service -n user1-pneumonia-case-mgmt --tem
 -----
 
 . Health Check Report
-   `````
-   $ curl -u "kieserver:kieserver" -H 'Accept:application/json' localhost:9080/rest/server/healthcheck?report=true
++
+-----
+$ curl -u "kieserver:kieserver" -H 'Accept:application/json' localhost:9080/rest/server/healthcheck?report=true
 
-   $ curl -u "kieserver:kieserver" -H 'Accept:application/json' https://$FHIR_BPM_HOST/rest/server/healthcheck?report=true
-   `````
+$ curl -u "kieserver:kieserver" -H 'Accept:application/json' https://$FHIR_BPM_HOST/rest/server/healthcheck?report=true
+-----
 
 . View swagger
-   `````
-   $ curl -v -u "kieserver:kieserver" localhost:9080/rest/swagger.json | jq .
++
+-----
+$ curl -v -u "kieserver:kieserver" localhost:9080/rest/swagger.json | jq .
 
-   $ curl -v -u "kieserver:kieserver" https://$FHIR_BPM_HOST/rest/swagger.json | jq .
-   `````
+$ curl -v -u "kieserver:kieserver" https://$FHIR_BPM_HOST/rest/swagger.json | jq .
+-----
 
 . List KIE Containers
-   `````
-   $ curl -u "kieserver:kieserver" -X GET http://localhost:9080/rest/server/containers
++
+-----
+$ curl -u "kieserver:kieserver" -X GET http://localhost:9080/rest/server/containers
 
-   $ curl -u "kieserver:kieserver" -X GET https://$FHIR_BPM_HOST/rest/server/containers
-   `````
+$ curl -u "kieserver:kieserver" -X GET https://$FHIR_BPM_HOST/rest/server/containers
+-----
 
 . List process definitions in JSON representation:
-   `````
-   $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/containers/pneumonia-patient-processing-kjar/processes/
++
+-----
+$ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/containers/pneumonia-patient-processing-kjar/processes/
 
-   $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' https://$FHIR_BPM_HOST/rest/server/containers/pneumonia-patient-processing-kjar/processes/
-   `````
+$ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' https://$FHIR_BPM_HOST/rest/server/containers/pneumonia-patient-processing-kjar/processes/
+-----
 
 . Start a business process
-   `````
-   $ curl -X POST localhost:9080/fhir/processes/sendSampleCloudEvent/azra12350
++
+-----
+$ curl -X POST localhost:9080/fhir/processes/sendSampleCloudEvent/azra12350
 
-   $ curl -X POST https://$FHIR_BPM_HOST/fhir/processes/sendSampleCloudEvent/azra12350
-   `````
+$ curl -X POST https://$FHIR_BPM_HOST/fhir/processes/sendSampleCloudEvent/azra12350
+-----
 
 . List cases in JSON representation:
-   `````
-   $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/queries/cases/
-   `````
++
+-----
+$ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/queries/cases/
+-----
 
 
 == Development
@@ -114,6 +120,6 @@ $ mvn clean package -DskipTests && \
     `````
     $ curl -X POST \
        -H "Content-Type:application/fhir+json" \
-       http://localhost:9080/fhir/Observation \
+       http://localhost:8080/fhir/Observation \
        -d "@src/test/resources/fhir/Observation1.json"
     `````

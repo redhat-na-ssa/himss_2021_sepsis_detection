@@ -2,6 +2,9 @@ package com.redhat.naps.process;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import com.redhat.naps.process.util.FHIRUtil;
+
 import org.jbpm.services.api.ProcessService;
 import org.kie.internal.KieInternalServices;
 import org.kie.internal.process.CorrelationKey;
@@ -20,7 +23,6 @@ import org.slf4j.LoggerFactory;
 @Component
 public class FhirProcessMgmt {
 
-    private static final String OBSERVATION_PROCESS_VARIABLE_NAME = "Observation";
     private final static Logger log = LoggerFactory.getLogger(FhirProcessMgmt.class);
     private CorrelationKeyFactory correlationKeyFactory = KieInternalServices.Factory.get().newCorrelationKeyFactory();
 
@@ -44,11 +46,11 @@ public class FhirProcessMgmt {
             */
             String idBase = oEvent.getIdBase();
             String cKey = idBase.substring(idBase.indexOf("/")+1);
-            //log.info("doProcessMessage() correlationKey = "+cKey);
+            log.debug("doProcessMessage() correlationKey = "+cKey);
             CorrelationKey correlationKey = correlationKeyFactory.newCorrelationKey(cKey);
 
             Map<String, Object> parameters = new HashMap<>();
-            parameters.put(OBSERVATION_PROCESS_VARIABLE_NAME, oEvent);
+            parameters.put(FHIRUtil.OBSERVATION, oEvent);
 
             TransactionTemplate template = new TransactionTemplate(transactionManager);
             return template.execute((TransactionStatus s) -> {

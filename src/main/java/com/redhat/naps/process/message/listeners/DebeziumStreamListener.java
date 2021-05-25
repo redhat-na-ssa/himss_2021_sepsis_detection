@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import ca.uhn.fhir.context.FhirContext;
 import org.hl7.fhir.r4.model.Observation;
 import com.redhat.naps.process.FhirProcessMgmt;
+import com.redhat.naps.process.util.FHIRUtil;
 
 
 
@@ -31,7 +32,6 @@ import com.redhat.naps.process.FhirProcessMgmt;
 public class DebeziumStreamListener {
 
     private final static Logger log = LoggerFactory.getLogger(DebeziumStreamListener.class);
-    private final static String OBSERVATION="Observation";
 
     private static FhirContext fhirCtx = FhirContext.forR4();
 
@@ -53,7 +53,7 @@ public class DebeziumStreamListener {
             JsonNode after = rootNode.get("data").get("payload").get("after");
             JsonNode resType = after.get("res_type");
             log.info("resType = "+resType.asText());
-            if(OBSERVATION.equals(resType.asText())) {
+            if(FHIRUtil.OBSERVATION.equals(resType.asText())) {
                 JsonNode resId = after.get("res_id");
                 JsonNode resText = after.get("res_text");
                 byte[] bytes = resText.binaryValue();
