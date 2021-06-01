@@ -12,7 +12,7 @@ openshift_cli: oc
 project_admin: user1
 
 # Name of the OCP project to deploy this application to
-project_name: "{{ project_admin }}-pneumonia-case-mgmt"
+project_name: "{{ project_admin }}-pneumonia-treatment"
 
 # The following two options are allowed:
 #   image  : Use if a container image of your application is already available from a public container image repo:  ie:  quay.io , registry.redhat.io or docker hub
