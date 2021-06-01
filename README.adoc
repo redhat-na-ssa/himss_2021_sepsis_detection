@@ -1,14 +1,31 @@
 == Purpose
 
-https://trello.com/c/fbnRjpZu/22-detection-of-pneumonia-from-chest-x-rays
+Please see the following:
+
+. link:https://trello.com/c/fbnRjpZu/22-detection-of-pneumonia-from-chest-x-rays[Trello Card]
+. link:https://docs.google.com/presentation/d/1nLNPzu93bhOW_QNZDiBxERgYVMJ9RBV1ZhtMJECr5s0/edit#slide=id.g775d9c5cf4_0_717[Presentation]
 
 == Build
 
 NOTE: The following commands make use of _podman_, _buildah_ and _podman_compose_.  The equivalent _docker_ family of utilities should also work.
 
-. Build KIE-Server executable :
+. Clone source code containing pneumonia treatment business process model and rules:
 +
 -----
+$ git clone https://github.com/redhat-naps-da/pneumonia-patient-processing-kjar.git
+-----
+
+. Build and install _kjar_ project:
++
+-----
+$ mvn clean install -DskipTests
+-----
+
+. Build KIE-Server executable from this project:
++
+-----
+$ git clone https://github.com/redhat-naps-da/pneumonia-patient-processing-pam.git
+
 $ mvn clean package
 -----
 
