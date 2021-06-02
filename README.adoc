@@ -1,11 +1,20 @@
+:scrollbar:
+:data-uri:
+:toc2:
+:linkattrs:
+
+= Pneumonia Treatment demo
+
 == Purpose
+
+:numbered:
 
 Please see the following:
 
 . link:https://trello.com/c/fbnRjpZu/22-detection-of-pneumonia-from-chest-x-rays[Trello Card]
 . link:https://docs.google.com/presentation/d/1nLNPzu93bhOW_QNZDiBxERgYVMJ9RBV1ZhtMJECr5s0/edit#slide=id.g775d9c5cf4_0_717[Presentation]
 
-== Build
+== Build & local dev environment
 
 NOTE: The following commands make use of _podman_, _buildah_ and _podman_compose_.  The equivalent _docker_ family of utilities should also work.
 
@@ -48,7 +57,7 @@ $ podman-compose -f etc/docker-compose.yaml up -d
 image::docs/images/docker-compose-architecture.png[]
 
 
-== Test
+== Test (Locally)
 
 . Optional:  Set FHIR_BPM_HOST env var if testing OCP deployment:
 +
@@ -102,6 +111,32 @@ $ curl -X POST https://$FHIR_BPM_HOST/fhir/processes/sendSampleCloudEvent/azra12
 $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/queries/cases/
 -----
 
+== Deploy to OpenShift
+This project includes ansible to deploy this application to OpenShift in a repeatable manner.
+
+An architecture diagram of what is deployed can be found link:https://docs.google.com/presentation/d/1nLNPzu93bhOW_QNZDiBxERgYVMJ9RBV1ZhtMJECr5s0/edit#slide=id.gd919252c16_0_0[here].
+
+Procedure:
+
+. Using the `oc` utility that corresponds to the version of OpenShift that you will deploy to, log into the cluster: 
++
+-----
+$ oc login <url> -u <userId> -p <passwd>
+-----
++
+NOTE:  cluster admin privledges are not needed.
+
+. Change to the _ansible_ directory: 
++
+-----
+$ cd ansible
+-----
+
+. Deploy to OpenShift:
++
+-----
+$ ansible-playbook playbooks/install.yml
+-----
 
 == Development
 
