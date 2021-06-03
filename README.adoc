@@ -4,47 +4,19 @@
 :linkattrs:
 
 = Pneumonia Treatment demo
+:numbered:
 
 == Purpose
 
-:numbered:
 
 Please see the following:
 
 . link:https://trello.com/c/fbnRjpZu/22-detection-of-pneumonia-from-chest-x-rays[Trello Card]
 . link:https://docs.google.com/presentation/d/1nLNPzu93bhOW_QNZDiBxERgYVMJ9RBV1ZhtMJECr5s0/edit#slide=id.g775d9c5cf4_0_717[Presentation]
 
-== Build & local dev environment
+== Local containerized environment
 
-NOTE: The following commands make use of _podman_, _buildah_ and _podman_compose_.  The equivalent _docker_ family of utilities should also work.
-
-. Clone source code containing pneumonia treatment business process model and rules:
-+
------
-$ git clone https://github.com/redhat-naps-da/pneumonia-patient-processing-kjar.git
------
-
-. Build and install _kjar_ project:
-+
------
-$ mvn clean install -DskipTests
------
-
-. Build KIE-Server executable from this project:
-+
------
-$ git clone https://github.com/redhat-naps-da/pneumonia-patient-processing-pam.git
-
-$ mvn clean package
------
-
-. Build linux container with KIE-Server:
-+
------
-$ buildah bud -f docker/fhir-bpm-service/Dockerfile \
-              -t quay.io/redhat_naps_da/fhir-bpm-service:0.0.14 \
-              .
------
+This project includes a _docker-compose_ that allows for deployment of the application as containers in your local environment.
 
 . Start application pod with all linux containers:
 +
@@ -57,8 +29,44 @@ $ podman-compose -f etc/docker-compose.yaml up -d
 image::docs/images/docker-compose-architecture.png[]
 
 
-== Test (Locally)
 
+== OpenShift
+Ansible is included to deploy this application to OpenShift in a repeatable manner.
+
+An architecture diagram of what is deployed can be found link:https://docs.google.com/presentation/d/1nLNPzu93bhOW_QNZDiBxERgYVMJ9RBV1ZhtMJECr5s0/edit#slide=id.gd919252c16_0_0[here].
+
+Procedure:
+
+. Using the `oc` utility that corresponds to the version of OpenShift that you will deploy to, log into the cluster: 
++
+-----
+$ oc login <url> -u <userId> -p <passwd>
+-----
++
+NOTE:  cluster admin privledges are not needed for this application.
+
+. Change to the _ansible_ directory: 
++
+-----
+$ cd ansible
+-----
+
+. Deploy to OpenShift:
++
+-----
+$ ansible-playbook playbooks/install.yml
+-----
+
+
+== Test
+The FHIR BPM Service is enabled with the _kie_server_ as well as various endpoints that can consume FHIR payloads.
+
+The application also includes a HAPI FHIR Server that also exposes RESTful endpoints.
+
+These RESTful endpoints can be invoked as per the following examples:
+
+
+=== FHIR BPM Service
 . Optional:  Set FHIR_BPM_HOST env var if testing OCP deployment:
 +
 -----
@@ -111,34 +119,62 @@ $ curl -X POST https://$FHIR_BPM_HOST/fhir/processes/sendSampleCloudEvent/azra12
 $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/queries/cases/
 -----
 
-== Deploy to OpenShift
-This project includes ansible to deploy this application to OpenShift in a repeatable manner.
+=== FHIR Server
 
-An architecture diagram of what is deployed can be found link:https://docs.google.com/presentation/d/1nLNPzu93bhOW_QNZDiBxERgYVMJ9RBV1ZhtMJECr5s0/edit#slide=id.gd919252c16_0_0[here].
-
-Procedure:
-
-. Using the `oc` utility that corresponds to the version of OpenShift that you will deploy to, log into the cluster: 
+. Optional:  Set FHIR_SERVER_HOST env var if testing OCP deployment:
 +
 -----
-$ oc login <url> -u <userId> -p <passwd>
------
-+
-NOTE:  cluster admin privledges are not needed.
-
-. Change to the _ansible_ directory: 
-+
------
-$ cd ansible
+FHIR_SERVER_HOST=$(oc get route fhir-server -n user1-pneumonia-case-mgmt --template='{{ .spec.host }}')
 -----
 
-. Deploy to OpenShift:
+. POST Observation to FHIR server
 +
 -----
-$ ansible-playbook playbooks/install.yml
+$ curl -X POST \
+       -H "Content-Type:application/fhir+json" \
+       http://localhost:8080/fhir/Observation \
+       -d "@src/test/resources/fhir/Observation1.json"
+
+$ curl -X POST \
+       -H "Content-Type:application/fhir+json" \
+       https://$FHIR_SERVER_HOST/fhir/Observation \
+       -d "@src/test/resources/fhir/Observation1.json"
 -----
+
 
 == Development
+
+. Clone source code containing pneumonia treatment business process model and rules:
++
+-----
+$ git clone https://github.com/redhat-naps-da/pneumonia-patient-processing-kjar.git
+-----
+
+. Build and install _kjar_ project:
++
+-----
+$ cd pneumonia-patient-processing-kjar
+
+$ mvn clean install -DskipTests
+-----
+
+. Build KIE-Server executable from this project:
++
+-----
+$ git clone https://github.com/redhat-naps-da/pneumonia-patient-processing-pam.git
+
+$ cd pneumonia-patient-processing-pam
+
+$ mvn clean package
+-----
+
+. Optional: Build linux container of FHIR BPM Service: 
++
+-----
+$ buildah bud -f docker/fhir-bpm-service/Dockerfile \
+              -t quay.io/redhat_naps_da/fhir-bpm-service:0.0.14 \
+              .
+-----
 
 . Build and Start app
 +
@@ -149,29 +185,27 @@ $ mvn clean package -DskipTests && \
 -----
 
 
-. Optional:  Create a container in kie-server  (kie-container should already be registered as per contents of etc/rhpam/fhir-bpm-service.xml )
-   `````
-   $ export KJAR_VERSION=1.0.3
-   $ export KIE_SERVER_CONTAINER_NAME=fhir-bpm-service
+. Optional:  Create a _kie-container_ in kie-server  (kie-container should already be registered as per contents of etc/rhpam/fhir-bpm-service.xml )
++
+-----
+$ export KJAR_VERSION=1.0.3
+$ export KIE_SERVER_CONTAINER_NAME=fhir-bpm-service
 
-   $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/rhpam/kie_container.json \
+$ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/rhpam/kie_container.json \
      | sed "s/{KJAR_VERSION}/$KJAR_VERSION/g" \
      > /tmp/kie_container.json && \
      curl -u "kieserver:kieserver" -X PUT -H 'Content-type:application/json' localhost:9080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION -d '@/tmp/kie_container.json'
-   `````
+-----
 
 . Post Debezium configs:
-    `````
-    $ curl -X POST \
++
+-----
+$ curl -X POST \
         -H "Accept:application/json" -H "Content-Type:application/json" \
         localhost:8083/connectors/ \
         -d "@etc/hapi-fhir/debezium-fhir-server-pgsql.json"
-    `````
+-----
 
-. POST Observation to FHIR server
-    `````
-    $ curl -X POST \
-       -H "Content-Type:application/fhir+json" \
-       http://localhost:8080/fhir/Observation \
-       -d "@src/test/resources/fhir/Observation1.json"
-    `````
+
+
+
