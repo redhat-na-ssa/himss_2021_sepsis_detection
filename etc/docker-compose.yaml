@@ -121,7 +121,7 @@ services:
         target: /opt/app-root/src/postgresql-start/create_rhpam_database.sh
 
   fhir-bpm-service:
-    image: quay.io/redhat_naps_da/fhir-bpm-service:0.0.14
+    image: quay.io/redhat_naps_da/fhir-bpm-service:0.0.15
     restart: always
     ports:
       - "9080:9080"

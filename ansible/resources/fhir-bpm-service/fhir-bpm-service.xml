@@ -26,7 +26,7 @@
   </configuration>
   <containers>
     <container>
-      <containerId>{{ application_name }}-{{ kie_deployment_version }}</containerId>
+      <containerId>{{ kie_deployment_name }}-{{ kie_deployment_version }}</containerId>
       <releaseId>
         <groupId>com.redhat.naps.pneumonia</groupId>
         <artifactId>{{ kie_deployment_name }}</artifactId>
@@ -35,6 +35,7 @@
       <status>STARTED</status>
       <configItems/>
       <messages/>
+      <containerAlias>{{ kie_deployment_name }}</containerAlias>
     </container>
   </containers>
 </kie-server-state>

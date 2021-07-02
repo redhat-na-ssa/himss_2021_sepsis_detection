@@ -131,6 +131,13 @@
               <type>jar</type>
               <outputDirectory>${project.build.directory}/repository/com/redhat/naps/pneumonia/pneumonia-patient-processing-kjar/${naps.version}</outputDirectory>
             </artifactItem>
+            <artifactItem>
+               <groupId>com.redhat.naps.pneumonia</groupId>
+               <artifactId>pneumonia-patient-processing-kjar</artifactId>
+               <version>${naps.version}</version>
+              <type>pom</type>
+              <outputDirectory>${project.build.directory}/repository/com/redhat/naps/pneumonia/pneumonia-patient-processing-kjar/${naps.version}</outputDirectory>
+            </artifactItem>
           </artifactItems>
         </configuration>
       </plugin>

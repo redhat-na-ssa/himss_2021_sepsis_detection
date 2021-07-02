@@ -70,7 +70,7 @@ These RESTful endpoints can be invoked as per the following examples:
 . Optional:  Set FHIR_BPM_HOST env var if testing OCP deployment:
 +
 -----
-FHIR_BPM_HOST=$(oc get route fhir-bpm-service -n user1-pneumonia-case-mgmt --template='{{ .spec.host }}')
+FHIR_BPM_HOST=$(oc get route fhir-bpm-service -n user1-pneumonia-treatment --template='{{ .spec.host }}')
 -----
 
 . Health Check Report
@@ -124,7 +124,7 @@ $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:90
 . Optional:  Set FHIR_SERVER_HOST env var if testing OCP deployment:
 +
 -----
-FHIR_SERVER_HOST=$(oc get route fhir-server -n user1-pneumonia-case-mgmt --template='{{ .spec.host }}')
+FHIR_SERVER_HOST=$(oc get route fhir-server -n user1-pneumonia-treatment --template='{{ .spec.host }}')
 -----
 
 . POST Observation to FHIR server

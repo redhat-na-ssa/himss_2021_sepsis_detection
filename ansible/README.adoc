@@ -3,7 +3,7 @@
 :toc2:
 :linkattrs:
 
-= pneumonia-case-mgmt deploy
+= pneumonia-treatment deploy
 :numbered:
 
 == Overview
@@ -63,5 +63,5 @@ $ ansible-playbook playbooks/install.yml \
 
 curl -X POST \
            -H "Content-Type:application/fhir+json" \
-           https://fhir-server-user1-pneumonia-case-mgmt.apps.cluster-8d18.8d18.sandbox1759.opentlc.com/fhir/Observation \
+           https://fhir-server-user1-pneumonia-treatment.apps.cluster-8d18.8d18.sandbox1759.opentlc.com/fhir/Observation \
            -d "@/$LABS/mw/redhat-naps-da/pneumonia-patient-processing-pam/src/test/resources/fhir/Observation1.json"
