@@ -30,7 +30,7 @@ ie: `dnf install ansible`
 
 . Log into OpenShift using the `oc` command line utility.
 
-. Execute the following to deploy the HAPI FHIR Server to OpenShift: 
+. Execute the following to deploy all components associated with this application to OpenShift:
 +
 -----
 $ ansible-playbook playbooks/install.yml

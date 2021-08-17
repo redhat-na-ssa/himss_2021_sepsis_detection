@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 // https://github.com/hapifhir/hapi-fhir/blob/master/hapi-fhir-base/src/main/java/ca/uhn/fhir/context/FhirContext.java
 import ca.uhn.fhir.context.FhirContext;
 import org.hl7.fhir.r4.model.Observation;
+import org.hl7.fhir.r4.model.Patient;
 import com.redhat.naps.process.FhirProcessMgmt;
 import com.redhat.naps.process.util.FHIRUtil;
 
@@ -61,11 +62,21 @@ public class DebeziumStreamListener {
                 String fhirJson = IOUtils.toString(is, "UTF-8");
                 Observation oEvent = fhirCtx.newJsonParser().parseResource(Observation.class, fhirJson);
                 oEvent.setId(resId.asText());
-                log.debug("bytes length = "+bytes.length+ " : fhir json = \n"+ fhirJson+"\n fhir resourceType: "+oEvent.getResourceType().name());
+                log.info("bytes length = "+bytes.length+ " : fhir json = \n"+ fhirJson+"\n fhir resourceType: "+oEvent.getResourceType().name());
 
                 fhirProcessMgmt.startProcess(oEvent);
 
-            }else {
+            }else if(FHIRUtil.PATIENT.equals(resType.asText())) {
+                JsonNode resId = after.get("res_id");
+                JsonNode resText = after.get("res_text");
+                byte[] bytes = resText.binaryValue();
+                is = new GZIPInputStream(new ByteArrayInputStream(bytes));
+                String fhirJson = IOUtils.toString(is, "UTF-8");
+                Patient pEvent = fhirCtx.newJsonParser().parseResource(Patient.class, fhirJson);
+                pEvent.setId(resId.asText());
+                log.info("bytes length = "+bytes.length+ " : fhir json = \n"+ fhirJson+"\n fhir resourceType: "+pEvent.getResourceType().name());
+
+            } else {
                 log.warn("Will not process message with FHIR type: "+resType.asText());
             }
         }catch(Exception x) {

@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.redhat.naps</groupId>
-  <artifactId>pneumonia-patient-processing-pam</artifactId>
+  <artifactId>pam_debezium_test</artifactId>
   <version>0.0.1</version>
 
   <parent>
@@ -17,7 +17,7 @@
     <skipITs>${skipTests}</skipITs>
     <skipUTs>${skipTests}</skipUTs>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.rhpam>7.48.0.Final-redhat-00006</version.rhpam>
+    <version.rhpam>7.52.0.Final-redhat-00008</version.rhpam>
     <version.logback>1.2.3</version.logback>
     <version.logstash-logback-encoder>5.1</version.logstash-logback-encoder>
     <version.wiremock>2.6.0</version.wiremock>

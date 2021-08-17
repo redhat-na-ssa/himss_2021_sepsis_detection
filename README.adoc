@@ -134,11 +134,6 @@ $ curl -X POST \
        -H "Content-Type:application/fhir+json" \
        http://localhost:8080/fhir/Observation \
        -d "@src/test/resources/fhir/Observation1.json"
-
-$ curl -X POST \
-       -H "Content-Type:application/fhir+json" \
-       https://$FHIR_SERVER_HOST/fhir/Observation \
-       -d "@src/test/resources/fhir/Observation1.json"
 -----
 
 
