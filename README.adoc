@@ -70,7 +70,7 @@ These RESTful endpoints can be invoked as per the following examples:
 . Optional:  Set FHIR_BPM_HOST env var if testing OCP deployment:
 +
 -----
-FHIR_BPM_HOST=$(oc get route fhir-bpm-service -n user1-pneumonia-treatment --template='{{ .spec.host }}')
+FHIR_BPM_HOST=$(oc get route sepsisdetection-rhpam -n user1-pneumonia-treatment --template='{{ .spec.host }}')
 -----
 
 . Health Check Report
@@ -100,9 +100,9 @@ $ curl -u "kieserver:kieserver" -X GET https://$FHIR_BPM_HOST/rest/server/contai
 . List process definitions in JSON representation:
 +
 -----
-$ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/containers/pneumonia-patient-processing-kjar/processes/
+$ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/containers/sepsisdetection-kjar/processes/
 
-$ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' https://$FHIR_BPM_HOST/rest/server/containers/pneumonia-patient-processing-kjar/processes/
+$ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' https://$FHIR_BPM_HOST/rest/server/containers/sepsisdetection-kjar/processes/
 -----
 
 . Start a business process
@@ -142,13 +142,13 @@ $ curl -X POST \
 . Clone source code containing pneumonia treatment business process model and rules:
 +
 -----
-$ git clone https://github.com/redhat-naps-da/pneumonia-patient-processing-kjar.git
+$ git clone https://github.com/redhat-naps-da/sepsisdetection-kjar.git
 -----
 
 . Build and install _kjar_ project:
 +
 -----
-$ cd pneumonia-patient-processing-kjar
+$ cd sepsisdetection-kjar
 
 $ mvn clean install -DskipTests
 -----
@@ -166,8 +166,8 @@ $ mvn clean package
 . Optional: Build linux container of FHIR BPM Service: 
 +
 -----
-$ buildah bud -f docker/fhir-bpm-service/Dockerfile \
-              -t quay.io/redhat_naps_da/fhir-bpm-service:0.0.14 \
+$ buildah bud -f docker/sepsisdetection-rhpam/Dockerfile \
+              -t quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.14 \
               .
 -----
 
@@ -175,16 +175,16 @@ $ buildah bud -f docker/fhir-bpm-service/Dockerfile \
 +
 -----
 $ mvn clean package -DskipTests && \
-         java -Dorg.kie.server.repo=etc/fhir-bpm-service/runtime_configs \
-              -jar target/pneumonia-patient-processing-pam-0.0.1.jar 
+         java -Dorg.kie.server.repo=../etc/sepsisdetection-rhpam/runtime_configs \
+              -jar target/sepsisdetection-rhpam-0.0.1.jar 
 -----
 
 
-. Optional:  Create a _kie-container_ in kie-server  (kie-container should already be registered as per contents of etc/rhpam/fhir-bpm-service.xml )
+. Optional:  Create a _kie-container_ in kie-server  (kie-container should already be registered as per contents of etc/rhpam/sepsisdetection-rhpam.xml )
 +
 -----
-$ export KJAR_VERSION=1.0.3
-$ export KIE_SERVER_CONTAINER_NAME=fhir-bpm-service
+$ export KJAR_VERSION=1.0.0
+$ export KIE_SERVER_CONTAINER_NAME=sepsisdetection-rhpam
 
 $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/rhpam/kie_container.json \
      | sed "s/{KJAR_VERSION}/$KJAR_VERSION/g" \
@@ -203,4 +203,7 @@ $ curl -X POST \
 
 
 
+== Reference
 
+https://gitlab.consulting.redhat.com/ba-nacomm/sepsis-detection/sepsisdetection-service/-/tree/master/openshift
+https://gitlab.consulting.redhat.com/ba-nacomm/sepsis-detection/sepsisdetection-kjar

@@ -54,28 +54,17 @@ public class DebeziumStreamListener {
             JsonNode after = rootNode.get("data").get("payload").get("after");
             JsonNode resType = after.get("res_type");
             log.info("resType = "+resType.asText());
-            if(FHIRUtil.OBSERVATION.equals(resType.asText())) {
+            if(FHIRUtil.PATIENT.equals(resType.asText())) {
                 JsonNode resId = after.get("res_id");
                 JsonNode resText = after.get("res_text");
                 byte[] bytes = resText.binaryValue();
                 is = new GZIPInputStream(new ByteArrayInputStream(bytes));
                 String fhirJson = IOUtils.toString(is, "UTF-8");
-                Observation oEvent = fhirCtx.newJsonParser().parseResource(Observation.class, fhirJson);
+                Patient oEvent = fhirCtx.newJsonParser().parseResource(Patient.class, fhirJson);
                 oEvent.setId(resId.asText());
                 log.info("bytes length = "+bytes.length+ " : fhir json = \n"+ fhirJson+"\n fhir resourceType: "+oEvent.getResourceType().name());
 
                 fhirProcessMgmt.startProcess(oEvent);
-
-            }else if(FHIRUtil.PATIENT.equals(resType.asText())) {
-                JsonNode resId = after.get("res_id");
-                JsonNode resText = after.get("res_text");
-                byte[] bytes = resText.binaryValue();
-                is = new GZIPInputStream(new ByteArrayInputStream(bytes));
-                String fhirJson = IOUtils.toString(is, "UTF-8");
-                Patient pEvent = fhirCtx.newJsonParser().parseResource(Patient.class, fhirJson);
-                pEvent.setId(resId.asText());
-                log.info("bytes length = "+bytes.length+ " : fhir json = \n"+ fhirJson+"\n fhir resourceType: "+pEvent.getResourceType().name());
-
             } else {
                 log.warn("Will not process message with FHIR type: "+resType.asText());
             }

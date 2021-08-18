@@ -15,7 +15,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.stereotype.Component;
-import org.hl7.fhir.r4.model.Observation;
+import org.hl7.fhir.r4.model.Patient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,13 +32,13 @@ public class FhirProcessMgmt {
     @Autowired
     private PlatformTransactionManager transactionManager;
 
-    @Value("${observation.deployment.id}")
+    @Value("${sepsisdetection.deployment.id}")
     private String deploymentId;
 
-    @Value("${observation.process.id}")
+    @Value("${sepsisdetection.process.id}")
     private String processId;
 
-    public Long startProcess(Observation oEvent) {
+    public Long startProcess(Patient oEvent) {
 
         /* NOTE:  
                 FHIR data object uses id convention of:   <FHIR data type>/id
@@ -50,12 +50,12 @@ public class FhirProcessMgmt {
             CorrelationKey correlationKey = correlationKeyFactory.newCorrelationKey(cKey);
 
             Map<String, Object> parameters = new HashMap<>();
-            parameters.put(FHIRUtil.OBSERVATION, oEvent);
+            parameters.put(FHIRUtil.PATIENT, oEvent);
 
             TransactionTemplate template = new TransactionTemplate(transactionManager);
             return template.execute((TransactionStatus s) -> {
                 Long pi = processService.startProcess(deploymentId, processId, correlationKey, parameters);
-                log.info("Started process for observation " + oEvent.toString() + ". ProcessInstanceId = " + pi+" : correlationKey = "+correlationKey.getName());
+                log.info("Started process for patient " + oEvent.toString() + ". ProcessInstanceId = " + pi+" : correlationKey = "+correlationKey.getName());
                 return pi;
             });
         

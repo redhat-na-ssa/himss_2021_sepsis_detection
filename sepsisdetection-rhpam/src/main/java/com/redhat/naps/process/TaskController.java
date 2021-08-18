@@ -43,9 +43,6 @@ public class TaskController {
     private static FhirContext fhirCtx = FhirContext.forR4();
     private static final String OBSERVATION_TASK_VARIABLE_NAME = "taskObservation";
 
-    @Value("${observation.deployment.id}")
-    private String deploymentId; 
-
     @Autowired
     private RuntimeDataService runtimeService;
 

@@ -34,10 +34,7 @@ import io.cloudevents.core.builder.CloudEventBuilder;
 import io.cloudevents.CloudEvent;
 
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r4.model.Observation;
-import org.hl7.fhir.r4.model.Observation.ObservationStatus;
 import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.r4.model.Encounter;
 
 // https://github.com/hapifhir/hapi-fhir/blob/master/hapi-fhir-base/src/main/java/ca/uhn/fhir/context/FhirContext.java
 import ca.uhn.fhir.context.FhirContext;
@@ -53,11 +50,11 @@ public class ProcessController {
     private final List<Integer> statesToAbort = new ArrayList<>();
     private CorrelationKeyFactory correlationKeyFactory = KieInternalServices.Factory.get().newCorrelationKeyFactory();
 
-    @Value("${observation.deployment.id}")
+    @Value("${sepsisdetection.deployment.id}")
     private String deploymentId;
 
-    @Value("${listener.destination.observation-reported-event}")
-    private String observationReportedTopic;
+    @Value("${listener.destination.patient-reported-event}")
+    private String fhirReportedTopic;
 
     @Autowired
     private RuntimeDataService runtimeDataService;
@@ -121,44 +118,4 @@ public class ProcessController {
 
         return new ResponseEntity<>(pInstances.size(), HttpStatus.OK);
     }
-
-    // Example:  curl -X POST localhost:8080/fhir/processes/sendSampleCloudEvent/azra12350
-    @Transactional
-    @RequestMapping(value = "/sendSampleCloudEvent/{observationId}", method = RequestMethod.POST, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> sendSampleCloudEvent(@PathVariable("observationId") String observationId) {
-
-        Observation obs = createInitialObservation(observationId);
-        String obsString = fhirCtx.newJsonParser().setPrettyPrint(true).encodeResourceToString(obs);
-
-        CloudEvent cEvent = CloudEventBuilder.v1()
-                .withId(observationId)
-                .withType("ObservationReportedEvent")
-                .withSource(URI.create("http://redhat.naps.da"))
-                .withDataContentType("application/json")
-                .withData(obsString.getBytes())
-                .build();
-
-        producer.send(observationReportedTopic, cEvent);    
-        return new ResponseEntity<>(observationId, HttpStatus.OK);
-    }
-
-    private Observation createInitialObservation(String obsId) {
-        Observation obs = new Observation();
-
-        Patient pt = new Patient();
-        pt.setId("#1");
-        pt.addName().setFamily("FAM");
-        obs.getSubject().setReference("#1");
-        obs.getContained().add(pt);
-
-        Encounter enc = new Encounter();
-        enc.setStatus(Encounter.EncounterStatus.ARRIVED);
-        obs.getEncounter().setResource(enc);
-
-        obs.setStatus(ObservationStatus.PRELIMINARY);
-        obs.setId(obsId);
-
-        return obs;
-    }
-
 }

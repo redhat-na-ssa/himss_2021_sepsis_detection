@@ -13,7 +13,7 @@ import io.cloudevents.CloudEvent;
 
 // https://github.com/hapifhir/hapi-fhir/blob/master/hapi-fhir-base/src/main/java/ca/uhn/fhir/context/FhirContext.java
 import ca.uhn.fhir.context.FhirContext;
-import org.hl7.fhir.r4.model.Observation;
+import org.hl7.fhir.r4.model.Patient;
 
 import com.redhat.naps.process.FhirProcessMgmt;
 
@@ -23,13 +23,13 @@ public class CloudEventsListener {
 
     private final static Logger log = LoggerFactory.getLogger(CloudEventsListener.class);
 
-    private static final String TYPE_OBSERVATION_REPORTED_EVENT = "ObservationReportedEvent";
+    private static final String TYPE_PATIENT_REPORTED_EVENT = "PatientReportedEvent";
     private static FhirContext fhirCtx = FhirContext.forR4();
 
     @Autowired
     FhirProcessMgmt fhirProcessMgmt;
     
-    @KafkaListener(topics = "${listener.destination.observation-reported-event}")
+    @KafkaListener(topics = "${listener.destination.patient-reported-event}")
     public void processMessage(@Payload CloudEvent cloudEvent, 
                                @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                @Header(KafkaHeaders.RECEIVED_PARTITION_ID) int partition, 
@@ -43,12 +43,12 @@ public class CloudEventsListener {
     }
 
     private void doProcessMessage(CloudEvent cloudEvent, Acknowledgment ack) {
-        Observation oEvent;
+        Patient oEvent;
         try {
 
             String obsString = new String(cloudEvent.getData().toBytes());
             //log.debug("doProcessMessage() obString = "+obsString);
-            oEvent = fhirCtx.newJsonParser().parseResource(Observation.class, obsString );
+            oEvent = fhirCtx.newJsonParser().parseResource(Patient.class, obsString );
 
             validate(oEvent);
 
@@ -69,7 +69,7 @@ public class CloudEventsListener {
             return false;
         }
         String messageType = cloudEvent.getType();
-        if (!(TYPE_OBSERVATION_REPORTED_EVENT.equalsIgnoreCase(messageType))) {
+        if (!(TYPE_PATIENT_REPORTED_EVENT.equalsIgnoreCase(messageType))) {
             log.debug("Message with type '" + messageType + "' is ignored");
             return false;
         }
@@ -81,7 +81,7 @@ public class CloudEventsListener {
         return true;
     }
 
-    private void validate(Observation obs) {
+    private void validate(Patient obs) {
         //TO_DO
     }
 }
