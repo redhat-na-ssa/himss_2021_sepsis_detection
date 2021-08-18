@@ -3,7 +3,7 @@
 :toc2:
 :linkattrs:
 
-= Pneumonia Treatment demo
+= Sepsis Detection demo
 :numbered:
 
 == Purpose

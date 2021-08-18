@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.redhat.naps</groupId>
-  <artifactId>pam_debezium_test</artifactId>
+  <artifactId>sepsisdetection-rhpam</artifactId>
   <version>0.0.1</version>
 
   <parent>
@@ -23,12 +23,12 @@
     <version.wiremock>2.6.0</version.wiremock>
     <hapi.fhir.version>5.3.0</hapi.fhir.version>
     <cxf.version>3.2.14</cxf.version>
-    <naps.version>1.0.3</naps.version>
+    <naps.version>1.0.0</naps.version>
   </properties>
   <dependencies>
     <dependency>
-      <groupId>com.redhat.naps.pneumonia</groupId>
-      <artifactId>pneumonia-patient-processing-kjar</artifactId>
+      <groupId>com.redhat.naps</groupId>
+      <artifactId>sepsisdetection-kjar</artifactId>
       <version>${naps.version}</version>
     </dependency>
 
@@ -125,18 +125,18 @@
         <configuration>
           <artifactItems>
             <artifactItem>
-               <groupId>com.redhat.naps.pneumonia</groupId>
-               <artifactId>pneumonia-patient-processing-kjar</artifactId>
+               <groupId>com.redhat.naps</groupId>
+               <artifactId>sepsisdetection-kjar</artifactId>
                <version>${naps.version}</version>
               <type>jar</type>
-              <outputDirectory>${project.build.directory}/repository/com/redhat/naps/pneumonia/pneumonia-patient-processing-kjar/${naps.version}</outputDirectory>
+              <outputDirectory>${project.build.directory}/repository/com/redhat/naps/sepsisdetection-kjar/${naps.version}</outputDirectory>
             </artifactItem>
             <artifactItem>
-               <groupId>com.redhat.naps.pneumonia</groupId>
-               <artifactId>pneumonia-patient-processing-kjar</artifactId>
+               <groupId>com.redhat.naps</groupId>
+               <artifactId>sepsisdetection-kjar</artifactId>
                <version>${naps.version}</version>
               <type>pom</type>
-              <outputDirectory>${project.build.directory}/repository/com/redhat/naps/pneumonia/pneumonia-patient-processing-kjar/${naps.version}</outputDirectory>
+              <outputDirectory>${project.build.directory}/repository/com/redhat/naps/sepsisdetection-kjar/${naps.version}</outputDirectory>
             </artifactItem>
           </artifactItems>
         </configuration>

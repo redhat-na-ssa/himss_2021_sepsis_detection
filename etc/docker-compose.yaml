@@ -111,17 +111,17 @@ services:
       SCRIPT_DIR: /opt/sql
     volumes:
       - type: bind
-        source: ./fhir-bpm-service/db/rhpam-psql.conf
+        source: ./sepsisdetection-rhpam/db/rhpam-psql.conf
         target: /opt/app-root/src/postgresql-cfg/rhpam-psql.conf
       - type: bind
-        source: ./fhir-bpm-service/db/ddl-scripts/postgresql/
+        source: ./sepsisdetection-rhpam/db/ddl-scripts/postgresql/
         target: /opt/sql
       - type: bind
-        source: ./fhir-bpm-service/db/create_rhpam_database.sh
+        source: ./sepsisdetection-rhpam/db/create_rhpam_database.sh
         target: /opt/app-root/src/postgresql-start/create_rhpam_database.sh
 
-#  fhir-bpm-service:
-#    image: quay.io/redhat_naps_da/fhir-bpm-service:0.0.15
+#  sepsisdetection-rhpam:
+#    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.1
 #    restart: always
 #    ports:
 #      - "9080:9080"
@@ -131,15 +131,15 @@ services:
 #      GC_MAX_METASPACE_SIZE: '500'
 #      SPRING_CONFIG_LOCATION: "file:///deployments/config/application.properties"
 #
-#      # org.kie.server.repo: dictates to kie-server where to find its KIE container configuration file
-#      # kie.maven.settings.custom: dictates to kie-server where to fine its artifact repo of KJars
+#      # org.kie.server.repo        : dictates to kie-server where to find its KIE container configuration file
+#      # kie.maven.settings.custom  : dictates to kie-server where to fine its artifact repo of KJars
 #      JAVA_OPTS_APPEND: '-Dorg.kie.server.repo=/deployments/config -Dkie.maven.settings.custom=/m2/settings.xml'
 #
 #      # Optional: Change to URL of Nexus (if in use)
 #      MAVEN_MIRROR_URL: ''
 #    volumes:
 #      - type: bind
-#        source: ./fhir-bpm-service/runtime_configs
+#        source: ./sepsisdetection-rhpam/runtime_configs
 #        target: /deployments/config/
 #    depends_on:
 #      - psql_rhpam

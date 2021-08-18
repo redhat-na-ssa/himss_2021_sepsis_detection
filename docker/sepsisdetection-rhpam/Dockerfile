@@ -1,6 +1,6 @@
 # mvn clean package
-# buildah bud -f docker/fhir-bpm-service/Dockerfile -t quay.io/redhat_naps_da/fhir-bpm-service:0.0.15 .
-# podman push quay.io/redhat_naps_da/fhir-bpm-service:0.0.15
+# buildah bud -f docker/sepsisdetection-rhpam/Dockerfile -t quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.1 sepsisdetection-rhpam
+# podman push quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.1
 
 # https://github.com/Emergency-Response-Demo/container-images/tree/master/ubi8-java11-mvn
 FROM quay.io/emergencyresponsedemo/ubi8-jdk-11-mvn:0.0.2
