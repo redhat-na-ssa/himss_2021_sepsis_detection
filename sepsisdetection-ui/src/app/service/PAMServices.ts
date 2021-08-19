@@ -23,7 +23,9 @@ export class PAMServices {
         processId: environment.PROCESS_ID,
         username: environment.KIE_SERVER_USERID,
         password: environment.KIE_SERVER_PASSWORD,
-        isOpenShift: false
+        fhirserverURL: environment.FHIR_SERVER_URL,
+        patientViewerURL: environment.PATIENT_VIEWER_URL,
+        isOpenShift: environment.IS_OPENSHIFT
       };
     }
     

@@ -9,7 +9,10 @@ export const environment = {
   KIE_SERVER_PASSWORD: "kieserver",
   DM_CONTAINER_ALIAS: "",
   PAM_CONTAINER_ALIAS: "sepsisdetection-kjar-1.0.0",
-  PROCESS_ID: "highmediummitigation"
+  PROCESS_ID: "highmediummitigation",
+  FHIR_SERVER_URL: "http://localhost:8080",
+  PATIENT_VIEWER_URL: "",
+  IS_OPENSHIFT: false
 };
 
 /*
