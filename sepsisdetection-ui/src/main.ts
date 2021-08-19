@@ -10,6 +10,3 @@ if (environment.production) {
 
 platformBrowserDynamic().bootstrapModule(AppModule)
   .catch(err => console.error(err));
-
-console.log('DB_HOST = ', environment.KIE_SERVER_URL);
-

@@ -192,7 +192,7 @@ $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/rhpam/kie
      curl -u "kieserver:kieserver" -X PUT -H 'Content-type:application/json' localhost:9080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION -d '@/tmp/kie_container.json'
 -----
 
-. Post Debezium configs:
+. Post Debezium configs to kafka_connect container:
 +
 -----
 $ curl -X POST \

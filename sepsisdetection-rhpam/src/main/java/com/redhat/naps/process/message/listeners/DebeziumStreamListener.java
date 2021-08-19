@@ -47,13 +47,12 @@ public class DebeziumStreamListener {
                                @Header(KafkaHeaders.RECEIVED_PARTITION_ID) int partition, 
                                Acknowledgment ack) throws IOException {
 
-        log.info("processMessage() topic = "+topic);
         GZIPInputStream is = null;
         try {
             JsonNode rootNode = objectMapper.readTree(cloudEvent);
             JsonNode after = rootNode.get("data").get("payload").get("after");
             JsonNode resType = after.get("res_type");
-            log.info("resType = "+resType.asText());
+            log.debug("processMessage() topic = "+topic+" : resType = "+resType.asText());
             if(FHIRUtil.PATIENT.equals(resType.asText())) {
                 JsonNode resId = after.get("res_id");
                 JsonNode resText = after.get("res_text");
@@ -62,7 +61,7 @@ public class DebeziumStreamListener {
                 String fhirJson = IOUtils.toString(is, "UTF-8");
                 Patient oEvent = fhirCtx.newJsonParser().parseResource(Patient.class, fhirJson);
                 oEvent.setId(resId.asText());
-                log.info("bytes length = "+bytes.length+ " : fhir json = \n"+ fhirJson+"\n fhir resourceType: "+oEvent.getResourceType().name());
+                log.info("processMessage() bytes length = "+bytes.length+ " : fhir json = \n"+ fhirJson+"\n fhir resourceType: "+oEvent.getResourceType().name());
 
                 fhirProcessMgmt.startProcess(oEvent);
             } else {
