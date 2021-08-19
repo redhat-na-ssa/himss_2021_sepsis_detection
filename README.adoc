@@ -132,8 +132,8 @@ FHIR_SERVER_HOST=$(oc get route fhir-server -n user1-pneumonia-treatment --templ
 -----
 $ curl -X POST \
        -H "Content-Type:application/fhir+json" \
-       http://localhost:8080/fhir/Observation \
-       -d "@sepsisdetection-rhpam/src/test/resources/fhir/Observation1.json"
+       http://localhost:8080/fhir \
+       -d "@sepsisdetection-rhpam/src/test/resources/fhir/ObservationPatientBundle.json"
 -----
 
 
