@@ -1,0 +1,97 @@
+<style>
+    .paneSettings {
+        font-size: 14px;
+    }
+    
+    label {
+        font-weight: bold;
+    }
+    
+    .panel-background {
+        background: #0b2265;
+        color: white;
+    }
+    
+    h4 {
+        text-align: center;
+        padding: 10px;
+        font-weight: 200;
+    }
+</style>
+
+
+
+<div class="card paneSettings">
+    <div class="card-header panel-background">Settings</div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="id_baseurl1">KieServer Base URL</label>
+                    <input type="text" class="form-control input-sm" id="id_baseurl" [(ngModel)]="kieSettings.baseurl" />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="id_containerAlias1">Decision Manager Container Alias</label>
+                    <input type="text" class="form-control input-sm" id="id_containerAlias" [(ngModel)]="kieSettings.dmcontainerAlias" />
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="id_containerAlias2">Process Manager Container Alias</label>
+                    <input type="text" class="form-control input-sm" id="id_containerAlias" [(ngModel)]="kieSettings.picontainerAlias" />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="id_containerAlias">Process Id</label>
+                    <input type="text" class="form-control input-sm" id="id_containerAlias" [(ngModel)]="kieSettings.processId" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="id_username">Username</label>
+                    <input type="text" class="form-control input-sm" id="id_username" [(ngModel)]="kieSettings.username" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="id_password">Password</label>
+                    <input type="password" class="form-control input-sm" id="id_password" [(ngModel)]="kieSettings.password" />
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="id_baseurl1">FHIR Server Base URL</label>
+                    <input type="text" class="form-control input-sm" id="id_baseurl" [(ngModel)]="kieSettings.fhirserverURL" />
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="id_baseurl1">Patient Viewer Base URL</label>
+                    <input type="text" class="form-control input-sm" id="id_baseurl" [(ngModel)]="kieSettings.patientViewerURL" />
+                </div>
+            </div>
+            <!--     <div class="col-md-6">
+        <div class="form-group">
+          <label for="id_password">Password</label>
+          <input type="password" class="form-control input-sm" id="id_password" [(ngModel)]="kieSettings.password" />
+        </div>
+      </div> -->
+            <!-- <div class="col-md-6">
+        <label for="id_password">Running Environment</label>
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" id="customSwitch3" [(ngModel)]="kieSettings.isOpenShift">
+          <label class="custom-control-label" for="customSwitch3"> is OpenShift</label>
+        </div>
+      </div> -->
+            <div class="col-md-12">
+                <button class="btn btn-warning float-right btn-sm" (click)="dismiss()" style="margin-left: 5px;">Cancel</button>
+                <button class="btn btn-success float-right btn-sm" type="button" (click)="updateKieSettings()">Save</button>
+            </div>
+        </div>
+
+    </div>
+</div>

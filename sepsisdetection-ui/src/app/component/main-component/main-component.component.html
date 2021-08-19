@@ -1,0 +1,56 @@
+<style>
+    .nav-pills .nav-link.active,
+    .nav-pills .show>.nav-link {
+        color: #fff;
+        background-color: #0029a0;
+    }
+    
+    .panel-background {
+        background: #1e22aa;
+        color: white;
+    }
+    
+    a:hover {
+        background: #0b2265;
+        color: white;
+    }
+</style>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-header panel-background">
+        Sepsis Demo
+
+        <div class="dropdown float-right" triggers="mouseenter:mouseleave" placement="left">
+            <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span style="font-size: 15px"></span>
+        <fa-icon [icon]="faUser" style="margin-right:10px;"> </fa-icon>{{user.name}} ( {{user.role}} )
+      </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" *ngFor="let curuser of userList" (click)="changeSelectedOption(curuser)" href="#">
+                    <div>
+                        <p>
+                            <fa-icon [icon]="faUser" style="margin-right:10px;"></fa-icon> {{curuser.name}} <span style="font-size:12px">({{curuser.role}})</span>
+                        </p>
+
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="float-right" style="margin-right:10px;" (click)="openSettings()">
+            <button class="btn btn-sm btn-warning">
+        <fa-icon [icon]="faCogs"></fa-icon>
+      </button>
+        </div>
+        <div class="float-right" style="margin-right:10px;">
+            <button class="btn btn-sm btn-warning" (click)="openClosedCases()">
+        <fa-icon [icon]="faDatabase"></fa-icon> Show Closed Cases
+      </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <app-Admin *ngIf="user.userid == 'AndrewSmith'" [user]="user"></app-Admin>
+        <!-- <app-claim *ngIf="user.userid == 'AndrewSmith'" [user]="user"></app-claim>
+        <app-broker *ngIf="user.userid == 'JohnStark'" [user]="user"></app-broker>
+        <app-approve *ngIf="user.userid == 'StacieDorsey'" [user]="user"></app-approve> -->
+    </div>
+</div>

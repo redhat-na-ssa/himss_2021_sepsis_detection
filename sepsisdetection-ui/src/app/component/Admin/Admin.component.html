@@ -1,0 +1,82 @@
+<div class="row">
+  
+  <div class="col-md-12">
+      <nav>
+          <div class="nav nav-tabs" id="nav-tab" role="tablist">
+              <a class="nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab"
+                  aria-controls="nav-home" aria-selected="true">Active Cases</a>
+              <a class="nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab"
+                  aria-controls="nav-profile" aria-selected="false">My Tasks</a>
+          </div>
+      </nav>
+      <div class="tab-content" id="nav-tabContent">
+          <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+              <div class="row">
+                  <div class="col-md-12 tablediv">
+                      <table class="table table-striped" style="margin-top:10px;">
+                          <thead>
+                              <tr>
+                                  <th>Request ID</th>
+                                  <th>Start Date</th>
+                                  <th>Process Name</th>
+                                  <th>Status</th>
+                                  <th>Action</th>
+                                  <!-- <th>Subprocess</th> -->
+                                 
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <tr *ngFor="let instance of activeProcessInstances">
+                                  <td>{{instance.processInstanceId}}</td>
+                                  <td>{{instance.startedDate | date : 'MM/dd/yyyy hh:mm a'}}</td>
+                                  <td>{{instance.name}}</td>
+                                  <td>{{instance.status}}</td>
+                                  <td><button class="btn btn-sm btn-info" type="button"
+                                          (click)="onShowFlow(instance.processInstanceId,'Active',instance)">Show/Hide Workflow</button>
+                                  </td>
+                                  <!-- <td>{{instance.subProcess | json}}</td> -->
+                              </tr>
+                          </tbody>
+                      </table>
+                  </div>
+                  <div class="col-md-10" [hidden]="!allowSvgContent">
+                      <h3>Risk Assessment</h3>
+                      <div #svgContent></div>     
+                  </div>
+                  <div class="col-md-10" [hidden]="!allowSvgContent">
+                    <h3>Patient Risk Mitigation</h3>
+                    <div #svgContentSubProcess></div>   
+                  </div>
+                  
+              </div>
+          </div>
+          <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+              <div class="row">
+                  <table class="table table-striped" style="margin-top:10px;">
+                      <thead>
+                          <tr>
+                              <th>Process InstanceID</th>
+                              <th>Task ID</th>
+                              <th>Task Name</th>
+                              <th>Task Created Date</th>
+                              <th>Action</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr *ngFor="let instance of activeManagerTasks.instanceList">
+                              <td>{{instance.processInstanceId}}</td>
+                              <td>{{instance.taskId}}</td>
+                              <td>{{instance.taskName}}</td>
+                              <td>{{instance.taskCreatedDate | date : 'MM/dd/yyyy hh:mm a'}}</td>
+                              <td> <button class="btn btn-sm btn-primary" type="button"
+                                      style="margin-left:10px;" (click)="getTaskVaribles(instance.taskId,instance)">Open</button>
+                              </td>
+                          </tr>
+
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+
+      </div>
+  </div>

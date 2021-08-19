@@ -1,0 +1,73 @@
+<style>
+  .paneSettings {
+    font-size: 14px;
+  }
+
+  label {
+    font-weight: bold;
+  }
+
+  .panel-background {
+    background: #e71f34;
+    color: white;
+  }
+
+  h4 {
+    text-align: center;
+    padding: 10px;
+    font-weight: 200;
+  }
+</style>
+<div class="card paneSettings">
+  <div class="card-header panel-background">Archived Cases</div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-12 tablediv">
+        <table class="table table-striped" style="margin-top: 10px">
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Start Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let instance of closedProcessInstances">
+              <td>{{ instance.processInstanceId }}</td>
+              <td>{{ instance.startedDate | date: "MM/dd/yyyy hh:mm a" }}</td>
+              <td>{{ instance.status }}</td>
+              <td>
+                <button
+                  class="btn btn-sm btn-info"
+                  type="button"
+                  (click)="onShowFlow(instance.processInstanceId, 'Active',instance)"
+                >
+                  Show/Hide Workflow
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="col-md-12" [hidden]="!allowSvgContent">
+        <h3>Risk Assessment</h3>
+        <div #svgContent></div>
+      </div>
+      <div class="col-md-12" [hidden]="!allowSvgContent">
+        <h3>Patient Risk Mitigation</h3>
+        <div #svgContentSubProcess></div>
+      </div>
+    </div>
+    <div class="col-md-12">
+      <button
+        class="btn btn-warning float-right btn-sm"
+        (click)="dismiss()"
+        style="margin-left: 5px"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>

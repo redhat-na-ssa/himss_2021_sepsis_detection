@@ -1,0 +1,25 @@
+<div class="card paneSettings">
+    <div class="card-header panel-background">
+        Debug
+        <button type="button" class="btn btn-sm btn-warning float-right" aria-label="Close" (click)="dismiss()" style="margin-left:5px;">
+            <fa-icon [icon]="faTimesCircle"></fa-icon>
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12" style="font-family: monospace;
+            font-size: 20px;
+            color: #4c65c3;">
+                <p>URL : {{debug.url}}</p>
+            </div>
+            <div class="col-md-6">
+                <h6> Request </h6>
+                <pre><code [highlight]="jsonPipe.transform(debug.request)" [lineNumbers]="true"></code></pre>
+            </div>
+            <div class="col-md-6">
+                <h6> Response </h6>
+                <pre><code [highlight]="jsonPipe.transform(debug.response)" [lineNumbers]="true"></code></pre>
+            </div>
+        </div>
+    </div>
+</div>

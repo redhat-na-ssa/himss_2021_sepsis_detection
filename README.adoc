@@ -207,3 +207,4 @@ $ curl -X POST \
 
 https://gitlab.consulting.redhat.com/ba-nacomm/sepsis-detection/sepsisdetection-service/-/tree/master/openshift
 https://gitlab.consulting.redhat.com/ba-nacomm/sepsis-detection/sepsisdetection-kjar
+https://gitlab.consulting.redhat.com/ba-nacomm/sepsis-detection/sepsis-ui
