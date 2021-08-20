@@ -1,0 +1,134 @@
+kind: List
+apiVersion: v1
+items:
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    labels:
+      app: {{ application_name }}
+    name: {{ application_name }}
+  spec:
+    port:
+      targetPort: http
+    tls:
+      termination: edge
+    to:
+      kind: Service
+      name: {{ application_name }}
+    wildcardPolicy: None
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: {{ application_name }}
+    labels:
+      expose: "true"
+      app: {{ application_name }}
+  spec:
+    ports:
+      - name: http
+        port: 8080
+        protocol: TCP
+        targetPort: 7080
+    selector:
+      group: sepsisdetection
+      app: {{ application_name }}
+    sessionAffinity: None
+    type: ClusterIP
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: {{ application_name }}
+    name: {{ application_name }}
+  spec:
+    replicas: 1
+    selector:
+      group: sepsisdetection
+      app: {{ application_name }}
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 3600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          group: sepsisdetection
+          app: {{ application_name }}
+      spec:
+        containers:
+          - image: {{ image_name }}:{{ image_tag }}
+            name: {{ application_name }}
+            ports:
+            - containerPort: 7080
+            livenessProbe:
+              failureThreshold: 3
+              httpGet:
+                path: /
+                port: 7080
+                scheme: HTTP
+              initialDelaySeconds: 30
+              periodSeconds: 30
+              timeoutSeconds: 3
+            readinessProbe:
+              failureThreshold: 3
+              httpGet:
+                path: /
+                port: 7080
+                scheme: HTTP
+              initialDelaySeconds: 30
+              periodSeconds: 30
+              timeoutSeconds: 3
+            resources:
+              limits:
+                memory: "1Gi"
+                cpu: "500m"
+            env:
+              - name: KIE_SERVER_URL
+                value: 'http:\/\/{{ sepsisdetection_rhpam_app_name }}:8080'
+              - name: KIE_SERVER_USERID
+                value: "kieserver"
+              - name: KIE_SERVER_PASSWORD
+                value: "{{ sepsisdetection_rhpam_api_passwd }}"
+              - name: DM_CONTAINER_ALIAS
+                value: ""
+              - name: PAM_CONTAINER_ALIAS
+                value: "{{ sepsisdetection_rhpam_deployment_name }}"
+              - name: PROCESS_ID
+                value: "{{ sepsisdetection_rhpam_process_id }}"
+              - name: FHIR_SERVER_URL
+                value: 'http:\/\/{{ fhir_server_application_name }}:8080'
+              - name: PATIENT_VIEWER_URL
+                value: "{{ patient_viewer_url }}"
+              - name: IS_OPENSHIFT
+                value: "true"
+            volumeMounts:
+            - name: env
+              mountPath: /opt/app-root/src/assets/js/env.js
+              subPath: env.js
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: {{ application_name }}
+        serviceAccountName: {{ application_name }}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            name: {{ application_name }}
+          name: env
+    triggers:
+      - type: ConfigChange
+      - imageChangeParams:
+          automatic: true
+          containerNames:
+            - {{ application_name }}
+          from:
+            kind: ImageStreamTag
+            name: "{{ application_name }}:{{ image_tag }}"
+        type: ImageChange

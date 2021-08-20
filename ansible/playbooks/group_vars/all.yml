@@ -12,7 +12,7 @@ openshift_cli: oc
 project_admin: user1
 
 # Name of the OCP project to deploy this application to
-project_name: "{{ project_admin }}-pneumonia-treatment"
+project_name: "{{ project_admin }}-sepsisdetection"
 
 # The following two options are allowed:
 #   image  : Use if a container image of your application is already available from a public container image repo:  ie:  quay.io , registry.redhat.io or docker hub
@@ -22,6 +22,13 @@ deploy_from: image
 # Name of kafka topic that triggers BPM process
 topic_fhir_r4_patient: topic-fhir-r4-patient
 
+
 fhir_server_application_name: fhir-server
+sepsisdetection_rhpam_app_name: sepsisdetection-rhpam
+sepsisdetection_rhpam_api_passwd: kieserver
+sepsisdetection_rhpam_deployment_name: sepsisdetection-kjar
+sepsisdetection_rhpam_process_id: highmediummitigation
+
+patient_viewer_url:
 
 AIModel_server_url: https://sepsis-detection-user1-pneumonia-treatment.apps.beacon02.faros.site/

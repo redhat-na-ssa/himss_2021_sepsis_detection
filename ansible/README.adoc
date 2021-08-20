@@ -3,7 +3,7 @@
 :toc2:
 :linkattrs:
 
-= pneumonia-treatment deploy
+= Sepsis Detection Deploy
 :numbered:
 
 == Overview

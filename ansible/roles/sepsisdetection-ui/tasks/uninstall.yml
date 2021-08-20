@@ -1,0 +1,48 @@
+---
+
+- name: "delete route {{ application_name }}"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+    kind: Route
+
+- name: "delete service {{ application_name }}"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+    kind: Service
+
+- name: "delete DeploymentConfig {{ application_name }}"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+    kind: DeploymentConfig
+
+- name: "delete {{ application_name }} service account"
+  oc_serviceaccount:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+
+- name: "delete {{ application_name }} image stream"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+    kind: imagestream
+
+- name: "delete configmap {{ application_configmap }}"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+    kind: configmap

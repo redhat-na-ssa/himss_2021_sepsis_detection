@@ -1,6 +1,6 @@
 ---
 
-- name: UnDeploy all sepsisdetection artifacts
+- name: Deploy SepsisDetection-UI
   hosts: localhost
   connection: local
   gather_facts: false
@@ -13,7 +13,4 @@
     - group_vars/fhir_bpm_service.yml
 
   tasks:
-  - include: tasks/sepsisdetection-ui.yml
-  - include: tasks/sepsisdetection-rhpam.yml
-  - include: tasks/hapi-fhirserver.yml
-  - include: tasks/amq-streams.yml
+    - include: tasks/sepsisdetection-ui.yml

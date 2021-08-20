@@ -97,18 +97,18 @@ services:
       - psql_fhir
 
   sepsis_ui:
-    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.1
+    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.2
     restart: always
     ports:
       - "7080:7080"
     environment:
-      KIE_SERVER_URL: "http://localhost:9080"
+      KIE_SERVER_URL: 'http:\/\/localhost:9080'
       KIE_SERVER_USERID: "kieserver"
       KIE_SERVER_PASSWORD: "kieserver"
       DM_CONTAINER_ALIAS: ""
       PAM_CONTAINER_ALIAS: "sepsisdetection-kjar-1.0.0"
       PROCESS_ID: "highmediummitigation"
-      FHIR_SERVER_URL: "http://localhost:8080"
+      FHIR_SERVER_URL: 'http:\/\/localhost:8080'
       PATIENT_VIEWER_URL: ""
       IS_OPENSHIFT: false
 

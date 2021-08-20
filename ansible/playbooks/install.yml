@@ -16,3 +16,4 @@
   - include: tasks/amq-streams.yml
   - include: tasks/hapi-fhirserver.yml
   - include: tasks/sepsisdetection-rhpam.yml
+  - include: tasks/sepsisdetection-ui.yml

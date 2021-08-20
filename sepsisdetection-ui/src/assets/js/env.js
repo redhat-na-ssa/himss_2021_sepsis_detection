@@ -2,7 +2,7 @@
 (function(window) {
   window._env = window._env || {};
 
-  window._env.KIE_SERVER_URL = 'http://localhost:9080';
+  window._env.KIE_SERVER_URL = "http://localhost:9080";
   window._env.KIE_SERVER_USERID = 'kieserver';
   window._env.KIE_SERVER_PASSWORD = 'kieserver';
   window._env.DM_CONTAINER_ALIAS = '';

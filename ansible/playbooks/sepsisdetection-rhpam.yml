@@ -1,6 +1,6 @@
 ---
 
-- name: Deploy FHIR BPM Service
+- name: Deploy SepsisDetection RHPAM
   hosts: localhost
   connection: local
   gather_facts: false

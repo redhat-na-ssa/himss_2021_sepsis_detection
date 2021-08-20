@@ -1,5 +1,5 @@
 psql_app_name: psql-rhpam
-application_name: "sepsisdetection-rhpam"
+application_name: "{{ sepsisdetection_rhpam_app_name }}"
 
 postgresql_pv_capacity: 5Gi 
 postgresql_version: 12-el8
@@ -36,9 +36,9 @@ fhir_bpm_service_gc_max_metaspace_size: 500
 kie_server_repo_path: /deployments/config
 kie_admin_user: admin
 kie_admin_password: user
-kieserver_user_password: kieserver
+kieserver_user_password: "{{ sepsisdetection_rhpam_api_passwd }}"
 
-kie_deployment_name: sepsisdetection-kjar
+kie_deployment_name: "{{ sepsisdetection_rhpam_deployment_name }}"
 kie_deployment_version: 1.0.0
-kie_process_id: 'highmediummitigation'
+kie_process_id: "{{ sepsisdetection_rhpam_process_id }}"
 fhir_server_url: "http://{{ fhir_server_application_name }}:8080"

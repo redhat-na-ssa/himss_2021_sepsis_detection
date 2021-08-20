@@ -1,6 +1,6 @@
-#  Build:  buildah bud -f docker/sepsisdetection-ui/Dockerfile -t quay.io/redhat_naps_da/sepsisdetection-ui:0.0.1 sepsisdetection-ui
-#  Push:   podman push quay.io/redhat_naps_da/sepsisdetection-ui:0.0.1
-#  Run  :  podman run -it -p 7080:7080 --rm quay.io/redhat_naps_da/sepsisdetection-ui:0.0.1
+#  Build:  buildah bud -f docker/sepsisdetection-ui/Dockerfile -t quay.io/redhat_naps_da/sepsisdetection-ui:0.0.2 sepsisdetection-ui
+#  Push:   podman push quay.io/redhat_naps_da/sepsisdetection-ui:0.0.2
+#  Run  :  podman run -it -p 7080:7080 --rm quay.io/redhat_naps_da/sepsisdetection-ui:0.0.2
 
 
 # Stage 1: Compile and Build angular codebase
@@ -30,6 +30,9 @@ COPY --from=build /opt/app-root/src/dist/sepsis-ui .
 # Change listener port to 7080 so as to deconflict with other containers in demo when running locally
 ADD nginx.conf "${NGINX_CONF_PATH}"
 
+ADD set-config-and-start.sh .
+
 # Expose port
 EXPOSE 7080
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["./set-config-and-start.sh"]
+
