@@ -114,7 +114,7 @@ export class PAMServices {
   }
 
   getTaskVariables(taskInstanceId: number) {
-    let url = this.kieSettings.baseurl + "/fhir/processes/taskinstance/"+taskInstanceId+ "/variables";
+    let url = this.kieSettings.baseurl + "/fhir/tasks/taskinstance/"+taskInstanceId+ "/variables";
     const headers = {
       'Authorization': 'Basic ' + btoa(this.kieSettings.username + ":" + this.kieSettings.password),
       'content-type': 'application/json',

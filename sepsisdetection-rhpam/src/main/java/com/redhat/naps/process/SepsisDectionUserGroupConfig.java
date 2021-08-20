@@ -2,6 +2,7 @@ package com.redhat.naps.process;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.kie.api.task.UserGroupCallback;
 import org.kie.internal.identity.IdentityProvider;
@@ -39,7 +40,7 @@ public class SepsisDectionUserGroupConfig implements UserGroupCallback {
             groupList.add("approver");
             groupList.add("broker");
         }
-        System.out.println("List of Groups : " + groupList.toArray());
+        System.out.println("List of Groups : " + Arrays.toString(groupList.toArray()));
         return groupList;
     }
 

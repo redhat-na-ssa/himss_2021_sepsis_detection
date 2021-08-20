@@ -69,6 +69,7 @@ public class DefaultWebSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 
         auth.inMemoryAuthentication().withUser("admin").password(adminPasswd).roles("admin");
+        auth.inMemoryAuthentication().withUser("wbadmin").password("wbadmin").roles("admin");
         auth.inMemoryAuthentication().withUser("kieserver").password(kieServerPasswd).roles("kie-server");
     }
 

@@ -152,6 +152,7 @@ export class AdminComponent implements OnInit {
                   taskId : task["task-id"],
                   taskName : task["task-name"],
                   taskSubject : task["task-subject"],
+                  taskStatus : task["task-status"],
                   taskDescription  : task["task-description"]
                 }
 
@@ -172,6 +173,7 @@ export class AdminComponent implements OnInit {
                   taskId : task["task-id"],
                   taskName : task["task-name"],
                   taskSubject : task["task-subject"],
+                  taskStatus : task["task-status"],
                   taskDescription  : task["task-description"]
                 }
 

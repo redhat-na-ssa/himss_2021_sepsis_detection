@@ -76,6 +76,7 @@ export interface TaskInstance {
     taskSubject : string;
     taskDescription? : string;
     taskCreatedDate : number;
+    taskStatus: string;
 }
 
 export interface TaskInstanceList
