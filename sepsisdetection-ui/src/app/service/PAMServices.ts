@@ -6,7 +6,6 @@ import { Part, ServiceRequest, ProcessInstanceData, Claim, Policy } from '../Mod
 import { RootObject, Command, Insert } from '../Models/Requests/Request';
 import { Credentials } from '../Models/UserRole';
 import { Applicant } from '../Models/Requests/Request';
-import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class PAMServices {
@@ -17,15 +16,15 @@ export class PAMServices {
     this.kieSettings = <KieSettings>this.cookieService.getObject("kieSettingsHIMMS")
     if (this.kieSettings === undefined) {
       this.kieSettings = {
-        baseurl: environment.KIE_SERVER_URL,
-        dmcontainerAlias: "",
-        picontainerAlias: environment.PAM_CONTAINER_ALIAS,
-        processId: environment.PROCESS_ID,
-        username: environment.KIE_SERVER_USERID,
-        password: environment.KIE_SERVER_PASSWORD,
-        fhirserverURL: environment.FHIR_SERVER_URL,
-        patientViewerURL: environment.PATIENT_VIEWER_URL,
-        isOpenShift: environment.IS_OPENSHIFT
+        baseurl: window['_env'].KIE_SERVER_URL,
+        dmcontainerAlias: window['_env'].DM_CONTAINER_ALIAS,
+        picontainerAlias: window['_env'].PAM_CONTAINER_ALIAS,
+        processId: window['_env'].PROCESS_ID,
+        username: window['_env'].KIE_SERVER_USERID,
+        password: window['_env'].KIE_SERVER_PASSWORD,
+        fhirserverURL: window['_env'].FHIR_SERVER_URL,
+        patientViewerURL: window['_env'].PATIENT_VIEWER_URL,
+        isOpenShift: window['_env'].IS_OPENSHIFT
       };
     }
     

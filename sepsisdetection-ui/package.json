@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "node set-config.js && ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -31,6 +31,7 @@
     "ngx-bootstrap": "^6.2.0",
     "ngx-cookie": "^5.0.2",
     "ngx-highlightjs": "^4.1.4",
+    "replace": "^1.2.1",
     "path-browserify": "^1.0.1",
     "rxjs": "~6.6.0",
     "tslib": "^2.2.0",

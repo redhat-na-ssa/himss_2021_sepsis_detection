@@ -9,6 +9,7 @@ import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.jbpm.services.api.ProcessService;
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.UserTaskService;
 import org.jbpm.services.api.admin.UserTaskAdminService;
@@ -52,9 +53,41 @@ public class TaskController {
     @Autowired
     private UserTaskAdminService uAdminTaskService;
 
+    @Autowired
+    private ProcessService processService;
+
     @PostConstruct
     public void init() {
     }
+
+    @Transactional
+    @RequestMapping(value = "/taskinstance/{taskInstancId}/variables")
+    public ResponseEntity<Map<String, Object>> getTaskVariables(@PathVariable("taskInstancId") long tInstanceId) {
+        Map<String, Object> vResponse = new HashMap<String, Object>();
+        Long workItemId = runtimeService.getTaskById(tInstanceId).getWorkItemId();
+        Map<String, Object> tVariables = processService.getWorkItem(workItemId).getParameters();
+
+
+        for(String contentKey : tVariables.keySet()){
+            Object contentObj = tVariables.get(contentKey);
+            System.out.println("Key : " + contentKey + " ,  Object : " + contentObj.getClass());
+            if(contentObj instanceof ArrayList) {
+            }else {
+                if(IBaseResource.class.isInstance(contentObj)) {
+                    log.info("getTaskInputContentByTaskId() contentKey = "+contentKey+" instanceof = "+contentObj.getClass().toString());
+                    String jsonFhir = fhirCtx.newJsonParser().encodeResourceToString((IBaseResource)contentObj);
+                    vResponse.put(contentKey, jsonFhir);
+                }else {
+                    vResponse.put(contentKey, tVariables.get(contentKey));
+                }
+            }
+
+        }
+
+        return new ResponseEntity<>(vResponse, HttpStatus.OK);
+    }
+
+    
 
     // Example:  curl -X GET localhost:8080/fhir/tasks/instances/pot-owners?user=jeff | jq .
     @Transactional

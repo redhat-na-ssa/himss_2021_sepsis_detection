@@ -26,6 +26,8 @@ FROM registry.access.redhat.com/ubi8/nginx-118:1-39
 # Copy the build output to replace the default nginx contents.
 COPY --from=build /opt/app-root/src/dist/sepsis-ui .
 
+ADD nginx.conf "${NGINX_CONF_PATH}"
+
 # Expose port
-EXPOSE 8080
+EXPOSE 7080
 CMD ["nginx", "-g", "daemon off;"]

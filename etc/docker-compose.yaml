@@ -78,7 +78,6 @@ services:
         target: /opt/app-root/src/postgresql-start/hapi-psql-wal.sh
 
   hapi_fhir:
-
     # https://github.com/redhat-naps-da/hapi-fhir-jpaserver-starter
     image: quay.io/redhat_naps_da/hapi-fhir-jpaserver-starter-ocp:v5.3.0-psql-bytea-1
 
@@ -96,6 +95,22 @@ services:
         target: /deployments/config/application.yaml
     depends_on:
       - psql_fhir
+
+  sepsis_ui:
+    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.1
+    restart: always
+    ports:
+      - "7080:7080"
+    environment:
+      KIE_SERVER_URL: "http://localhost:9080"
+      KIE_SERVER_USERID: "kieserver"
+      KIE_SERVER_PASSWORD: "kieserver"
+      DM_CONTAINER_ALIAS: ""
+      PAM_CONTAINER_ALIAS: "sepsisdetection-kjar-1.0.0"
+      PROCESS_ID: "highmediummitigation"
+      FHIR_SERVER_URL: "http://localhost:8080"
+      PATIENT_VIEWER_URL: ""
+      IS_OPENSHIFT: false
 
   psql_rhpam:
     image: registry.redhat.io/rhel8/postgresql-12
@@ -130,13 +145,14 @@ services:
 #      JAVA_INITIAL_MEM_RATIO: '0'
 #      GC_MAX_METASPACE_SIZE: '500'
 #      SPRING_CONFIG_LOCATION: "file:///deployments/config/application.properties"
-#
-#      # org.kie.server.repo        : dictates to kie-server where to find its KIE container configuration file
-#      # kie.maven.settings.custom  : dictates to kie-server where to fine its artifact repo of KJars
+
+      # org.kie.server.repo        : dictates to kie-server where to find its KIE container configuration file
+      # kie.maven.settings.custom  : dictates to kie-server where to fine its artifact repo of KJars
 #      JAVA_OPTS_APPEND: '-Dorg.kie.server.repo=/deployments/config -Dkie.maven.settings.custom=/m2/settings.xml'
-#
-#      # Optional: Change to URL of Nexus (if in use)
+
+      # Optional: Change to URL of Nexus (if in use)
 #      MAVEN_MIRROR_URL: ''
+
 #    volumes:
 #      - type: bind
 #        source: ./sepsisdetection-rhpam/runtime_configs
