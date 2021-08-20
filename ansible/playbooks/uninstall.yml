@@ -1,6 +1,6 @@
 ---
 
-- name: Deploy FHIR BPM Service
+- name: UnDeploy all sepsisdetection artifacts
   hosts: localhost
   connection: local
   gather_facts: false
@@ -13,4 +13,6 @@
     - group_vars/fhir_bpm_service.yml
 
   tasks:
-    - include: tasks/fhir-bpm-service.yml
+  - include: tasks/sepsisdetection-rhpam.yml
+  - include: tasks/hapi-fhirserver.yml
+  - include: tasks/amq-streams.yml

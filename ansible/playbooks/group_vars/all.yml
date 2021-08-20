@@ -20,4 +20,8 @@ project_name: "{{ project_admin }}-pneumonia-treatment"
 deploy_from: image
 
 # Name of kafka topic that triggers BPM process
-topic_fhir_r4_observation: topic-fhir-r4-observation
+topic_fhir_r4_patient: topic-fhir-r4-patient
+
+fhir_server_application_name: fhir-server
+
+AIModel_server_url: https://sepsis-detection-user1-pneumonia-treatment.apps.beacon02.faros.site/

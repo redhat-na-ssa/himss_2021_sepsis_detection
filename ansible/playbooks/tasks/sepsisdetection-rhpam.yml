@@ -2,17 +2,17 @@
 
 - set_fact:
     namespace: "{{ project_name }}"
-    resources_dir: "{{ resources_base_dir }}/fhir-bpm-service"
-    work_dir_name: fhir-bpm-service
+    resources_dir: "{{ resources_base_dir }}/sepsisdetection-rhpam"
+    work_dir_name: sepsisdetection-rhpam
 - include_role:
-    name: ../roles/fhir-bpm-service
+    name: ../roles/sepsisdetection-rhpam
   when: >
     ACTION is not defined or
     ACTION is none or
     ACTION|trim() == "" or
     ACTION|trim() == "install"
 - include_role:
-    name: ../roles/fhir-bpm-service
+    name: ../roles/sepsisdetection-rhpam
     tasks_from: uninstall
   when: >
     ACTION is defined and

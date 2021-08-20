@@ -1,5 +1,5 @@
 psql_app_name: psql-rhpam
-application_name: "fhir-bpm-service"
+application_name: "sepsisdetection-rhpam"
 
 postgresql_pv_capacity: 5Gi 
 postgresql_version: 12-el8
@@ -25,19 +25,20 @@ application_properties: application.properties
 application_configmap: "{{ application_name }}"
 application_configmap_key: "{{ application_properties }}"
 binary_imagestream_template: binary-imagestream.yml 
-service_image: quay.io/redhat_naps_da/fhir-bpm-service
-service_image_tag: 0.0.15
-application_template: fhir-bpm-service.yml
+service_image: quay.io/redhat_naps_da/sepsisdetection-rhpam
+service_image_tag: 0.0.1
+application_template: sepsisdetection-rhpam.yml
 fhir_bpm_service_java_max_mem_ratio: 60
 fhir_bpm_service_java_initial_mem_ratio: 0
 fhir_bpm_service_gc_max_metaspace_size: 500
 
-# Location on image file system where fhir-bpm-service.xml  (which defines deployed KIE containers) will reside
+# Location on image file system where sepsisdetection-rhpam.xml  (which defines deployed KIE containers) will reside
 kie_server_repo_path: /deployments/config
 kie_admin_user: admin
 kie_admin_password: user
 kieserver_user_password: kieserver
 
-kie_deployment_name: pneumonia-patient-processing-kjar
-kie_deployment_version: 1.0.3
-kie_process_id: 'pneumonia_patient_processing.Pneumonia_Case_FHIR'
+kie_deployment_name: sepsisdetection-kjar
+kie_deployment_version: 1.0.0
+kie_process_id: 'highmediummitigation'
+fhir_server_url: "http://{{ fhir_server_application_name }}:8080"

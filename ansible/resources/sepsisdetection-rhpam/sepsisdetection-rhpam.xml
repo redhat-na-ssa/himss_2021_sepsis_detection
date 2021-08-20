@@ -9,7 +9,7 @@
       </config-item>
       <config-item>
         <name>org.kie.server.id</name>
-        <value>fhir-bpm-service</value>
+        <value>sepsisdetection-rhpam</value>
         <type>java.lang.String</type>
       </config-item>
       <config-item>
@@ -28,7 +28,7 @@
     <container>
       <containerId>{{ kie_deployment_name }}-{{ kie_deployment_version }}</containerId>
       <releaseId>
-        <groupId>com.redhat.naps.pneumonia</groupId>
+        <groupId>com.redhat.naps</groupId>
         <artifactId>{{ kie_deployment_name }}</artifactId>
         <version>{{ kie_deployment_version }}</version>
       </releaseId>
