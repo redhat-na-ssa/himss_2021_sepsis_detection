@@ -3,7 +3,7 @@
 application_name: "sepsisdetection-ui"
 
 image_name: "quay.io/redhat_naps_da/sepsisdetection-ui"
-image_tag: 0.0.2
+image_tag: 0.0.3
 
 application_template: sepsisdetection_ui.yml
 binary_imagestream_template: binary-imagestream.yml

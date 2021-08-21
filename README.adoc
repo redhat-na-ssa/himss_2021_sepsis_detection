@@ -65,6 +65,28 @@ The application also includes a HAPI FHIR Server that also exposes RESTful endpo
 
 These RESTful endpoints can be invoked as per the following examples:
 
+=== FHIR Server
+
+. Optional:  Set FHIR_SERVER_HOST env var if testing OCP deployment:
++
+-----
+FHIR_SERVER_HOST=$(oc get route fhir-server -n user1-sepsisdetection --template='{{ .spec.host }}')
+-----
+
+. POST Observation to FHIR server
++
+-----
+$ curl -X POST \
+       -H "Content-Type:application/fhir+json" \
+       http://localhost:8080/fhir \
+       -d "@sepsisdetection-rhpam/src/test/resources/fhir/ObservationPatientBundle.json"
+
+$ curl -X POST \
+       -H "Content-Type:application/fhir+json" \
+       https://$FHIR_SERVER_HOST/fhir \
+       -d "@sepsisdetection-rhpam/src/test/resources/fhir/ObservationPatientBundle.json"
+-----
+
 
 === SepsisDetection RHPAM
 . Optional:  Set SEPSISDETECTION_RHPAM_HOST env var if testing OCP deployment:
@@ -117,23 +139,6 @@ $ curl -X POST https://$SEPSISDETECTION_RHPAM_HOST/fhir/processes/sendSampleClou
 +
 -----
 $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/queries/cases/
------
-
-=== FHIR Server
-
-. Optional:  Set FHIR_SERVER_HOST env var if testing OCP deployment:
-+
------
-FHIR_SERVER_HOST=$(oc get route fhir-server -n user1-sepsisdetection --template='{{ .spec.host }}')
------
-
-. POST Observation to FHIR server
-+
------
-$ curl -X POST \
-       -H "Content-Type:application/fhir+json" \
-       http://localhost:8080/fhir \
-       -d "@sepsisdetection-rhpam/src/test/resources/fhir/ObservationPatientBundle.json"
 -----
 
 

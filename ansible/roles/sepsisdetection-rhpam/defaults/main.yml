@@ -39,6 +39,6 @@ kie_admin_password: user
 kieserver_user_password: "{{ sepsisdetection_rhpam_api_passwd }}"
 
 kie_deployment_name: "{{ sepsisdetection_rhpam_deployment_name }}"
-kie_deployment_version: 1.0.0
+kie_deployment_version: "{{ sepsisdetection_rhpam_deployment_version }}"
 kie_process_id: "{{ sepsisdetection_rhpam_process_id }}"
 fhir_server_url: "http://{{ fhir_server_application_name }}:8080"
