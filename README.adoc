@@ -3,16 +3,145 @@
 :toc2:
 :linkattrs:
 
-= Sepsis Detection demo
+= Sepsis Detection Demo
 :numbered:
 
 == Purpose
 
-
 Please see the following:
 
+. link:https://docs.google.com/presentation/d/1pyKctkvtpjuav52P-qg6SBKDmbaCP_GO/edit#slide=id.p1[AI Automation at the Edge, HIMSS 2021]
 . link:https://trello.com/c/fbnRjpZu/22-detection-of-pneumonia-from-chest-x-rays[Trello Card]
-. link:https://docs.google.com/presentation/d/1nLNPzu93bhOW_QNZDiBxERgYVMJ9RBV1ZhtMJECr5s0/edit#slide=id.g775d9c5cf4_0_717[Presentation]
+. link:https://docs.google.com/presentation/d/1nLNPzu93bhOW_QNZDiBxERgYVMJ9RBV1ZhtMJECr5s0/edit#slide=id.g775d9c5cf4_0_717[Technical Presentation]
+
+== Demo Recording
+
+TO-DO
+
+== Deploy to OpenShift
+Ansible is included to deploy this application to OpenShift in a repeatable manner.
+
+An architecture diagram of what is deployed can be found link:https://docs.google.com/presentation/d/1nLNPzu93bhOW_QNZDiBxERgYVMJ9RBV1ZhtMJECr5s0/edit#slide=id.gd919252c16_0_0[here].
+
+=== Pre-reqs:
+
+. OpenShift Container Platform version 4.7.* or more recent.  Resource requirements needed by the app (doesn't include resource requirements of Openshift to support itself) as follows:
+.. RAM: 6 GB
+.. CPU: 8
+.. Storage: 10 PVCs of type RWO (no RWX requirement) and each of size 5 GiB
+. cluster-admin credentials to this OpenShift cluster are needed
+. Corresponding `oc` utility installed locally
+. ansible installed locally
+. git installed locally
+
+=== Procedure:
+
+. Using the `oc` utility that corresponds to the version of OpenShift that you will deploy to, log into the cluster: 
++
+-----
+$ oc login <url> -u <cluster-admin userId> -p <passwd>
+-----
+
+. Clone source code containing pneumonia treatment business process model and rules:
++
+-----
+$ git clone https://github.com/redhat-naps-da/sepsisdetection-kjar.git
+-----
+
+. Change to the _ansible_ directory of this project: 
++
+-----
+$ cd ansible
+-----
+
+. Deploy to OpenShift:
++
+-----
+$ ansible-playbook playbooks/install.yml
+-----
++
+Deployment should complete in about 5 minutes.
++
+Notice the creation of a new OCP namespace where the application resides:  user1-sepsisdetection
+
+
+== Test
+The sepsisdetection-rhpam deployment is enabled with the _kie_server_ as well as various endpoints that can consume FHIR payloads.
+
+The application also includes a HAPI FHIR Server that also exposes RESTful endpoints.
+
+These RESTful endpoints can be invoked as per the following examples:
+
+=== FHIR Server
+
+. Set FHIR_SERVER_URL env var:
+.. If testing environment deployed locally:
++
+-----
+FHIR_SERVER_URL=http://localhost:8080
+-----
+
+.. If testing environment deployed to OpenShift:
++
+-----
+FHIR_SERVER_URL=https://$(oc get route fhir-server -n user1-sepsisdetection --template='{{ .spec.host }}')
+-----
+
+. POST Observation to FHIR server
++
+-----
+$ curl -X POST \
+       -H "Content-Type:application/fhir+json" \
+       $FHIR_SERVER_URL/fhir \
+       -d "@sepsisdetection-rhpam/src/test/resources/fhir/ObservationPatientBundle.json"
+-----
+
+
+=== SepsisDetection RHPAM
+
+. Set SEPSISDETECTION_RHPAM_URL env var:
+.. If testing environment deployed locally:
++
+-----
+SEPSISDETECTION_RHPAM_URL=http://localhost:9080
+-----
+
+.. If testing environment deployed to OpenShift:
++
+-----
+SEPSISDETECTION_RHPAM_URL=https://$(oc get route sepsisdetection-rhpam -n user1-sepsisdetection --template='{{ .spec.host }}')
+-----
+
+. Health Check Report
++
+-----
+$ curl -u "kieserver:kieserver" -H 'Accept:application/json' $SEPSISDETECTION_RHPAM_URL/rest/server/healthcheck?report=true
+-----
+
+. View swagger
++
+-----
+$ curl -v -u "kieserver:kieserver" $SEPSISDETECTION_RHPAM_URL/rest/swagger.json | jq .
+-----
+
+. List KIE Containers
++
+-----
+$ curl -u "kieserver:kieserver" -X GET $SEPSISDETECTION_RHPAM_URL/rest/server/containers
+-----
+
+. List process definitions in JSON representation:
++
+-----
+$ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' $SEPSISDETECTION_RHPAM_URL/rest/server/containers/sepsisdetection-kjar/processes/
+-----
+
+. List cases in JSON representation:
++
+-----
+$ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' $SEPSISDETECTION_RHPAM_URL/rest/server/queries/cases/
+-----
+
 
 == Local containerized environment
 
@@ -29,126 +158,19 @@ $ podman-compose -f etc/docker-compose.yaml up -d
 image::docs/images/docker-compose-architecture.png[]
 
 
-
-== OpenShift
-Ansible is included to deploy this application to OpenShift in a repeatable manner.
-
-An architecture diagram of what is deployed can be found link:https://docs.google.com/presentation/d/1nLNPzu93bhOW_QNZDiBxERgYVMJ9RBV1ZhtMJECr5s0/edit#slide=id.gd919252c16_0_0[here].
-
-Procedure:
-
-. Using the `oc` utility that corresponds to the version of OpenShift that you will deploy to, log into the cluster: 
-+
------
-$ oc login <url> -u <userId> -p <passwd>
------
-+
-NOTE:  cluster admin privledges are not needed for this application.
-
-. Change to the _ansible_ directory: 
-+
------
-$ cd ansible
------
-
-. Deploy to OpenShift:
-+
------
-$ ansible-playbook playbooks/install.yml
------
-
-
-== Test
-The FHIR BPM Service is enabled with the _kie_server_ as well as various endpoints that can consume FHIR payloads.
-
-The application also includes a HAPI FHIR Server that also exposes RESTful endpoints.
-
-These RESTful endpoints can be invoked as per the following examples:
-
-=== FHIR Server
-
-. Optional:  Set FHIR_SERVER_HOST env var if testing OCP deployment:
-+
------
-FHIR_SERVER_HOST=$(oc get route fhir-server -n user1-sepsisdetection --template='{{ .spec.host }}')
------
-
-. POST Observation to FHIR server
+. Post Debezium configs to kafka_connect container:
 +
 -----
 $ curl -X POST \
-       -H "Content-Type:application/fhir+json" \
-       http://localhost:8080/fhir \
-       -d "@sepsisdetection-rhpam/src/test/resources/fhir/ObservationPatientBundle.json"
-
-$ curl -X POST \
-       -H "Content-Type:application/fhir+json" \
-       https://$FHIR_SERVER_HOST/fhir \
-       -d "@sepsisdetection-rhpam/src/test/resources/fhir/ObservationPatientBundle.json"
+        -H "Accept:application/json" -H "Content-Type:application/json" \
+        localhost:8083/connectors/ \
+        -d "@etc/hapi-fhir/debezium-fhir-server-pgsql.json"
 -----
-
-
-=== SepsisDetection RHPAM
-. Optional:  Set SEPSISDETECTION_RHPAM_HOST env var if testing OCP deployment:
 +
------
-SEPSISDETECTION_RHPAM_HOST=$(oc get route sepsisdetection-rhpam -n user1-sepsisdetection --template='{{ .spec.host }}')
------
-
-. Health Check Report
-+
------
-$ curl -u "kieserver:kieserver" -H 'Accept:application/json' localhost:9080/rest/server/healthcheck?report=true
-
-$ curl -u "kieserver:kieserver" -H 'Accept:application/json' https://$SEPSISDETECTION_RHPAM_HOST/rest/server/healthcheck?report=true
------
-
-. View swagger
-+
------
-$ curl -v -u "kieserver:kieserver" localhost:9080/rest/swagger.json | jq .
-
-$ curl -v -u "kieserver:kieserver" https://$SEPSISDETECTION_RHPAM_HOST/rest/swagger.json | jq .
------
-
-. List KIE Containers
-+
------
-$ curl -u "kieserver:kieserver" -X GET http://localhost:9080/rest/server/containers
-
-$ curl -u "kieserver:kieserver" -X GET https://$SEPSISDETECTION_RHPAM_HOST/rest/server/containers
------
-
-. List process definitions in JSON representation:
-+
------
-$ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/containers/sepsisdetection-kjar/processes/
-
-$ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' https://$SEPSISDETECTION_RHPAM_HOST/rest/server/containers/sepsisdetection-kjar/processes/
------
-
-. Start a business process
-+
------
-$ curl -X POST localhost:9080/fhir/processes/sendSampleCloudEvent/azra12350
-
-$ curl -X POST https://$SEPSISDETECTION_RHPAM_HOST/fhir/processes/sendSampleCloudEvent/azra12350
------
-
-. List cases in JSON representation:
-+
------
-$ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' localhost:9080/rest/server/queries/cases/
------
+NOTE:  This step is not needed when running the solution in OpenShift.  It's only needed when running the solution in a local containerized environmennt (ie:  podman-compose)
 
 
 == Development
-
-. Clone source code containing pneumonia treatment business process model and rules:
-+
------
-$ git clone https://github.com/redhat-naps-da/sepsisdetection-kjar.git
------
 
 . Build and install _kjar_ project:
 +
@@ -166,14 +188,6 @@ $ git clone https://github.com/redhat-naps-da/pneumonia-patient-processing-pam.g
 $ cd pneumonia-patient-processing-pam
 
 $ mvn clean package
------
-
-. Optional: Build linux container of FHIR BPM Service: 
-+
------
-$ buildah bud -f docker/sepsisdetection-rhpam/Dockerfile \
-              -t quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.14 \
-              .
 -----
 
 . Build and Start app
@@ -197,19 +211,10 @@ $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/rhpam/kie
      curl -u "kieserver:kieserver" -X PUT -H 'Content-type:application/json' localhost:9080/rest/server/containers/$KIE_SERVER_CONTAINER_NAME-$KJAR_VERSION -d '@/tmp/kie_container.json'
 -----
 
-. Post Debezium configs to kafka_connect container:
-+
------
-$ curl -X POST \
-        -H "Accept:application/json" -H "Content-Type:application/json" \
-        localhost:8083/connectors/ \
-        -d "@etc/hapi-fhir/debezium-fhir-server-pgsql.json"
------
-
 
 
 == Reference
 
-https://gitlab.consulting.redhat.com/ba-nacomm/sepsis-detection/sepsisdetection-service/-/tree/master/openshift
-https://gitlab.consulting.redhat.com/ba-nacomm/sepsis-detection/sepsisdetection-kjar
-https://gitlab.consulting.redhat.com/ba-nacomm/sepsis-detection/sepsis-ui
+. https://gitlab.consulting.redhat.com/ba-nacomm/sepsis-detection/sepsisdetection-service/-/tree/master/openshift
+. https://gitlab.consulting.redhat.com/ba-nacomm/sepsis-detection/sepsisdetection-kjar
+. https://gitlab.consulting.redhat.com/ba-nacomm/sepsis-detection/sepsis-ui
