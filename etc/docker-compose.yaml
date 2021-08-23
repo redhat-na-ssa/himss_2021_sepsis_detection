@@ -135,6 +135,16 @@ services:
         source: ./sepsisdetection-rhpam/db/create_rhpam_database.sh
         target: /opt/app-root/src/postgresql-start/create_rhpam_database.sh
 
+  dashbuilder:
+    image: quay.io/redhat_naps_da/dashbuilder-rhpam-db:0.0.1
+    restart: always
+    ports:
+      - "6080:6080"
+    environment:
+      JAVA_OPTIONS=-Dquarkus.http.host=0.0.0.0 -Dquarkus.http.port=6080 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Ddashbuilder.runtime.multi=true -Ddashbuilder.datasources=jbpmdb -Ddashbuilder.datasource.jbpmdb.jdbcUrl=jdbc:postgresql://localhost:6432/rhpam -Ddashbuilder.datasource.jbpmdb.providerClassName=org.postgresql.Driver -Ddashbuilder.datasource.jbpmdb.maxSize=10 -Ddashbuilder.datasource.jbpmdb.principal=rhpam -Ddashbuilder.datasource.jbpmdb.credential=rhpam -Dquarkus.http.enable-compression=false -Ddashbuilder.import.base.dir=/opt/dashbuilder
+    depends_on:
+      - psql_rhpam
+
 #  sepsisdetection-rhpam:
 #    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.1
 #    restart: always
