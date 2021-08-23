@@ -6,17 +6,26 @@
 = Sepsis Detection Demo
 :numbered:
 
+
+
 == Purpose
 
-Please see the following:
-
-. link:https://docs.google.com/presentation/d/1pyKctkvtpjuav52P-qg6SBKDmbaCP_GO/edit#slide=id.p1[AI Automation at the Edge, HIMSS 2021]
-. link:https://trello.com/c/fbnRjpZu/22-detection-of-pneumonia-from-chest-x-rays[Trello Card]
-. link:https://docs.google.com/presentation/d/1nLNPzu93bhOW_QNZDiBxERgYVMJ9RBV1ZhtMJECr5s0/edit#slide=id.g775d9c5cf4_0_717[Technical Presentation]
-
-== Demo Recording
-
 TO-DO
+
+== Architecture
+
+. Reference Architecture
++
+image::docs/images/reference_architecture.png[]
+
+. Sepsis Detection Runtime process:
++
+image::docs/images/runtime_process.png[]
+
+. highmediummitigation Subprocess: 
++
+image::docs/images/subprocess.png[]
+
 
 == Deploy to OpenShift
 Ansible is included to deploy this application to OpenShift in a repeatable manner.
@@ -31,7 +40,20 @@ An architecture diagram of what is deployed can be found link:https://docs.googl
 .. Storage: 10 PVCs of type RWO (no RWX requirement) and each of size 5 GiB
 . cluster-admin credentials to this OpenShift cluster are needed
 . Corresponding `oc` utility installed locally
++
+All versions of this utility are available at either of the following:
+
+.. https://access.redhat.com/downloads/content/290
++
+RHN subscription required
+.. https://mirror.openshift.com/pub/openshift-v4/clients/ocp/?C=M;O=D
++
+Accessible without a RHN subscription
+
 . ansible installed locally
++
+ie: `dnf install ansible`
+
 . git installed locally
 
 === Procedure:
@@ -64,15 +86,32 @@ Deployment should complete in about 5 minutes.
 +
 Notice the creation of a new OCP namespace where the application resides:  user1-sepsisdetection
 
+.. At the completion of the installation, expect to see messages similar to the following:
++
+-----
+...
 
-== Test
-The sepsisdetection-rhpam deployment is enabled with the _kie_server_ as well as various endpoints that can consume FHIR payloads.
+
+PLAY RECAP *******************************************************************************************************************************************************************************************************
+localhost                  :  ok=137  changed=77   unreachable=0    failed=0    skipped=14   rescued=0    ignored=0
+-----
+
+. Uninstall from OpenShift:
++
+-----
+$ ansible-playbook playbooks/uninstall.yml \
+    -e ACTION=uninstall
+-----
+
+
+== Demo Scenario
+
+
+=== POST Patient to HAPI FHIR Server
 
 The application also includes a HAPI FHIR Server that also exposes RESTful endpoints.
 
-These RESTful endpoints can be invoked as per the following examples:
-
-=== FHIR Server
+The demo scenario starts by submitting an HTTP POST with a FHIR bundle (which includes a a FHIR R4 Patient) to the HAPI FHIR Server. 
 
 . Set FHIR_SERVER_URL env var:
 .. If testing environment deployed locally:
@@ -95,6 +134,30 @@ $ curl -X POST \
        $FHIR_SERVER_URL/fhir \
        -d "@sepsisdetection-rhpam/src/test/resources/fhir/ObservationPatientBundle.json"
 -----
+
+
+=== View and Administer Tasks
+
+. Point your browser to the output of the following command: 
++
+-----
+$ echo -en "\nhttps://$(oc get route sepsisdetection-ui -n user1-sepsisdetection --template='{{ .spec.host }}' )\n"
+-----
++
+image::docs/images/sepsisui-singleprocess.png[]
+
+. Click `Show/Hide Workflow`:
++
+image::docs/images/sepsisui-risk_assessment.png[]
+
+. Click the `My Tasks` tab: 
++
+image::docs/images/sepsisui-singletask.png[]
+
+
+
+== Test
+The sepsisdetection-rhpam deployment is enabled with the _kie_server_ as well as various endpoints that can consume FHIR payloads.
 
 
 === SepsisDetection RHPAM
@@ -142,6 +205,17 @@ $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' $SEPSISDETEC
 $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' $SEPSISDETECTION_RHPAM_URL/rest/server/queries/cases/
 -----
 
+
+
+
+== my.healthflow.io
+This is HealthFlow's application .
+
+It was initially supposed to have been deployed on the kubeframe as part of the demo, but they couldn't get it containerized in time, so it was relegated to being displayed in that iFrame. There's a container image out there for it, but it's monolithic and bulky, and we kind of shelved helping them with it for the time being. It's based on a project called Meteor, and includes an embedded FHIR server with database instance, as well as some other stuff. Pretty heavy duty.
+
+Example URL: 
+
+https://my.healthflow.io/patient-chart?patientId=610f11c05b041e00082c54c2
 
 == Local containerized environment
 
@@ -212,9 +286,16 @@ $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/rhpam/kie
 -----
 
 
-
 == Reference
 
+. link:https://www.redhat.com/en/resources/earlier-sepsis-detection[Sepsis Detection Brief]
+. link:https://docs.google.com/presentation/d/1pyKctkvtpjuav52P-qg6SBKDmbaCP_GO/edit#slide=id.p1[AI Automation at the Edge, HIMSS 2021]
+. link:https://trello.com/c/fbnRjpZu/22-detection-of-pneumonia-from-chest-x-rays[Trello Card]
+. link:https://docs.google.com/presentation/d/1nLNPzu93bhOW_QNZDiBxERgYVMJ9RBV1ZhtMJECr5s0/edit#slide=id.g775d9c5cf4_0_717[Technical Presentation]
+
+=== Original Repos
+. https://github.com/redhat-naps-da/sepsis-detection
 . https://gitlab.consulting.redhat.com/ba-nacomm/sepsis-detection/sepsisdetection-service/-/tree/master/openshift
 . https://gitlab.consulting.redhat.com/ba-nacomm/sepsis-detection/sepsisdetection-kjar
 . https://gitlab.consulting.redhat.com/ba-nacomm/sepsis-detection/sepsis-ui
+

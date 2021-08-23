@@ -28,7 +28,7 @@ sepsisdetection_rhpam_app_name: sepsisdetection-rhpam
 sepsisdetection_rhpam_api_passwd: kieserver
 sepsisdetection_rhpam_deployment_name: sepsisdetection-kjar
 sepsisdetection_rhpam_deployment_version: 1.0.0
-sepsisdetection_rhpam_process_id: highmediummitigation
+sepsisdetection_rhpam_process_id: sepsisdetection
 
 patient_viewer_url:
 
