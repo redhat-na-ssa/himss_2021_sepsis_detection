@@ -1,0 +1,12 @@
+# This custom resource triggers the installation of the Knative Kafka components, and enables the Knative Kafka eventing source and channel.
+
+apiVersion: operator.serverless.openshift.io/v1alpha1
+kind: KnativeKafka
+metadata:
+  name: knative-kafka
+spec:
+  channel:
+    bootstrapServers: kafka-cluster-kafka-bootstrap.{{ project_name }}:9092
+    enabled: true
+  source:
+    enabled: true

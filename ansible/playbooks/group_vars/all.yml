@@ -33,3 +33,6 @@ sepsisdetection_rhpam_process_id: sepsisdetection
 patient_viewer_url:
 
 AIModel_server_url: https://sepsis-detection-user1-pneumonia-treatment.apps.beacon02.faros.site/
+
+namespace_knativeserving: knative-serving
+namespace_knativeeventing: knative-eventing

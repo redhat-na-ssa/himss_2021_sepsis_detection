@@ -1,0 +1,154 @@
+---
+
+- name: "deploy serverless operator in {{ namespace_serverless_operator }} namespace"
+  import_role:
+    name: ../roles/operator_olm
+  vars:
+    operator_name: serverless-operator
+    packagemanifest: "{{ serverless_operator_packagemanifest }}"
+    subscription_channel: "{{ serverless_operator_subscription_channel }}"
+    subscription_namespace: "{{ namespace_serverless_operator }}"
+    subscription_name: "{{ serverless_operator_subscription_name }}"
+    automatic_installplan_approval: "{{ serverless_operator_subscription_automatic_installplan_approval }}"
+    subscription_starting_csv: "{{ serverless_operator_subscription_starting_csv }}"
+    csv_prefix: "{{ serverless_operator_csv_prefix }}"
+
+- name: "wait until serverless operator is active in {{ namespace_serverless_operator }}"
+  oc_obj:
+    state: list
+    oc_binary: "{{ openshift_cli }}"
+    kind: Deployment
+    name: "{{ serverless_operator_deployment_name }}"
+    namespace: "{{ namespace_serverless_operator }}"
+  register: r_serverless_operator_deployment
+  retries: 30
+  delay: 10
+  changed_when: false
+  until:
+    - r_serverless_operator_deployment.ansible_module_results.results[0].status.readyReplicas is defined
+    - r_serverless_operator_deployment.ansible_module_results.results[0].status.replicas is defined
+    - >-
+      r_serverless_operator_deployment.ansible_module_results.results[0].status.readyReplicas ==
+      r_serverless_operator_deployment.ansible_module_results.results[0].status.replicas
+
+- name: "create project {{ namespace_knativeserving }}"
+  oc_project:
+    state: present
+    oc_binary: "{{ openshift_cli }}"
+    name: "{{ namespace_knativeserving }}"
+
+- name: "check if KnativeServing custom resource exists"
+  oc_obj:
+    state: list
+    oc_binary: "{{ openshift_cli }}"
+    name: "knative-serving"
+    namespace: "{{ namespace_knativeserving }}"
+    kind: KnativeServing
+  register: result
+
+- name: "deploy Knative Serving"
+  oc_list:
+    state: present
+    oc_binary: "{{ openshift_cli }}"
+    namespace: "{{ namespace_knativeserving }}"
+    files:
+      - "{{ resources_dir }}/{{ knative_serving_template }}"
+  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != ""
+
+- name: "wait until KnativeServing has started in {{ namespace_knativeserving }}"
+  oc_obj:
+    state: present
+    oc_binary: "{{ openshift_cli }}"    
+    kind: KnativeServing
+    name: "knative-serving"
+    namespace: "{{ namespace_knativeserving }}"
+  register: r_knativeserving
+  retries: 60
+  delay: 15
+  until:
+  - r_knativeserving.ansible_module_results.status.conditions is defined
+  - r_knativeserving.ansible_module_results.status.conditions | length > 0
+  - r_knativeserving.ansible_module_results | json_query(jmesquery) == ['True']
+  vars:
+    jmesquery: "status.conditions[?type == 'Ready'].status"
+
+- name: "create project {{ namespace_knativeeventing }}"
+  oc_project:
+    state: present
+    oc_binary: "{{ openshift_cli }}"
+    name: "{{ namespace_knativeeventing }}"
+
+- name: "check if knative-eventing exists"
+  oc_obj:
+    state: list
+    oc_binary: "{{ openshift_cli }}"
+    name: "knative-eventing"
+    namespace: "{{ namespace_knativeeventing }}"
+    kind: KnativeEventing
+  register: result
+
+- name: "deploy Knative Eventing"
+  oc_list:
+    state: present
+    oc_binary: "{{ openshift_cli }}"
+    namespace: "{{ namespace_knativeeventing }}"
+    files:
+      - "{{ resources_dir }}/{{ knative_eventing_template }}"
+  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != ""
+
+- name: "wait until KnativeEventing has started in {{ namespace_knativeeventing }}"
+  oc_obj:
+    state: present
+    oc_binary: "{{ openshift_cli }}"    
+    kind: KnativeEventing
+    name: "knative-eventing"
+    namespace: "{{ namespace_knativeeventing }}"
+  register: r_knativeeventing
+  retries: 60
+  delay: 15
+  until:
+  - r_knativeeventing.ansible_module_results.status.conditions is defined
+  - r_knativeeventing.ansible_module_results.status.conditions | length > 0
+  - r_knativeeventing.ansible_module_results | json_query(jmesquery) == ['True']
+  vars:
+    jmesquery: "status.conditions[?type == 'Ready'].status"
+
+- name: "copy template for knative-kafka"
+  template:
+    src:  "{{ resources_dir }}/{{ knative_kafka_template }}"
+    dest: "{{ work_dir }}/{{ knative_kafka_template }}"
+
+- name: "check if knative-kafka exists"
+  oc_obj:
+    state: list
+    oc_binary: "{{ openshift_cli }}"
+    name: "knative-kafka"
+    namespace: "{{ namespace_knativeeventing }}"
+    kind: KnativeKafka
+  register: result
+
+- name: "deploy Knative Kafka"
+  oc_list:
+    state: present
+    oc_binary: "{{ openshift_cli }}"
+    namespace: "{{ namespace_knativeeventing }}"
+    files:
+      - "{{ work_dir }}/{{ knative_kafka_template }}"
+  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != ""
+
+- name: "wait until KnativeKafka has started in {{ namespace_knativeeventing }}"
+  oc_obj:
+    state: present
+    oc_binary: "{{ openshift_cli }}"    
+    kind: KnativeKafka
+    name: "knative-kafka"
+    namespace: "{{ namespace_knativeeventing }}"
+  register: r_knativekafka
+  retries: 60
+  delay: 15
+  until:
+  - r_knativekafka.ansible_module_results.status.conditions is defined
+  - r_knativekafka.ansible_module_results.status.conditions | length > 0
+  - r_knativekafka.ansible_module_results | json_query(jmesquery) == ['True']
+  vars:
+    jmesquery: "status.conditions[?type == 'Ready'].status"

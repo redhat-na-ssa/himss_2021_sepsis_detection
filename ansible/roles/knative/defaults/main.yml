@@ -1,0 +1,21 @@
+---
+
+knative_serving_template: knativeserving.yml
+knative_eventing_template: knativeeventing.yml
+knative_kafka_template: knativekafka.yml
+
+serverless_operator_packagemanifest: serverless-operator
+serverless_operator_subscription_starting_csv: ""
+serverless_operator_subscription_automatic_installplan_approval: false
+serverless_operator_subscription_name: serverless-operator
+serverless_operator_subscription_channel: '4.6'
+serverless_operator_csv_prefix: serverless-operator
+serverless_operator_deployment_name: knative-operator
+namespace_serverless_operator: openshift-operators
+
+knative_kafka_operator_packagemanifest: knative-kafka-operator
+
+knative_kafka_subscription_starting_csv: ""
+knative_kafka_subscription_automatic_installplan_approval: false
+knative_kafka_subscription_name: knative-kafka-operator
+knative_kafka_operator_subscription_channel: alpha
