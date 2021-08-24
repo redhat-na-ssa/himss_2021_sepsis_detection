@@ -1,0 +1,7 @@
+apiVersion: cache.redhat.com/v1alpha1
+kind: HIMSS2021
+metadata:
+  name: himss2021-sample
+spec:
+  # Add fields here
+  foo: bar

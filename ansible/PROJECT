@@ -1,0 +1,19 @@
+domain: redhat.com
+layout:
+- ansible.sdk.operatorframework.io/v1
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
+
+# JA Bride
+projectName: himss2021-operator
+
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: redhat.com
+  group: cache
+  kind: HIMSS2021
+  version: v1alpha1
+version: "3"

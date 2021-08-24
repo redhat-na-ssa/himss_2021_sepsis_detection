@@ -1,0 +1,24 @@
+# permissions for end users to edit himss2021s.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: himss2021-editor-role
+rules:
+- apiGroups:
+  - cache.redhat.com
+  resources:
+  - himss2021s
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cache.redhat.com
+  resources:
+  - himss2021s/status
+  verbs:
+  - get

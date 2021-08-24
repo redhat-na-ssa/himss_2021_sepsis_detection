@@ -1,0 +1,20 @@
+# permissions for end users to view himss2021s.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: himss2021-viewer-role
+rules:
+- apiGroups:
+  - cache.redhat.com
+  resources:
+  - himss2021s
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cache.redhat.com
+  resources:
+  - himss2021s/status
+  verbs:
+  - get
