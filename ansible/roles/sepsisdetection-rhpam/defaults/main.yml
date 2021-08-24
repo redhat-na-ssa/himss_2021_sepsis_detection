@@ -1,13 +1,13 @@
-psql_app_name: psql-rhpam
+psql_app_name: "{{ rhpam_psql_app_name }}"
 application_name: "{{ sepsisdetection_rhpam_app_name }}"
 
 postgresql_pv_capacity: 5Gi 
 postgresql_version: 12-el8
 postgresql_is_namespace: openshift
 postgresql_service_account: "{{ psql_app_name }}"
-psql_user_name: rhpam
-psql_user_passwd: rhpam
-psql_db_name: rhpam
+psql_user_name: "{{ rhpam_psql_user_name }}"
+psql_user_passwd: "{{ rhpam_psql_passwd }}"
+psql_db_name: "{{ rhpam_psql_db_name }}"
 psql_credentials_secret: "{{ psql_app_name }}"
 postgresql_max_prepared_transactions: 100
 postgresql_max_connections: 100
@@ -28,9 +28,9 @@ binary_imagestream_template: binary-imagestream.yml
 service_image: quay.io/redhat_naps_da/sepsisdetection-rhpam
 service_image_tag: 0.0.1
 application_template: sepsisdetection-rhpam.yml
-fhir_bpm_service_java_max_mem_ratio: 60
-fhir_bpm_service_java_initial_mem_ratio: 0
-fhir_bpm_service_gc_max_metaspace_size: 500
+sepsisdetection_rhpam_java_max_mem_ratio: 60
+sepsisdetection_rhpam_java_initial_mem_ratio: 0
+sepsisdetection_rhpam_gc_max_metaspace_size: 500
 
 # Location on image file system where sepsisdetection-rhpam.xml  (which defines deployed KIE containers) will reside
 kie_server_repo_path: /deployments/config

@@ -1,0 +1,75 @@
+---
+
+
+- name: check if {{ application_name }} application is deployed
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: list
+    namespace: "{{ namespace }}"
+    name: "{{ application_name }}"
+    kind: dc
+  register: result
+
+- name: "create service account {{ application_name }}"
+  oc_serviceaccount:
+    oc_binary: "{{ openshift_cli }}"
+    state: present
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+
+- name: copy imagestream template
+  template:
+    src: "{{ resources_dir }}/{{ binary_imagestream_template }}"
+    dest: "{{ work_dir }}/{{ binary_imagestream_template }}"
+
+- name: create imagestream {{ application_name }} in the {{ namespace }} project
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: present
+    namespace: "{{ namespace }}"
+    kind: imagestream
+    name: "{{ application_name }}"
+    files:
+      - "{{ work_dir }}/{{ binary_imagestream_template }}"
+
+- name: copy application template
+  template:
+    src: "{{ resources_dir }}/{{ application_template }}"
+    dest: "{{ work_dir }}/{{ application_template }}"
+
+
+- name: deploy {{ application_name }} application
+  oc_list:
+    oc_binary: "{{ openshift_cli }}"
+    state: present
+    namespace: "{{ namespace }}"
+    files:
+      - "{{ work_dir }}/{{ application_template }}"
+  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != ""
+
+- name: "wait until {{ application_name }} application is up and running"
+  shell: "{{ openshift_cli }} get dc {{ application_name }} -o template --template={{ json_template }} -n {{ namespace }}"
+  vars:
+    json_template: '\{\{.status.readyReplicas\}\}'
+  register: result
+  until: result.stdout == "1"
+  retries: 10
+  delay: 30
+  changed_when: false
+
+- set_fact:
+    route_hostname: "{{ application_name }}-{{ namespace }}.{{ ocp_domain_host.stdout }}"
+- name: "copy route template"
+  template:
+    src: "{{ resources_dir }}/route.yml"
+    dest: "{{ work_dir }}/route.yml"
+
+- name: "deploy {{ application_name }} route {{ route_hostname }}"
+  oc_obj:
+    state: present
+    oc_binary: "{{ openshift_cli }}"
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+    kind: route
+    files:
+      - "{{ work_dir }}/route.yml"

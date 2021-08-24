@@ -1,0 +1,9 @@
+---
+
+application_name: "dashbuilder"
+
+image_name: "quay.io/redhat_naps_da/dashbuilder-rhpam-db"
+image_tag: 0.0.1
+
+application_template: dashbuilderservice.yml
+binary_imagestream_template: binary-imagestream.yml

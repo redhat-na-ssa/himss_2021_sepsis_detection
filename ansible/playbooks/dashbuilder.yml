@@ -1,6 +1,6 @@
 ---
 
-- name: Deploy SepsisDetection RHPAM
+- name: Deploy Dashbuilder
   hosts: localhost
   connection: local
   gather_facts: false
@@ -8,9 +8,7 @@
   vars_files:
     - group_vars/all.yml
     - group_vars/tools.yml
-    - group_vars/kafka_cluster.yml
-    - group_vars/hapi_fhirserver.yml
     - group_vars/sepsisdetection_rhpam.yml
 
   tasks:
-    - include: tasks/sepsisdetection-rhpam.yml
+    - include: tasks/dashbuilder.yml

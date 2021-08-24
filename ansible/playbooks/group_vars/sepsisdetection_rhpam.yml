@@ -1,0 +1,8 @@
+---
+
+rhpam_psql_app_name: psql-rhpam
+rhpam_psql_user_name: rhpam
+rhpam_psql_passwd: rhpam
+rhpam_psql_db_name: rhpam
+
+

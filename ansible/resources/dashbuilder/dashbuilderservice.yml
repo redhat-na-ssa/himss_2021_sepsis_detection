@@ -17,7 +17,7 @@ items:
         protocol: TCP
         targetPort: 8080
     selector:
-      group: fhir-server
+      group: dashbuilder 
       app: {{ application_name }}
     sessionAffinity: None
     type: ClusterIP
@@ -31,7 +31,7 @@ items:
     replicas: 1
     revisionHistoryLimit: 2
     selector:
-      group: fhir-server
+      group: dashbuilder
       app: {{ application_name }}
     strategy:
       activeDeadlineSeconds: 21600
@@ -46,32 +46,13 @@ items:
     template:
       metadata:
         labels:
-          group: fhir-server
+          group: dashbuilder
           app: {{ application_name }}
       spec:
         containers:
           - env:
-            - name: JAVA_MAX_MEM_RATIO
-              value: "{{ sepsisdetection_rhpam_java_max_mem_ratio }}"
-            - name: JAVA_INITIAL_MEM_RATIO
-              value: "{{ sepsisdetection_rhpam_java_initial_mem_ratio }}"
-            - name: GC_MAX_METASPACE_SIZE
-              value: "{{ sepsisdetection_rhpam_gc_max_metaspace_size }}"
-            - name: KUBERNETES_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.namespace
-            - name: SPRING_CONFIG_LOCATION
-              value: file:///deployments/config/{{ application_configmap_key }}
-
-            # org.kie.server.repo: dictates to kie-server where to find its KIE container configuration file
-            # kie.maven.settings.custom: dictates to kie-server where to fine its artifact repo of KJars
-            - name: JAVA_OPTS_APPEND
-              value: '-Dorg.kie.server.repo={{ kie_server_repo_path }} -Dkie.maven.settings.custom=/m2/settings.xml'
-
-            - name: MAVEN_MIRROR_URL
-              value: "{{ nexus_mirror }}"
+            - name: JAVA_OPTIONS
+              value: "-Dquarkus.http.host=0.0.0.0 -Dquarkus.http.port=8080 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Ddashbuilder.runtime.multi=true -Ddashbuilder.datasources=jbpmdb -Ddashbuilder.datasource.jbpmdb.jdbcUrl=jdbc:postgresql://{{ rhpam_psql_app_name }}:5432/{{ rhpam_psql_db_name }} -Ddashbuilder.datasource.jbpmdb.providerClassName=org.postgresql.Driver -Ddashbuilder.datasource.jbpmdb.maxSize=10 -Ddashbuilder.datasource.jbpmdb.principal={{ rhpam_psql_user_name }} -Ddashbuilder.datasource.jbpmdb.credential={{ rhpam_psql_passwd }} -Dquarkus.http.enable-compression=false -Ddashbuilder.import.base.dir=/opt/dashbuilder"
             imagePullPolicy: IfNotPresent
             name: {{ application_name }}
             livenessProbe:
@@ -80,7 +61,7 @@ items:
                 command:
                 - "/bin/bash"
                 - "-c"
-                - "curl --fail --silent -u '{{ kie_admin_user }}:{{ kie_admin_password }}' http://localhost:8080/rest/server/healthcheck"
+                - "curl --fail --silent http://localhost:8080"
               initialDelaySeconds: 30
               periodSeconds: 60
               timeoutSeconds: 3
@@ -90,14 +71,14 @@ items:
                 command:
                 - "/bin/bash"
                 - "-c"
-                - "curl --fail --silent -u '{{ kie_admin_user }}:{{ kie_admin_password }}' http://localhost:8080/rest/server/healthcheck"
+                - "curl --fail --silent http://localhost:8080"
               initialDelaySeconds: 30
               periodSeconds: 60
               timeoutSeconds: 3
             resources:
               limits:
                 cpu: '1000m'
-                memory: '2Gi'
+                memory: '1Gi'
               requests:
                 cpu: '250m'
                 memory: '250Mi'
@@ -105,9 +86,6 @@ items:
               privileged: false
             terminationMessagePath: /dev/termination-log
             terminationMessagePolicy: File
-            volumeMounts:
-            - mountPath: /deployments/config
-              name: config
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         schedulerName: default-scheduler
@@ -115,20 +93,6 @@ items:
         serviceAccount: {{ application_name }}
         serviceAccountName: {{ application_name }}
         terminationGracePeriodSeconds: 30
-        volumes:
-        - configMap:
-            defaultMode: 420
-            items:
-              - key: {{ application_configmap_key }}
-                path: {{ application_configmap_key }}
-              - key: jbpm-quartz.properties
-                path: jbpm-quartz.properties
-              - key: logback-spring.xml
-                path: logback-spring.xml
-              - key: {{ application_name }}.xml
-                path: {{ application_name }}.xml
-            name: {{ application_configmap }}
-          name: config
     triggers:
       - type: ConfigChange
       - imageChangeParams:
@@ -137,6 +101,6 @@ items:
             - {{ application_name }}
           from:
             kind: ImageStreamTag
-            name: "{{ application_name }}:{{ service_image_tag }}"
+            name: "{{ application_name }}:{{ image_tag }}"
         type: ImageChange
 
