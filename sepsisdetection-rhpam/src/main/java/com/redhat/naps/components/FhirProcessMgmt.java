@@ -1,9 +1,8 @@
-package com.redhat.naps.process;
+package com.redhat.naps.components;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
-import com.redhat.naps.process.util.FHIRUtil;
 
 import org.jbpm.services.api.ProcessService;
 import org.kie.internal.KieInternalServices;
@@ -15,8 +14,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.stereotype.Component;
+import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Patient;
-
+import org.hl7.fhir.r4.model.RiskAssessment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,24 +38,28 @@ public class FhirProcessMgmt {
     @Value("${sepsisdetection.process.id}")
     private String processId;
 
-    public Long startProcess(Patient oEvent) {
-
+    public Long startProcess(List<Observation> oEvent, Patient patientObj, RiskAssessment assessment, String sepsisResponse) {
+ 
         /* NOTE:  
                 FHIR data object uses id convention of:   <FHIR data type>/id
                 Will use just the latter substring (after the "/") as the process instance correlation key
             */
-            String idBase = oEvent.getIdBase();
+            String idBase = patientObj.getIdBase();
             String cKey = idBase.substring(idBase.indexOf("/")+1);
             log.debug("doProcessMessage() correlationKey = "+cKey);
             CorrelationKey correlationKey = correlationKeyFactory.newCorrelationKey(cKey);
 
             Map<String, Object> parameters = new HashMap<>();
-            parameters.put(FHIRUtil.PATIENT, oEvent);
+            parameters.put("observationList", oEvent);
+            parameters.put("patient", patientObj);
+            parameters.put("riskAssessment",assessment);
+            parameters.put("sepsisResponse",sepsisResponse);
+
 
             TransactionTemplate template = new TransactionTemplate(transactionManager);
             return template.execute((TransactionStatus s) -> {
                 Long pi = processService.startProcess(deploymentId, processId, correlationKey, parameters);
-                log.info("Started process for patient " + oEvent.toString() + ". ProcessInstanceId = " + pi+" : correlationKey = "+correlationKey.getName());
+                log.info("Started process for patient " + patientObj.toString() + ". ProcessInstanceId = " + pi+" : correlationKey = "+correlationKey.getName());
                 return pi;
             });
         

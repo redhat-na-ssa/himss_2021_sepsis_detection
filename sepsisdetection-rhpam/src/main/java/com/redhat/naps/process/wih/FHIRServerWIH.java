@@ -1,6 +1,5 @@
 package com.redhat.naps.process.wih;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import com.redhat.naps.process.util.FHIRUtil;
@@ -16,8 +15,6 @@ import org.springframework.stereotype.Component;
 
 @Component("FHIRServer")
 public class FHIRServerWIH implements WorkItemHandler {
-
-
 
     private static Logger log = LoggerFactory.getLogger(FHIRServerWIH.class);
 
