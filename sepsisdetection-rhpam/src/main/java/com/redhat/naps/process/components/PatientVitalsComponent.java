@@ -22,8 +22,13 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Observation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Component
 public class PatientVitalsComponent {
+
+    private static final Logger log = LoggerFactory.getLogger("PatientVitalsComponent");
     
     private static FhirContext fhirCtx = FhirContext.forR4();
 
@@ -39,12 +44,10 @@ public class PatientVitalsComponent {
         instance.add(Calendar.DATE,-1);
         Date timeBoxDate = instance.getTime();
         String patientID = patient.getId();
-        System.out.println("Patient Id : " + patientID);
+        log.info("Patient Id : " + patientID);
 
         String url = fhirURL+"/fhir/Observation?patient="+patientID+"&_pretty=true";
-       // System.out.println("URL : " + url);
         String bundleStr = template.getForEntity(url,String.class).getBody();
-       // System.out.println("Bundle Result : " + bundleStr);
         Bundle newBundle = fhirCtx.newJsonParser().parseResource(Bundle.class, bundleStr);
         for(BundleEntryComponent component : newBundle.getEntry()){
              if(component.getResource() instanceof Observation)
@@ -63,14 +66,14 @@ public class PatientVitalsComponent {
         /* Calendar currentDate = Calendar.getInstance();
         Calendar birthDate = Calendar.getInstance();
 
-        System.out.println("********************   Birth Year : " + patient.getBirthDateElement().getYear() + " , " + currentDate.get(Calendar.YEAR) + " , " + birthDate.get(Calendar.YEAR));
+        log.info("********************   Birth Year : " + patient.getBirthDateElement().getYear() + " , " + currentDate.get(Calendar.YEAR) + " , " + birthDate.get(Calendar.YEAR));
         int years = currentDate.get(Calendar.YEAR) - patient.getBirthDateElement().getYear();
         vitals.setAge(years+"");
         vitals.setGender(patient.getGender().getDisplay()); */
 
         for(Observation observation : timeBoxedObservations) {
               for(Coding coding :  observation.getCode().getCoding()) {
-                  System.out.println("Coding Display : " + coding.getDisplay());
+                  log.info("Coding Display : " + coding.getDisplay());
                   if(coding.getDisplay().equals(FHIRUtil.TEMP_CODE_STRING))
                       vitals.setTemp(observation.getValueQuantity().getValue().doubleValue());
                   if(coding.getDisplay().equals(FHIRUtil.HR_CODE_STRING))

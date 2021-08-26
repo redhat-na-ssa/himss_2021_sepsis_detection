@@ -60,6 +60,7 @@ public class TaskController {
     public void init() {
     }
 
+    // Example:  curl -X GET localhost:8080/fhir/tasks/taskinstance/2/variables | jq .
     @Transactional
     @RequestMapping(value = "/taskinstance/{taskInstancId}/variables")
     public ResponseEntity<Map<String, Object>> getTaskVariables(@PathVariable("taskInstancId") long tInstanceId) {
@@ -70,11 +71,11 @@ public class TaskController {
 
         for(String contentKey : tVariables.keySet()){
             Object contentObj = tVariables.get(contentKey);
-            System.out.println("Key : " + contentKey + " ,  Object : " + contentObj.getClass());
+            log.info("getTaskVariables() Key : " + contentKey + " ,  Object : " + contentObj.getClass());
             if(contentObj instanceof ArrayList) {
             }else {
                 if(IBaseResource.class.isInstance(contentObj)) {
-                    log.info("getTaskInputContentByTaskId() contentKey = "+contentKey+" instanceof = "+contentObj.getClass().toString());
+                    log.info("getTaskVariables() contentKey = "+contentKey+" instanceof = "+contentObj.getClass().toString());
                     String jsonFhir = fhirCtx.newJsonParser().encodeResourceToString((IBaseResource)contentObj);
                     vResponse.put(contentKey, jsonFhir);
                 }else {
@@ -132,21 +133,26 @@ public class TaskController {
     @RequestMapping(value = "/{taskId}/contents/input", method = RequestMethod.GET, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> getTaskInputContentByTaskId(@PathVariable("taskId") Long taskId) {
 
-        Map<String, Object> responseMap = new HashMap<String, Object>();
-        Map<String, Object> contentMap = uTaskService.getTaskInputContentByTaskId(taskId);
-
-        for(String contentKey : contentMap.keySet()){
-            Object contentObj = contentMap.get(contentKey);
-            if(IBaseResource.class.isInstance(contentObj)) {
-                log.info("getTaskInputContentByTaskId() contentKey = "+contentKey+" instanceof = "+contentObj.getClass().toString());
-                String jsonFhir = fhirCtx.newJsonParser().encodeResourceToString((IBaseResource)contentObj);
-                responseMap.put(contentKey, jsonFhir);
-            }else {
-                responseMap.put(contentKey, contentMap.get(contentKey));
+        try{
+            Map<String, Object> responseMap = new HashMap<String, Object>();
+            Map<String, Object> contentMap = uTaskService.getTaskInputContentByTaskId(taskId);
+    
+            for(String contentKey : contentMap.keySet()){
+                Object contentObj = contentMap.get(contentKey);
+                if(IBaseResource.class.isInstance(contentObj)) {
+                    log.info("getTaskInputContentByTaskId() contentKey = "+contentKey+" instanceof = "+contentObj.getClass().toString());
+                    String jsonFhir = fhirCtx.newJsonParser().encodeResourceToString((IBaseResource)contentObj);
+                    responseMap.put(contentKey, jsonFhir);
+                }else {
+                    responseMap.put(contentKey, contentMap.get(contentKey));
+                }
             }
+            return new ResponseEntity<>(responseMap, HttpStatus.OK);
+        }catch(Throwable x) {
+            log.error("getTaskInputContentByTaskId() Error using taskId = "+taskId);
+            x.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return new ResponseEntity<>(responseMap, HttpStatus.OK);
     }
 
     // Example:  curl -X GET localhost:8080/fhir/tasks/1/contents/output | jq .
@@ -154,22 +160,26 @@ public class TaskController {
     @RequestMapping(value = "/{taskId}/contents/output", method = RequestMethod.GET, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> getTaskOutputContentByTaskId(@PathVariable("taskId") Long taskId) {
 
-        Map<String, Object> responseMap = new HashMap<String, Object>();
-        Map<String, Object> contentMap = uTaskService.getTaskOutputContentByTaskId(taskId);
-
-        for(String contentKey : contentMap.keySet()){
-            Object contentObj = contentMap.get(contentKey);
-            if(IBaseResource.class.isInstance(contentObj)) {
-                log.info("getTaskOutputContentByTaskId() contentKey = "+contentKey+" instanceof = "+contentObj.getClass().toString());
-                String jsonFhir = fhirCtx.newJsonParser().encodeResourceToString((IBaseResource)contentObj);
-                responseMap.put(contentKey, jsonFhir);
-            }else {
-                responseMap.put(contentKey, contentMap.get(contentKey));
+        try {
+            Map<String, Object> responseMap = new HashMap<String, Object>();
+            Map<String, Object> contentMap = uTaskService.getTaskOutputContentByTaskId(taskId);
+    
+            for(String contentKey : contentMap.keySet()){
+                Object contentObj = contentMap.get(contentKey);
+                if(IBaseResource.class.isInstance(contentObj)) {
+                    log.info("getTaskOutputContentByTaskId() contentKey = "+contentKey+" instanceof = "+contentObj.getClass().toString());
+                    String jsonFhir = fhirCtx.newJsonParser().encodeResourceToString((IBaseResource)contentObj);
+                    responseMap.put(contentKey, jsonFhir);
+                }else {
+                    responseMap.put(contentKey, contentMap.get(contentKey));
+                }
             }
+            return new ResponseEntity<>(responseMap, HttpStatus.OK);
+        }catch(Throwable x) {
+            log.error("getTaskOutputContentByTaskId() Error using taskId = "+taskId);
+            x.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-
-        return new ResponseEntity<>(responseMap, HttpStatus.OK);
     }
 
     // Example:  curl -X PUT localhost:8080/fhir/tasks/4/claim?user=jeff
@@ -199,17 +209,23 @@ public class TaskController {
         @RequestBody String payload
         ) {
 
-        Map<String, Object> completeParams = new HashMap<String, Object>();
-        if(StringUtils.isNotEmpty(payload)) {
-            // NOTE:  assume that entire payload is a FHIR resource
-            Observation obs = fhirCtx.newJsonParser().parseResource(Observation.class, payload );
-            completeParams.put(OBSERVATION_TASK_VARIABLE_NAME, obs);
+        try {
+            Map<String, Object> completeParams = new HashMap<String, Object>();
+            if(StringUtils.isNotEmpty(payload)) {
+                // NOTE:  assume that entire payload is a FHIR resource
+                Observation obs = fhirCtx.newJsonParser().parseResource(Observation.class, payload );
+                completeParams.put(OBSERVATION_TASK_VARIABLE_NAME, obs);
+            }
+        
+            String topic = "observation-topic";
+            uTaskService.complete(taskId, userId, completeParams);
+       
+            return new ResponseEntity<>(taskId, HttpStatus.OK);
+        }catch(Throwable x) {
+            log.error("completeTaskWithObservation() Error using taskId = "+taskId);
+            x.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    
-        String topic = "observation-topic";
-        uTaskService.complete(taskId, userId, completeParams);
-   
-        return new ResponseEntity<>(taskId, HttpStatus.OK);
     }
 
     // Example:  curl -X GET localhost:8080/fhir/tasks/sanityCheck

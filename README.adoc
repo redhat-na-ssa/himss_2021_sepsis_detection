@@ -14,17 +14,18 @@ TO-DO
 
 == Architecture
 
-. Reference Architecture
-+
-image::docs/images/reference_architecture.png[]
-
 . Sepsis Detection Runtime process:
 +
-image::docs/images/runtime_process.png[]
+image::sepsisdetection-kjar/src/main/resources/com/demo/sepsis/sepsisdetection-svg.svg[]
 
 . highmediummitigation Subprocess: 
 +
-image::docs/images/subprocess.png[]
+image::sepsisdetection-kjar/src/main/resources/com/demo/sepsis/highmediummitigation-svg.svg[]
+
+
+. Reference Architecture
++
+image::docs/images/reference_architecture.png[]
 
 
 == Deploy to OpenShift
@@ -224,8 +225,10 @@ This project includes a _docker-compose_ that allows for deployment of the appli
 . Start application pod with all linux containers:
 +
 -----
-$ podman-compose -f etc/docker-compose.yaml up -d
+$ docker-compose -f etc/docker-compose.yaml up -d
 -----
++
+NOTE:  If underlying linux container system in use in your local environment is podman, then follow this link:https://fedoramagazine.org/use-docker-compose-with-podman-to-orchestrate-containers-on-fedora/[set-up guide].
 
 . The following diagram depicts the containers instantiated as part of this pod:  
 +
@@ -257,9 +260,7 @@ $ mvn clean install -DskipTests
 . Build KIE-Server executable from this project:
 +
 -----
-$ git clone https://github.com/redhat-naps-da/pneumonia-patient-processing-pam.git
-
-$ cd pneumonia-patient-processing-pam
+$ cd sepsisdetection-rhpam
 
 $ mvn clean package
 -----
@@ -292,6 +293,8 @@ $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/rhpam/kie
 . link:https://docs.google.com/presentation/d/1pyKctkvtpjuav52P-qg6SBKDmbaCP_GO/edit#slide=id.p1[AI Automation at the Edge, HIMSS 2021]
 . link:https://trello.com/c/fbnRjpZu/22-detection-of-pneumonia-from-chest-x-rays[Trello Card]
 . link:https://docs.google.com/presentation/d/1nLNPzu93bhOW_QNZDiBxERgYVMJ9RBV1ZhtMJECr5s0/edit#slide=id.g775d9c5cf4_0_717[Technical Presentation]
+. link:https://lucid.app/lucidchart/44b1e8b0-2a68-45ac-82b5-9428178071ae/edit?shared=true&page=0_0#[Lucid Chart:  HIMSS Demo Logical Architecture]
+. linkhttps://access.redhat.com/documentation/en-us/red_hat_decision_manager/7.11/html-single/integrating_red_hat_decision_manager_with_other_products_and_components/index#assembly-springboot-business-apps[RH-PAM apps with SpringBoot]
 
 === Original Repos
 . https://github.com/redhat-naps-da/sepsis-detection
