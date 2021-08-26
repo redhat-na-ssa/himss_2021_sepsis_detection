@@ -15,6 +15,7 @@
   tasks:
   - include: tasks/amq-streams.yml
   - include: tasks/knative.yml
+  - include: tasks/sepsisdetection-ml.yml
   - include: tasks/hapi-fhirserver.yml
   - include: tasks/sepsisdetection-rhpam.yml
   - include: tasks/dashbuilder.yml

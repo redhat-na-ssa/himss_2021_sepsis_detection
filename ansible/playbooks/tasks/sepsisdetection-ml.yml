@@ -1,0 +1,19 @@
+---
+
+- set_fact:
+    namespace: "{{ project_name }}"
+    resources_dir: "{{ resources_base_dir }}/sepsisdetection-ml"
+    work_dir_name: sepsisdetection-ml
+- include_role:
+    name: ../roles/sepsisdetection-ml
+  when: >
+    ACTION is not defined or
+    ACTION is none or
+    ACTION|trim() == "" or
+    ACTION|trim() == "install"
+- include_role:
+    name: ../roles/sepsisdetection-ml
+    tasks_from: uninstall
+  when: >
+    ACTION is defined and
+    ACTION|trim() == "uninstall"
