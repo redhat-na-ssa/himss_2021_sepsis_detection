@@ -1,4 +1,4 @@
-package com.redhat.naps.components;
+package com.redhat.naps.process.components;
 
 import java.util.HashMap;
 import java.util.List;

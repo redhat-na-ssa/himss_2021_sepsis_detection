@@ -1,4 +1,4 @@
-package com.redhat.naps.components;
+package com.redhat.naps.process.components;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +16,11 @@ import org.hl7.fhir.r4.model.RiskAssessment.RiskAssessmentPredictionComponent;
 import org.hl7.fhir.r4.model.RiskAssessment.RiskAssessmentStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import ca.uhn.fhir.context.FhirContext;
 
+@Component
 public class RiskAssessmentComponent {
 
     private static FhirContext fhirCtx = FhirContext.forR4();

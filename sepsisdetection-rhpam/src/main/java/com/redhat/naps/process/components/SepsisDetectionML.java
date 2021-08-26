@@ -1,4 +1,4 @@
-package com.redhat.naps.components;
+package com.redhat.naps.process.components;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

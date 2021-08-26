@@ -1,4 +1,4 @@
-package com.redhat.naps.components;
+package com.redhat.naps.process.components;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -14,6 +14,7 @@ import org.hl7.fhir.r4.model.Observation.ObservationComponentComponent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.stereotype.Component;
 
 import ca.uhn.fhir.context.FhirContext;
 
@@ -21,6 +22,7 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Observation;
 
+@Component
 public class PatientVitalsComponent {
     
     private static FhirContext fhirCtx = FhirContext.forR4();

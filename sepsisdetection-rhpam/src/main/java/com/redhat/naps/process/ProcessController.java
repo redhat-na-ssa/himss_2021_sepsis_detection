@@ -53,9 +53,6 @@ public class ProcessController {
     @Value("${sepsisdetection.deployment.id}")
     private String deploymentId;
 
-    @Value("${listener.destination.patient-reported-event}")
-    private String fhirReportedTopic;
-
     @Autowired
     private RuntimeDataService runtimeDataService;
 
