@@ -14,18 +14,34 @@ TO-DO
 
 == Architecture
 
-. Sepsis Detection Runtime process:
+===  Sepsis Detection Runtime processes:
+
+. _sepsisdetection_ parent process
 +
 image::sepsisdetection-kjar/src/main/resources/com/demo/sepsis/sepsisdetection-svg.svg[]
 
-. highmediummitigation Subprocess: 
+. _highmediummitigation_ Subprocess: 
 +
 image::sepsisdetection-kjar/src/main/resources/com/demo/sepsis/highmediummitigation-svg.svg[]
 
 
-. Reference Architecture
-+
-image::docs/images/reference_architecture.png[]
+=== Reference Architecture
+
+image::docs/images/reference_architecture_actual.png[]
+
+. An external client POSTs a FHIR R4 _bundle_ (with a Patient, Location and multiple Observation resources ) to the RESTful API of the HAPI FHIR JPA server.
+. HAPI FHIR JPA Server persists (using Hiberate) to its PostgreSQL database.  FHIR resources are stored as gzip blobs in the following table of the HAPI FHIR database schema:  _public.hfj_res_ver_ .
+. Debezium detects the additional records to the _public.hfj_res_ver_ table and puts them in motion by sending the raw GZIP blobs to a kafka topic:  _fhir.public.hfj_res_ver_
+. Messages in the _fhir.public.hfj_res_ver_ topic can now be viewed via monitoring tools such as _KafDrop_.  The _sepsisdetection_rhpam_ application is also a consumer on that topic.  During consumption of a Patient resource, the following occurs: 
+.. Given a patiend ID, the RESTful API of the HAPI FHIR server is queried for a list of all _Observation_ resources for the Patient in a given time period.  This list of Observation resources is used as the payload of an HTTP POST request to the _sepsisdetection-ml_ function.  The function responds with an indication of whether sepsis is likely or not.
+
+.. A FHIR R4 _RiskAssessment_ resource (which includes the data indicating likelyhood of sepsis) is posted to the FHIR Server via its RESTful APIs.
+.. The RH-PAM _process-engine_ embedded in the _sepsisdetection-RHPAM_ application is invoked and a _sepsis-detection_ business process is started.  These business process and corresponding human tasks can be monitored via tools such as RH-PAMs _dashbuilder_ component.
+
+. The _sepsisdetection-ui_ application interacts with the RESTful _KIE-Server_ APIs of _sepsisdetection-rhpam_ and renders a user interface that allows for management of the _sepsis-detection_ business process and corresponding human tasks.
+
+. The _sepsisdetection-ui_ pulls in an IFrame from HealthFlow.
+
 
 
 == Deploy to OpenShift
@@ -270,7 +286,7 @@ $ mvn clean package
 -----
 $ mvn clean package -DskipTests && \
          java -Dorg.kie.server.repo=../etc/sepsisdetection-rhpam/runtime_configs \
-              -jar target/sepsisdetection-rhpam-0.0.1.jar 
+              -jar target/sepsisdetection-rhpam-0.0.1.jar &> /tmp/sepsisdetection-rhpam.log &
 -----
 
 
