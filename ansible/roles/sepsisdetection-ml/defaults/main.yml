@@ -1,0 +1,11 @@
+---
+
+application_name: "{{ sepsis_detection_ml_app_name }}"
+
+binary_imagestream_template: image-stream-sepsis-detection.yaml
+binary_imagestream_template_url: "https://raw.githubusercontent.com/redhat-naps-da/sepsis-detection/master/serving/fn/kubernetes/{{ binary_imagestream_template }}"
+
+application_template: sepsis-function-ksvc.yaml
+application_template_url: "https://raw.githubusercontent.com/redhat-naps-da/sepsis-detection/master/serving/fn/kubernetes/{{ application_template }}"
+
+

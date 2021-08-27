@@ -15,6 +15,8 @@ services:
       - "2181:2181"
     environment:
       LOG_DIR: /tmp/logs
+    networks:
+      - default
 
 # https://github.com/pubnub/kafka-bridge/blob/master/kafka/plain/docker-compose.yaml
 #   Allows for kafka client that is external to the container network (ie: on the host) to connect to this Kafka broker and consume messages
@@ -32,6 +34,8 @@ services:
       - "9094:9094"
     environment:
       LOG_DIR: "/tmp/logs"
+    networks:
+      - default
 
   kafka_connect:
     image: docker.io/debezium/connect:1.5
@@ -40,11 +44,13 @@ services:
     ports:
       - "8083:8083"
     environment:
-      BOOTSTRAP_SERVERS: localhost:9092
+      BOOTSTRAP_SERVERS: kafka:9092
       GROUP_ID: 1
       CONFIG_STORAGE_TOPIC: my_connect_configs
       OFFSET_STORAGE_TOPIC: my_connect_offsets
       STATUS_STORAGE_TOPIC: my_connect_statuses
+    networks:
+      - default
 
   kafdrop:
     image: docker.io/obsidiandynamics/kafdrop:3.27.0
@@ -52,11 +58,21 @@ services:
     ports:
       - "9000:9000"
     environment:
-      KAFKA_BROKERCONNECT: "localhost:9092"
+      KAFKA_BROKERCONNECT: "kafka:9092"
       JVM_OPTS: "-Xms32M -Xmx64M"
       SERVER_SERVLET_CONTEXTPATH: "/"
     depends_on:
       - kafka
+    networks:
+      - default
+
+  sepsisdetection-ml:
+    image: quay.io/redhat_naps_da/sepsis-detection:1.3
+    restart: always
+    ports:
+      - "5080:8080"
+    networks:
+      - sepsisdetection-ml
 
   psql_fhir:
     image: registry.redhat.io/rhel8/postgresql-12
@@ -76,6 +92,8 @@ services:
       - type: bind
         source: ./hapi-fhir/hapi-psql-wal.sh
         target: /opt/app-root/src/postgresql-start/hapi-psql-wal.sh
+    networks:
+      - default
 
   hapi_fhir:
     # https://github.com/redhat-naps-da/hapi-fhir-jpaserver-starter
@@ -94,23 +112,9 @@ services:
         source: ./hapi-fhir/application.yaml
         target: /deployments/config/application.yaml
     depends_on:
-      - psql_fhir
-
-  sepsis_ui:
-    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.2
-    restart: always
-    ports:
-      - "7080:7080"
-    environment:
-      KIE_SERVER_URL: 'http:\/\/localhost:9080'
-      KIE_SERVER_USERID: "kieserver"
-      KIE_SERVER_PASSWORD: "kieserver"
-      DM_CONTAINER_ALIAS: ""
-      PAM_CONTAINER_ALIAS: "sepsisdetection-kjar-1.0.0"
-      PROCESS_ID: "sepsisdetection"
-      FHIR_SERVER_URL: 'http:\/\/localhost:8080'
-      PATIENT_VIEWER_URL: ""
-      IS_OPENSHIFT: false
+      - "psql_fhir"
+    networks:
+      - default
 
   psql_rhpam:
     image: registry.redhat.io/rhel8/postgresql-12
@@ -134,6 +138,8 @@ services:
       - type: bind
         source: ./sepsisdetection-rhpam/db/create_rhpam_database.sh
         target: /opt/app-root/src/postgresql-start/create_rhpam_database.sh
+    networks:
+      - default
 
   dashbuilder:
     image: quay.io/redhat_naps_da/dashbuilder-rhpam-db:0.0.1
@@ -141,12 +147,14 @@ services:
     ports:
       - "6080:6080"
     environment:
-      JAVA_OPTIONS=-Dquarkus.http.host=0.0.0.0 -Dquarkus.http.port=6080 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Ddashbuilder.runtime.multi=true -Ddashbuilder.datasources=jbpmdb -Ddashbuilder.datasource.jbpmdb.jdbcUrl=jdbc:postgresql://localhost:6432/rhpam -Ddashbuilder.datasource.jbpmdb.providerClassName=org.postgresql.Driver -Ddashbuilder.datasource.jbpmdb.maxSize=10 -Ddashbuilder.datasource.jbpmdb.principal=rhpam -Ddashbuilder.datasource.jbpmdb.credential=rhpam -Dquarkus.http.enable-compression=false -Ddashbuilder.import.base.dir=/opt/dashbuilder
+      JAVA_OPTIONS: "-Dquarkus.http.host=0.0.0.0 -Dquarkus.http.port=6080 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Ddashbuilder.runtime.multi=true -Ddashbuilder.datasources=jbpmdb -Ddashbuilder.datasource.jbpmdb.jdbcUrl=jdbc:postgresql://psql_rhpam:6432/rhpam -Ddashbuilder.datasource.jbpmdb.providerClassName=org.postgresql.Driver -Ddashbuilder.datasource.jbpmdb.maxSize=10 -Ddashbuilder.datasource.jbpmdb.principal=rhpam -Ddashbuilder.datasource.jbpmdb.credential=rhpam -Dquarkus.http.enable-compression=false -Ddashbuilder.import.base.dir=/opt/dashbuilder"
     depends_on:
       - psql_rhpam
+    networks:
+      - default
 
 #  sepsisdetection-rhpam:
-#    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.1
+#    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.4
 #    restart: always
 #    ports:
 #      - "9080:9080"
@@ -170,3 +178,26 @@ services:
 #    depends_on:
 #      - psql_rhpam
 
+  sepsis_ui:
+    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.4
+    restart: always
+    ports:
+      - "7080:7080"
+    environment:
+      KIE_SERVER_URL: 'http:\/\/localhost:9080'
+      KIE_SERVER_USERID: "kieserver"
+      KIE_SERVER_PASSWORD: "kieserver"
+      DM_CONTAINER_ALIAS: ""
+      PAM_CONTAINER_ALIAS: "sepsisdetection-kjar-1.0.0"
+      PROCESS_ID: "sepsisdetection"
+      FHIR_SERVER_URL: 'http:\/\/hapi_fhir:8080'
+      PATIENT_VIEWER_URL: "https:\/\/my.healthflow.io"
+      IS_OPENSHIFT: 'false'
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
+  sepsisdetection-ml:
+    driver: bridge

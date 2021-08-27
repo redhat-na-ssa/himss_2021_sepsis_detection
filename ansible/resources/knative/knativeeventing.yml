@@ -1,0 +1,12 @@
+# Installs the knative eventing controllers, dispatchers and webhooks.
+# However, with this install, only the in-memory channels are provided
+#  Install KnativeEventingKafka to enable broker channels to be persisted by Kafka
+
+apiVersion: operator.knative.dev/v1alpha1
+kind: KnativeEventing
+metadata:
+    name: knative-eventing
+
+# Install the Multi Tenant Channel Based Broker as the default Knative Eventing Broker implementation
+#spec:
+#  defaultBrokerClass: MTChannelBasedBroker

@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: 'jdbc:postgresql://127.0.0.1:5432/fhir'
+    url: 'jdbc:postgresql://psql_fhir:5432/fhir'
     username: fhir
     password: fhir
     driverClassName: org.postgresql.Driver

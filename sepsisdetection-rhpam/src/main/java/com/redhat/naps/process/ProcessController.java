@@ -53,9 +53,6 @@ public class ProcessController {
     @Value("${sepsisdetection.deployment.id}")
     private String deploymentId;
 
-    @Value("${listener.destination.patient-reported-event}")
-    private String fhirReportedTopic;
-
     @Autowired
     private RuntimeDataService runtimeDataService;
 
@@ -77,10 +74,16 @@ public class ProcessController {
     @RequestMapping(value = "/instance", method = RequestMethod.GET, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProcessInstanceDesc> getProcessInstanceByCorrelationKey(@RequestParam(name = "correlationKey") String correlationKey) {
         
-        CorrelationKey cKey = correlationKeyFactory.newCorrelationKey(correlationKey);
-        ProcessInstanceDesc pInstanceDesc = runtimeDataService.getProcessInstanceByCorrelationKey(cKey);
-
-        return new ResponseEntity<>(pInstanceDesc, HttpStatus.OK);
+        try {
+            CorrelationKey cKey = correlationKeyFactory.newCorrelationKey(correlationKey);
+            ProcessInstanceDesc pInstanceDesc = runtimeDataService.getProcessInstanceByCorrelationKey(cKey);
+    
+            return new ResponseEntity<>(pInstanceDesc, HttpStatus.OK);
+        }catch(Throwable x) {
+            log.error("getProcessInstanceByCorrelationKey() Error using correlationKey = "+correlationKey);
+            x.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // Example:  curl -X GET localhost:8080/fhir/processes/instance/6/variables | jq .
@@ -88,21 +91,28 @@ public class ProcessController {
     @RequestMapping(value = "/instance/{processInstanceId}/variables", method = RequestMethod.GET, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> getProcessVariables(@PathVariable("processInstanceId") long pInstanceId) {
         
-        Map<String, Object> vResponse = new HashMap<String, Object>();
-        Map<String, Object> pVariables = processService.getProcessInstanceVariables(pInstanceId);
-
-        for(String contentKey : pVariables.keySet()){
-            Object contentObj = pVariables.get(contentKey);
-            if(IBaseResource.class.isInstance(contentObj)) {
-                log.info("getTaskInputContentByTaskId() contentKey = "+contentKey+" instanceof = "+contentObj.getClass().toString());
-                String jsonFhir = fhirCtx.newJsonParser().encodeResourceToString((IBaseResource)contentObj);
-                vResponse.put(contentKey, jsonFhir);
-            }else {
-                vResponse.put(contentKey, pVariables.get(contentKey));
+        try {
+            Map<String, Object> vResponse = new HashMap<String, Object>();
+            Map<String, Object> pVariables = processService.getProcessInstanceVariables(pInstanceId);
+    
+            for(String contentKey : pVariables.keySet()){
+                Object contentObj = pVariables.get(contentKey);
+                if(IBaseResource.class.isInstance(contentObj)) {
+                    log.info("getProcessVariables() contentKey = "+contentKey+" instanceof = "+contentObj.getClass().toString());
+                    String jsonFhir = fhirCtx.newJsonParser().encodeResourceToString((IBaseResource)contentObj);
+                    log.info("getProcessVariables() done parsing "+contentKey);
+                    vResponse.put(contentKey, jsonFhir);
+                }else {
+                    vResponse.put(contentKey, pVariables.get(contentKey));
+                }
             }
+    
+            return new ResponseEntity<>(vResponse, HttpStatus.OK);
+        }catch(Throwable x) {
+            log.error("getProcessVariables() Error using pInstanceId = "+pInstanceId);
+            x.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return new ResponseEntity<>(vResponse, HttpStatus.OK);
     }
 
     // Example:  curl -X POST localhost:8080/fhir/processes/abortAll

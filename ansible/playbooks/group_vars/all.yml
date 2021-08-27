@@ -19,8 +19,11 @@ project_name: "{{ project_admin }}-sepsisdetection"
 #   source : Use if this ansible includes tasks to deploy a Jenkins or Tekton BuildConfig that creates the application image from source code
 deploy_from: image
 
-# Name of kafka topic that triggers BPM process
-topic_fhir_r4_patient: topic-fhir-r4-patient
+kafka_debezium_db_server_name: fhir
+kafka_debezium_table_whitelist: public.hfj_res_ver
+
+# Topic that Debezium will stream to and triggers BPM process
+kafka_debezium_topic: "{{ kafka_debezium_db_server_name }}.{{ kafka_debezium_table_whitelist }}"
 
 
 fhir_server_application_name: fhir-server
@@ -30,6 +33,10 @@ sepsisdetection_rhpam_deployment_name: sepsisdetection-kjar
 sepsisdetection_rhpam_deployment_version: 1.0.0
 sepsisdetection_rhpam_process_id: sepsisdetection
 
-patient_viewer_url:
+namespace_knativeserving: knative-serving
+namespace_knativeeventing: knative-eventing
 
-AIModel_server_url: https://sepsis-detection-user1-pneumonia-treatment.apps.beacon02.faros.site/
+
+sepsis_detection_ml_app_name: sepsis-detection
+
+patient_viewer_url: "https://my.healthflow.io"
