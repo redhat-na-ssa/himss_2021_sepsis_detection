@@ -44,19 +44,19 @@ public class PatientVitalsComponent {
         instance.add(Calendar.DATE,-1);
         Date timeBoxDate = instance.getTime();
         String patientID = patient.getId();
-        log.info("Patient Id : " + patientID);
-
+        
         String url = fhirURL+"/fhir/Observation?patient="+patientID+"&_pretty=true";
         String bundleStr = template.getForEntity(url,String.class).getBody();
         Bundle newBundle = fhirCtx.newJsonParser().parseResource(Bundle.class, bundleStr);
         for(BundleEntryComponent component : newBundle.getEntry()){
-             if(component.getResource() instanceof Observation)
-             {
+            if(component.getResource() instanceof Observation)
+            {
                 Observation obs = (Observation) component.getResource();
                 if(obs.getMeta().getLastUpdatedElement().after(timeBoxDate)) // Adding Observation only if its 24 hrs
-                  obsList.add(obs);
-             }
-         }
+                obsList.add(obs);
+            }
+        }
+        log.info("getTimedBoxedObservation() Patient Id : " + patientID+" # of Observations = "+obsList.size());
         return obsList;
     }
     

@@ -38,30 +38,32 @@ public class FhirProcessMgmt {
     @Value("${sepsisdetection.process.id}")
     private String processId;
 
-    public Long startProcess(List<Observation> oEvent, Patient patientObj, RiskAssessment assessment, String sepsisResponse) {
- 
+    public Long startProcess(Patient patientObj, List<Observation> oEvent, String sepsisResponse, RiskAssessment assessment) {
         /* NOTE:  
-                FHIR data object uses id convention of:   <FHIR data type>/id
-                Will use just the latter substring (after the "/") as the process instance correlation key
-            */
-            String idBase = patientObj.getIdBase();
-            String cKey = idBase.substring(idBase.indexOf("/")+1);
-            log.debug("doProcessMessage() correlationKey = "+cKey);
-            CorrelationKey correlationKey = correlationKeyFactory.newCorrelationKey(cKey);
+            FHIR data object uses id convention of:   <FHIR data type>/id
+            Will use just the latter substring (after the "/") as the process instance correlation key
+        */
+        String idBase = patientObj.getIdBase();
+        String cKey = idBase.substring(idBase.indexOf("/")+1);
+        log.debug("doProcessMessage() correlationKey = "+cKey);
+        CorrelationKey correlationKey = correlationKeyFactory.newCorrelationKey(cKey);
+    
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("patient", patientObj);
 
-            Map<String, Object> parameters = new HashMap<>();
-            parameters.put("observationList", oEvent);
-            parameters.put("patient", patientObj);
-            parameters.put("riskAssessment",assessment);
-            parameters.put("sepsisResponse",sepsisResponse);
+        //TO-DO:  When persisting this list of Observations as part of process instance, upon retrieval of pInstanceVariables ..... the server thread is placed in an infinite loop of JSON processing
+        //parameters.put("observationList", oEvent);
 
-
-            TransactionTemplate template = new TransactionTemplate(transactionManager);
-            return template.execute((TransactionStatus s) -> {
-                Long pi = processService.startProcess(deploymentId, processId, correlationKey, parameters);
-                log.info("Started process for patient " + patientObj.toString() + ". ProcessInstanceId = " + pi+" : correlationKey = "+correlationKey.getName());
-                return pi;
-            });
+        parameters.put("sepsisResponse",sepsisResponse);
+        parameters.put("riskAssessment",assessment);
+    
+    
+        TransactionTemplate template = new TransactionTemplate(transactionManager);
+        return template.execute((TransactionStatus s) -> {
+            Long pi = processService.startProcess(deploymentId, processId, correlationKey, parameters);
+            log.info("Started process for patient " + patientObj.toString() + ". ProcessInstanceId = " + pi+" : correlationKey = "+correlationKey.getName());
+            return pi;
+        });
         
     }
     

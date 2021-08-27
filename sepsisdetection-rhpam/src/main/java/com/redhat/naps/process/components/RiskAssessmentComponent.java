@@ -20,8 +20,13 @@ import org.springframework.stereotype.Component;
 
 import ca.uhn.fhir.context.FhirContext;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Component
-public class RiskAssessmentComponent {
+public class RiskAssessmentComponent { 
+    
+    private static final Logger log = LoggerFactory.getLogger("RiskAssessmentComponent");
 
     private static FhirContext fhirCtx = FhirContext.forR4();
 
@@ -55,19 +60,15 @@ public class RiskAssessmentComponent {
 
     public RiskAssessment updateFhirServerwithRiskAssessment(RiskAssessment assessment) {
         String url = fhirURL+"/fhir/RiskAssessment";
-        System.out.println("**********************************************************");
         String riskAssessmentRequest = fhirCtx.newJsonParser().encodeResourceToString(assessment);
-        System.out.println(url);
-        System.out.println(riskAssessmentRequest);
+        log.info("updateFhirServerwithRiskAssessment riskAssessment = \n"+riskAssessmentRequest+"\n");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<>(riskAssessmentRequest, headers);
-        String riskAssesmentStr = template.postForEntity(url, entity, String.class).getBody();
-        System.out.println("**********************************************************");
-        System.out.println(riskAssesmentStr);
-        System.out.println("**********************************************************");
-        RiskAssessment assessment2 =  fhirCtx.newJsonParser().parseResource(RiskAssessment.class,riskAssesmentStr);
-        return assessment2;
+        String rAssessmentResponse = template.postForEntity(url, entity, String.class).getBody();
+        log.info("updateFhirServerwithRiskAssessment() rAssessmentResponse = \n"+rAssessmentResponse+"\n");
+        RiskAssessment rAssessmentResponseObj =  fhirCtx.newJsonParser().parseResource(RiskAssessment.class,rAssessmentResponse);
+        return rAssessmentResponseObj;
     }
 
     

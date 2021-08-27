@@ -74,6 +74,7 @@ export class PAMServices {
       'X-KIE-ContentType': 'JSON',
       'accept': 'application/json'
     };
+    console.log("getProcessInstances() with status = "+type);
     return this.http.get(url, { headers });
 
   }
@@ -86,6 +87,7 @@ export class PAMServices {
       'X-KIE-ContentType': 'JSON',
       'accept': 'application/json'
     };
+    console.log("getProcessInstanceVariables() for pId = "+processInstanceId);
     return this.http.get(url, { headers });
 
   }
@@ -98,6 +100,7 @@ export class PAMServices {
       'accept': 'application/svg+xml',
       'content-type': 'application/svg+xml'
     };
+    console.log("getSVGImage() for pId = "+processInstanceId);
     return this.http.get(url, { headers, responseType: 'text' });
   }
 
@@ -110,6 +113,7 @@ export class PAMServices {
       'X-KIE-ContentType': 'JSON',
       'accept': 'application/json'
     };
+    console.log("getActiveTaskInstances() for pId = "+processInstanceId);
     return this.http.get(url, { headers });
   }
 
@@ -121,6 +125,7 @@ export class PAMServices {
       'X-KIE-ContentType': 'JSON',
       'accept': 'application/json'
     };
+    console.log("getTaskVariables() for taskId = "+taskInstanceId);
     return this.http.get(url, { headers });
   }
 
@@ -133,6 +138,7 @@ export class PAMServices {
       'X-KIE-ContentType': 'JSON',
       'accept': 'application/json'
     };
+    console.log("updateTaskStatus() for taskId = "+taskInstanceId+" : taskStatus = "+taskStatus);
     return this.http.put(url, "", { headers });
   }
 
@@ -144,6 +150,7 @@ export class PAMServices {
       'X-KIE-ContentType': 'JSON',
       'accept': 'application/json'
     };
+    console.log("updateVariables() for taskId = "+taskInstanceId+" : data = "+data);
     return this.http.put(url, data, { headers });
   }
 
@@ -158,6 +165,7 @@ export class PAMServices {
       'accept': 'application/json'
     };
 
+    console.log("signalEvent() for pInstanceId = "+processInstanceId+" : signalName = "+signalName+" : shipmentRequest = "+shipmentRequest);
     return this.http.post(url, postData, { headers });
 
   }

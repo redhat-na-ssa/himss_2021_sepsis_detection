@@ -47,11 +47,9 @@ image::docs/images/reference_architecture_actual.png[]
 == Deploy to OpenShift
 Ansible is included to deploy this application to OpenShift in a repeatable manner.
 
-An architecture diagram of what is deployed can be found link:https://docs.google.com/presentation/d/1nLNPzu93bhOW_QNZDiBxERgYVMJ9RBV1ZhtMJECr5s0/edit#slide=id.gd919252c16_0_0[here].
-
 === Pre-reqs:
 
-. OpenShift Container Platform version 4.7.* or more recent.  Resource requirements needed by the app (doesn't include resource requirements of Openshift to support itself) as follows:
+. OpenShift Container Platform version 4.7.* or more recent.  Resource requirements needed by the app (doesn't include resource requirements of Openshift to support itself) is as follows:
 .. RAM: 6 GB
 .. CPU: 8
 .. Storage: 10 PVCs of type RWO (no RWX requirement) and each of size 5 GiB
@@ -78,13 +76,13 @@ ie: `dnf install ansible`
 . Using the `oc` utility that corresponds to the version of OpenShift that you will deploy to, log into the cluster: 
 +
 -----
-$ oc login <url> -u <cluster-admin userId> -p <passwd>
+$ oc login <OCP API Server url> -u <cluster-admin userId> -p <passwd>
 -----
 
-. Clone source code containing pneumonia treatment business process model and rules:
+. Clone the source code of this project:
 +
 -----
-$ git clone https://github.com/redhat-naps-da/sepsisdetection-kjar.git
+$ git clone https://github.com/redhat-naps-da/himss_interoperability_showcase_2021
 -----
 
 . Change to the _ansible_ directory of this project: 
@@ -99,7 +97,7 @@ $ cd ansible
 $ ansible-playbook playbooks/install.yml
 -----
 +
-Deployment should complete in about 5 minutes.
+Deployment should complete in about 15 minutes.
 +
 Notice the creation of a new OCP namespace where the application resides:  user1-sepsisdetection
 
@@ -113,7 +111,7 @@ PLAY RECAP *********************************************************************
 localhost                  :  ok=137  changed=77   unreachable=0    failed=0    skipped=14   rescued=0    ignored=0
 -----
 
-. Uninstall from OpenShift:
+. Optional:  Uninstall from OpenShift:
 +
 -----
 $ ansible-playbook playbooks/uninstall.yml \
@@ -126,22 +124,24 @@ $ ansible-playbook playbooks/uninstall.yml \
 
 === POST Patient to HAPI FHIR Server
 
-The application also includes a HAPI FHIR Server that also exposes RESTful endpoints.
+The application includes a HAPI FHIR Server that exposes RESTful endpoints.
 
-The demo scenario starts by submitting an HTTP POST with a FHIR bundle (which includes a a FHIR R4 Patient) to the HAPI FHIR Server. 
+The demo scenario starts by submitting an HTTP POST with a FHIR bundle (which includes a FHIR R4 Patient) to the HAPI FHIR Server. 
 
 . Set FHIR_SERVER_URL env var:
-.. If testing environment deployed locally:
-+
------
-FHIR_SERVER_URL=http://localhost:8080
------
 
 .. If testing environment deployed to OpenShift:
 +
 -----
 FHIR_SERVER_URL=https://$(oc get route fhir-server -n user1-sepsisdetection --template='{{ .spec.host }}')
 -----
+
+.. If testing environment deployed locally:
++
+-----
+FHIR_SERVER_URL=http://localhost:8080
+-----
+
 
 . POST Observation to FHIR server
 +
@@ -153,7 +153,7 @@ $ curl -X POST \
 -----
 
 
-=== View and Administer Tasks
+=== View and Administer SepsisDetection Human Tasks
 
 . Point your browser to the output of the following command: 
 +
@@ -171,6 +171,16 @@ image::docs/images/sepsisui-risk_assessment.png[]
 +
 image::docs/images/sepsisui-singletask.png[]
 
+
+== my.healthflow.io notes
+
+HealthFlow was initially supposed to have been deployed on the kubeframe as part of the demo, but they couldn't get it containerized in time, so it was relegated to being displayed in that iFrame. 
+There's a container image out there for it, but it's monolithic and bulky, and we kind of shelved helping them with it for the time being. 
+It's based on a project called Meteor, and includes an embedded FHIR server with database instance, as well as some other stuff. Pretty heavy duty.
+
+Example URL: 
+
+https://my.healthflow.io/patient-chart?patientId=610f11c05b041e00082c54c2
 
 
 == Test
@@ -225,18 +235,10 @@ $ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' $SEPSISDETEC
 
 
 
-== my.healthflow.io
-This is HealthFlow's application .
-
-It was initially supposed to have been deployed on the kubeframe as part of the demo, but they couldn't get it containerized in time, so it was relegated to being displayed in that iFrame. There's a container image out there for it, but it's monolithic and bulky, and we kind of shelved helping them with it for the time being. It's based on a project called Meteor, and includes an embedded FHIR server with database instance, as well as some other stuff. Pretty heavy duty.
-
-Example URL: 
-
-https://my.healthflow.io/patient-chart?patientId=610f11c05b041e00082c54c2
 
 == Local containerized environment
 
-This project includes a _docker-compose_ that allows for deployment of the application as containers in your local environment.
+This project includes a _docker-compose_ config file that allows for deployment of the application as containers in your local environment.
 
 . Start application pod with all linux containers:
 +
@@ -260,7 +262,13 @@ $ curl -X POST \
         -d "@etc/hapi-fhir/debezium-fhir-server-pgsql.json"
 -----
 +
-NOTE:  This step is not needed when running the solution in OpenShift.  It's only needed when running the solution in a local containerized environmennt (ie:  podman-compose)
+NOTE:  This step is not needed when running the solution in OpenShift.  It's only needed when running the solution in a local containerized environmennt (ie:  docker-compose)
+
+. Stop application pod with all linux containers:
++
+-----
+$ docker-compose -f etc/docker-compose.yaml down
+-----
 
 
 == Development
@@ -318,3 +326,8 @@ $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/rhpam/kie
 . https://gitlab.consulting.redhat.com/ba-nacomm/sepsis-detection/sepsisdetection-kjar
 . https://gitlab.consulting.redhat.com/ba-nacomm/sepsis-detection/sepsis-ui
 
+
+== Bug list
+
+. Decide what to do about integrating with Healthflow.io .  Maybe create a simulator
+. Persisting list of Observations as part of process instance variables caused problems when retrieving those pInstance variables and marshalling to json (so as to be rendered in sepsisdetection-ui ).

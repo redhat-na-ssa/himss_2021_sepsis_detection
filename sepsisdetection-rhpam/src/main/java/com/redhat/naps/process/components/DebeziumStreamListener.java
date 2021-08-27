@@ -91,7 +91,7 @@ public class DebeziumStreamListener {
                     RiskAssessment updatedAssessment = riskAssessmentComponent.updateFhirServerwithRiskAssessment(assessment);
 
                     // Start Business Process
-                    fhirProcessMgmt.startProcess(obsList, patientObj, updatedAssessment, aiResponse.getIssepsis()+"");
+                    fhirProcessMgmt.startProcess(patientObj, obsList, aiResponse.getIssepsis()+"", updatedAssessment );
                 } else {
                     log.error("processMessage() no res_id for patient: "+fhirJson);
                 }

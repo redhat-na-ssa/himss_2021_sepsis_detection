@@ -154,7 +154,7 @@ services:
       - default
 
 #  sepsisdetection-rhpam:
-#    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.1
+#    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.4
 #    restart: always
 #    ports:
 #      - "9080:9080"
@@ -179,7 +179,7 @@ services:
 #      - psql_rhpam
 
   sepsis_ui:
-    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.2
+    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.4
     restart: always
     ports:
       - "7080:7080"
@@ -191,7 +191,7 @@ services:
       PAM_CONTAINER_ALIAS: "sepsisdetection-kjar-1.0.0"
       PROCESS_ID: "sepsisdetection"
       FHIR_SERVER_URL: 'http:\/\/hapi_fhir:8080'
-      PATIENT_VIEWER_URL: "https://my.healthflow.io"
+      PATIENT_VIEWER_URL: "https:\/\/my.healthflow.io"
       IS_OPENSHIFT: 'false'
     networks:
       - default
