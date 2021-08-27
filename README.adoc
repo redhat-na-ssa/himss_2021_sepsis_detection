@@ -96,10 +96,10 @@ $ cd ansible
 -----
 $ ansible-playbook playbooks/install.yml
 -----
-+
-Deployment should complete in about 15 minutes.
-+
-Notice the creation of a new OCP namespace where the application resides:  user1-sepsisdetection
+
+.. Deployment should complete in about 15 minutes.
+
+.. Notice the creation of a new OCP namespace where the application resides:  user1-sepsisdetection
 
 .. At the completion of the installation, expect to see messages similar to the following:
 +
@@ -117,6 +117,48 @@ localhost                  :  ok=137  changed=77   unreachable=0    failed=0    
 $ ansible-playbook playbooks/uninstall.yml \
     -e ACTION=uninstall
 -----
+
+== User Interfaces
+
+image::docs/images/demo_routes.png[]
+
+As seen in the list of routes created in the _user1_sepsisdetection_ namespace, the demo provides the following user interfaces and APIs:
+
+==== Dashbuilder
+
+image::docs/images/dashbuilder_tasks.png[]
+
+==== Hapi FHIR Server
+
+image::docs/images/hapi_fhir_home.png[]
+
+==== Kafdrop
+
+image::docs/images/kafdrop_home.png[]
+
+image::docs/images/kafdrop_message.png[]
+
+==== Sepsisdetection-rhpam
+
+This service consists of the RH-PAM _process_engine_ embedded in SpringBoot.
+
+.. This service consumes messages from Red Hat AMQ Streams
+.. This service also exposes the following RESTful APIs:
+... KIE-Server REST APIs:
++
+Swagger documentation is available in json format as per the following:
++
+-----
+$ curl -v -u "kieserver:kieserver" https://$(oc get route sepsisdetection-rhpam -n user1-sepsisdetection --template='{{ .spec.host }}')/rest/swagger.json | jq .
+-----
+
+... FHIR Enabled REST APIs:
++
+Augments the RH-PAM KIE-Server with additional APIs that allow for handling FHIR related process and task variables
+
+==== Sepsisdetection-UI
+
+image::docs/images/sepsisui-home.png[]
 
 
 == Demo Scenario
