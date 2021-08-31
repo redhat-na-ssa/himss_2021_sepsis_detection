@@ -373,3 +373,47 @@ $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/rhpam/kie
 
 . Decide what to do about integrating with Healthflow.io .  Maybe create a simulator
 . Persisting list of Observations as part of process instance variables caused problems when retrieving those pInstance variables and marshalling to json (so as to be rendered in sepsisdetection-ui ).
+
+== Operator notes
+
+=== Reference
+. link:https://sdk.operatorframework.io/docs/building-operators/ansible/tutorial/[ansible operator tutorial]
+
+=== Development
+
+
+. Modify Makefile (as needed)
+. Build image and deploy to quay:
++
+-----
+$ make docker-build docker-push
+-----
+
+. Deploy operator in OpenShift cluster:
++
+-----
+$ make deploy
+
+cd config/manager && /u01/labs/mw/redhat-naps-da/himss_interoperability_showcase_2021/ansible/bin/kustomize edit set image controller=quay.io/redhat_naps_da/sepsisdetection-operator:0.0.2
+/u01/labs/mw/redhat-naps-da/himss_interoperability_showcase_2021/ansible/bin/kustomize build config/default | kubectl apply -f -
+I0831 13:00:25.259384   30895 request.go:668] Waited for 1.075752563s due to client-side throttling, not priority and fairness, request: GET:https://api.cluster-3983.3983.sandbox362.opentlc.com:6443/apis/security.internal.openshift.io/v1?timeout=32s
+namespace/ansible-system created
+customresourcedefinition.apiextensions.k8s.io/himss2021s.cache.redhat.com created
+serviceaccount/ansible-controller-manager created
+role.rbac.authorization.k8s.io/ansible-leader-election-role created
+clusterrole.rbac.authorization.k8s.io/ansible-manager-role created
+clusterrole.rbac.authorization.k8s.io/ansible-metrics-reader created
+clusterrole.rbac.authorization.k8s.io/ansible-proxy-role created
+rolebinding.rbac.authorization.k8s.io/ansible-leader-election-rolebinding created
+clusterrolebinding.rbac.authorization.k8s.io/ansible-manager-rolebinding created
+clusterrolebinding.rbac.authorization.k8s.io/ansible-proxy-rolebinding created
+configmap/ansible-manager-config created
+service/ansible-controller-manager-metrics-service created
+deployment.apps/ansible-controller-manager created
+-----
+
+. Install HIMSS2021 resource
++
+-----
+$ oc apply -f config/samples/cache_v1alpha1_himss2021.yaml
+-----

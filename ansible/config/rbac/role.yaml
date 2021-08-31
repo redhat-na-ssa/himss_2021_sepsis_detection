@@ -4,54 +4,10 @@ kind: ClusterRole
 metadata:
   name: manager-role
 rules:
-  ##
-  ## Base operator rules
-  ##
-  - apiGroups:
-      - ""
-    resources:
-      - secrets
-      - pods
-      - pods/exec
-      - pods/log
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - apps
-    resources:
-      - deployments
-      - daemonsets
-      - replicasets
-      - statefulsets
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  ##
-  ## Rules for cache.redhat.com/v1alpha1, Kind: HIMSS2021
-  ##
-  - apiGroups:
-      - cache.redhat.com
-    resources:
-      - himss2021s
-      - himss2021s/status
-      - himss2021s/finalizers
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-#+kubebuilder:scaffold:rules
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - '*'
+

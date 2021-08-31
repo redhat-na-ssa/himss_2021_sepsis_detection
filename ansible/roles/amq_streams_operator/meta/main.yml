@@ -1,7 +1,7 @@
 ---
 
 dependencies:
-  - role: openshift_cluster_admin_access
+#  - role: openshift_cluster_admin_access
   - role: work_dir
   - role: openshift_project
     when: >
