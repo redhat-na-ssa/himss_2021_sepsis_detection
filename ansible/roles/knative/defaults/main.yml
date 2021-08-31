@@ -8,7 +8,7 @@ serverless_operator_packagemanifest: serverless-operator
 serverless_operator_subscription_starting_csv: ""
 serverless_operator_subscription_automatic_installplan_approval: false
 serverless_operator_subscription_name: serverless-operator
-serverless_operator_subscription_channel: '4.6'
+serverless_operator_subscription_channel: 'stable'
 serverless_operator_csv_prefix: serverless-operator
 serverless_operator_deployment_name: knative-operator
 namespace_serverless_operator: openshift-operators
