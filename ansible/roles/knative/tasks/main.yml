@@ -1,13 +1,5 @@
 ---
 
-- name: "check if KnativeServing custom resource exists"
-  oc_obj:
-    state: list
-    oc_binary: "{{ openshift_cli }}"
-    name: "knative-serving"
-    namespace: "{{ namespace_knativeserving }}"
-    kind: KnativeServing
-  register: result
 
 
 - name: "deploy serverless operator in {{ namespace_serverless_operator }} namespace"
@@ -22,7 +14,6 @@
     automatic_installplan_approval: "{{ serverless_operator_subscription_automatic_installplan_approval }}"
     subscription_starting_csv: "{{ serverless_operator_subscription_starting_csv }}"
     csv_prefix: "{{ serverless_operator_csv_prefix }}"
-  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != ""
 
 - name: "wait until serverless operator is active in {{ namespace_serverless_operator }}"
   oc_obj:
@@ -41,7 +32,15 @@
     - >-
       r_serverless_operator_deployment.ansible_module_results.results[0].status.readyReplicas ==
       r_serverless_operator_deployment.ansible_module_results.results[0].status.replicas
-  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != ""
+
+- name: "check if KnativeServing custom resource exists"
+  oc_obj:
+    state: list
+    oc_binary: "{{ openshift_cli }}"
+    name: "knative-serving"
+    namespace: "{{ namespace_knativeserving }}"
+    kind: KnativeServing
+  register: result
 
 - name: "create project {{ namespace_knativeserving }}"
   oc_project:
