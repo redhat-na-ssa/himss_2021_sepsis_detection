@@ -114,8 +114,7 @@ localhost                  :  ok=137  changed=77   unreachable=0    failed=0    
 . Optional:  Uninstall from OpenShift:
 +
 -----
-$ ansible-playbook playbooks/uninstall.yml \
-    -e ACTION=uninstall
+$ ansible-playbook playbooks/uninstall.yml
 -----
 
 == User Interfaces
@@ -381,7 +380,7 @@ $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/rhpam/kie
 
 === Development
 
-
+==== Base Operator
 . Modify Makefile (as needed)
 . Build image and deploy to quay:
 +
@@ -417,3 +416,33 @@ deployment.apps/ansible-controller-manager created
 -----
 $ oc apply -f config/samples/cache_v1alpha1_himss2021.yaml
 -----
+
+. Acquire needed configs for use in RHPDS:
++
+-----
+$ mkdir rhpds
+$ bin/kustomize build config/default > rhpds/sepsisdetection-operator-all-configs.yml
+$ cp config/samples/cache_v1alpha1_himss2021.yaml rhpds
+-----
+
+==== OLM
+
+. list status of existing OLM on RHPDS cluster
++
+-----
+$  operator-sdk olm status --olm-namespace openshift-operator-lifecycle-manager
+-----
+
+. uninstall existing OLM on RHPDS cluster
++
+-----
+$  operator-sdk olm uninstall --version 0.17.0
+-----
+
+. install _latest_ OLM in olm namespace
++
+-----
+$ operator-sdk olm install
+-----
+
+
