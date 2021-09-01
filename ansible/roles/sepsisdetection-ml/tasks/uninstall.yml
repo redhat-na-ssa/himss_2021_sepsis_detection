@@ -1,20 +1,20 @@
 ---
 
-- name: "delete route {{ application_name }}"
+- name: "delete routes.serving.knative.dev {{ application_name }}"
   oc_obj:
     oc_binary: "{{ openshift_cli }}"
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
-    kind: Route
+    kind: routes.serving.knative.dev
 
-- name: "delete service {{ application_name }}"
+- name: "delete ingresses.networking.internal.knative.dev {{ application_name }}"
   oc_obj:
     oc_binary: "{{ openshift_cli }}"
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
-    kind: Service
+    kind: ingresses.networking.internal.knative.dev
 
 - name: "delete DeploymentConfig {{ application_name }}"
   oc_obj:
@@ -22,7 +22,7 @@
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
-    kind: DeploymentConfig
+    kind: service.serving.knative.dev
 
 - name: delete {{ application_name }} service account
   oc_serviceaccount:

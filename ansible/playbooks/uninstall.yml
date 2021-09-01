@@ -11,12 +11,14 @@
     - group_vars/kafka_cluster.yml
     - group_vars/hapi_fhirserver.yml
     - group_vars/sepsisdetection_rhpam.yml
+  vars:
+    ACTION: uninstall
 
   tasks:
   - include: tasks/sepsisdetection-ui.yml
   - include: tasks/dashbuilder.yml
   - include: tasks/sepsisdetection-rhpam.yml
-  - include: tasks/hapi-fhirserver.yml
   - include: tasks/sepsisdetection-ml.yml
+  - include: tasks/hapi-fhirserver.yml
   - include: tasks/knative.yml
   - include: tasks/amq-streams.yml

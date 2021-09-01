@@ -37,7 +37,9 @@
     src: "{{ resources_dir }}/{{ kafdrop_application_template }}"
     dest: "{{ work_dir }}/{{ kafdrop_application_template }}"
 
-
+# NOTE:  Might be subject to the following error:
+#   Internal error occurred: docker.io/obsidiandynamics/kafdrop:3.8.1: toomanyrequests: You have reached your pull rate limit. 
+#   You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
 - name: deploy {{ application_name }} application
   oc_list:
     oc_binary: "{{ openshift_cli }}"
