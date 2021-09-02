@@ -27,7 +27,7 @@
     "@ng-bootstrap/ng-bootstrap": "^10.0.0",
     "bootstrap": "^4.5.0",
     "dotenv": "^10.0.0",
-    "jquery": "^1.9.1",
+    "jquery": "^3.5.0",
     "ngx-bootstrap": "^6.2.0",
     "ngx-cookie": "^5.0.2",
     "ngx-highlightjs": "^4.1.4",
