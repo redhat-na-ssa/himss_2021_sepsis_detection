@@ -15,12 +15,13 @@ Technology Highlights:
 
 == Reference: 
 
-.  The demo's official documentation is available link:https://github.com/redhat-naps-da/himss_interoperability_showcase_2021/blob/master/README.adoc[here]. 
-
+. Demo HomePage:  link:https://source.redhat.com/groups/public/ai_automation_at_the_edge[AI Automation at the Edge]
 
 . Use case link:https://docs.google.com/presentation/d/1pyKctkvtpjuav52P-qg6SBKDmbaCP_GO/edit#slide=id.p1[presentation].
 
-. link:[Live Demo Example]
+. link:[Live Demo Example: TBD]
+
+. link:https://github.com/redhat-naps-da/himss_interoperability_showcase_2021/blob/master/README.adoc[Technical documentation and source code]. 
 
 
 == Provisioning Time
