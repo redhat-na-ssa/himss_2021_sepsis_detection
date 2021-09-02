@@ -1,0 +1,32 @@
+= HIMSS 2021 Sepsis Detection Demo
+
+This catalog item provides you with a turn-key environment of Red Hat’s _HIMSS 2021 Sepsis Detection Demo_ .
+
+== Overview
+
+Sepsis is a costly and life threatening condition resulting in multi-organ failure. Beating conditions like sepsis requires rapid detection and mitigation of risks. Recovery at home is often preferred, yet Medical teams often lack the capability to perform constant surveillance for emerging risks across their patient cohorts, especially in rural settings. We will demonstrate an early warning system driven by Clinical AI at the Edge, fed by at-home post-operative monitoring and automated Clinical care escalation and coordination processes.
+ 
+Technology Highlights:
+
+. Event-Driven Architecture
+. Mobile Engagement 
+. Machine Learning
+. BPM+ Process Automation
+
+== Reference: 
+
+.  The demo's official documentation is available link:https://github.com/redhat-naps-da/himss_interoperability_showcase_2021/blob/master/README.adoc[here]. 
+
+
+. Use case link:https://docs.google.com/presentation/d/1pyKctkvtpjuav52P-qg6SBKDmbaCP_GO/edit#slide=id.p1[presentation].
+
+. link:[Live Demo Example]
+
+
+== Provisioning Time
+
+~ 45 minutes
+
+== Support
+
+For questions, comments, suggestions or reporting a problem, please send an email to:  _naps-da-strategic-solutions@redhat.com_.
