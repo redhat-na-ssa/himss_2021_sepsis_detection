@@ -378,6 +378,8 @@ $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/rhpam/kie
 === Reference
 . link:https://sdk.operatorframework.io/docs/building-operators/ansible/tutorial/[ansible operator tutorial]
 
+. link:https://quay.io/repository/redhat_naps_da/sepsisdetection-operator?tab=tags[HIMSS 2021 Sepsis Detection Operator Image Tags]
+
 === Development
 
 ==== Base Operator
@@ -444,5 +446,11 @@ $  operator-sdk olm uninstall --version 0.17.0
 -----
 $ operator-sdk olm install
 -----
+
+=== RHPDS Related Activities
+
+. link:https://redhat.service-now.com/surl.do?n=RITM0979812[Demo Onboarding request] into RHPDS
+
+. agnosticd link:https://github.com/redhat-cop/agnosticd/pull/4071[pull request]
 
 
