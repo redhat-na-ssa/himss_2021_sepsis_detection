@@ -126,8 +126,7 @@ public class DefaultWebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean(name = "userGroupCallback")
-    public UserGroupCallback userGroupCallback(IdentityProvider provider)
-    {
+    public UserGroupCallback userGroupCallback(IdentityProvider provider) {
         return new SepsisDectionUserGroupConfig(provider);
     }
 

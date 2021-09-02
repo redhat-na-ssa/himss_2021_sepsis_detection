@@ -1,6 +1,3 @@
-# podman-compose -f etc/docker-compose.yaml up -p erdemo-infra -d 
-
-
 version: '3.7'
 
 services:
@@ -154,7 +151,7 @@ services:
       - default
 
 #  sepsisdetection-rhpam:
-#    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.4
+#    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.5
 #    restart: always
 #    ports:
 #      - "9080:9080"

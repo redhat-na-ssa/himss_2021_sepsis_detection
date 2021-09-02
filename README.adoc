@@ -144,12 +144,24 @@ This service consists of the RH-PAM _process_engine_ embedded in SpringBoot.
 .. This service consumes messages from Red Hat AMQ Streams
 .. This service also exposes the following RESTful APIs:
 ... KIE-Server REST APIs:
-+
-Swagger documentation is available in json format as per the following:
+
+.... Swagger documentation is available in json format as per the following:
 +
 -----
 $ curl -v -u "kieserver:kieserver" https://$(oc get route sepsisdetection-rhpam -n user1-sepsisdetection --template='{{ .spec.host }}')/rest/swagger.json | jq .
 -----
+
+..... swagger-ui:
++
+Point your browser to the output of the following:
++
+-----
+$ SEPSISDETECTION_RHPAM_URL=https://$(oc get route sepsisdetection-rhpam -n user1-sepsisdetection --template='{{ .spec.host }}')
+
+$ echo -en "\n$SEPSISDETECTION_RHPAM_URL/rest/api-docs/?url=$SEPSISDETECTION_RHPAM_URL/rest/swagger.json\n"
+-----
++
+image::docs/images/swagger-ui.png[]
 
 ... FHIR Enabled REST APIs:
 +
@@ -249,11 +261,21 @@ SEPSISDETECTION_RHPAM_URL=https://$(oc get route sepsisdetection-rhpam -n user1-
 $ curl -u "kieserver:kieserver" -H 'Accept:application/json' $SEPSISDETECTION_RHPAM_URL/rest/server/healthcheck?report=true
 -----
 
-. View swagger
+. View raw swagger json
 +
 -----
 $ curl -v -u "kieserver:kieserver" $SEPSISDETECTION_RHPAM_URL/rest/swagger.json | jq .
 -----
+
+. View swagger-ui:
++
+Point your browser to the output of the following:
++
+-----
+$ echo -en "\n$SEPSISDETECTION_RHPAM_URL/rest/api-docs/?url=$SEPSISDETECTION_RHPAM_URL/rest/swagger.json\n"
+-----
++
+image::docs/images/swagger-ui.png[]
 
 . List KIE Containers
 +
