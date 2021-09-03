@@ -22,17 +22,26 @@ export class RiskMitigationComponent implements OnInit {
   currentUser : UserRole;
   kieSettings : KieSettings;
   urlSafe: SafeResourceUrl;
+  sanitizer: DomSanitizer;
 
-  constructor(pamService : PAMServices,public activeModal: NgbActiveModal,public sanitizer: DomSanitizer) { 
+
+  constructor(pamService : PAMServices,public activeModal: NgbActiveModal, sanitizer: DomSanitizer) { 
     this.pamService = pamService;
     this.kieSettings = pamService.getCurrentKieSettings();
-    this.urlSafe = this.sanitizer.bypassSecurityTrustResourceUrl(this.kieSettings.patientViewerURL);
+    this.sanitizer = sanitizer;
+    //console.log(this.taskInstance);
+   // this.patient = JSON.parse(this.taskResponse.patient);
+  
   }
 
 
   ngOnInit() {
+    this.urlSafe = this.sanitizer.bypassSecurityTrustResourceUrl(this.kieSettings.patientViewerURL);
     console.log(this.taskInstance);
-    this.patient = JSON.parse(this.taskResponse.patient);
+    //this.patient = JSON.parse(this.taskResponse.patient);
+    //this.patient.id = 12724066;
+    // Sample URL : https://my.healthflow.io/patient-chart?patientId=12724066 
+   
    // console.log(this.patient);
   }
   

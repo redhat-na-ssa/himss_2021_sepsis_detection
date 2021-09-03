@@ -1,6 +1,10 @@
 <div class="row">
   
   <div class="col-md-12">
+    <button class="btn btn-danger btn-sm float-right" (click)="onReset();" type="button"><fa-icon [icon]="faRecycle" ></fa-icon> Reset Demo</button>
+  </div>  
+  <div class="col-md-12">
+    
       <nav>
           <div class="nav nav-tabs" id="nav-tab" role="tablist">
               <a class="nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab"
@@ -12,7 +16,8 @@
       <div class="tab-content" id="nav-tabContent">
           <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
               <div class="row">
-                  <div class="col-md-12 tablediv">
+                  <div class="col-md-12">
+                      
                       <table class="table table-striped" style="margin-top:10px;">
                           <thead>
                               <tr>
@@ -59,7 +64,7 @@
                               <th>Task ID</th>
                               <th>Task Name</th>
                               <th>Task Created Date</th>
-                              <th>Task Status</th>
+                              <th>Task Status </th>
                               <th>Action</th>
                           </tr>
                       </thead>

@@ -6,14 +6,18 @@ import { Part, ServiceRequest, ProcessInstanceData, Claim, Policy } from '../Mod
 import { RootObject, Command, Insert } from '../Models/Requests/Request';
 import { Credentials } from '../Models/UserRole';
 import { Applicant } from '../Models/Requests/Request';
+import { Bundle } from '../component/Admin/Bundle';
 
 @Injectable({ providedIn: 'root' })
 export class PAMServices {
 
   private kieSettings: KieSettings;
 
+  bundleData: string;
+
   constructor(private http: HttpClient, private cookieService: CookieService) {
-    this.kieSettings = <KieSettings>this.cookieService.getObject("kieSettingsHIMMS")
+    this.cookieService.putObject("test",{testcookie : "test"});
+    this.kieSettings = <KieSettings>this.cookieService.getObject("himms")
     if (this.kieSettings === undefined) {
       this.kieSettings = {
         baseurl: window['_env'].KIE_SERVER_URL,
@@ -26,13 +30,35 @@ export class PAMServices {
         patientViewerURL: window['_env'].PATIENT_VIEWER_URL,
         isOpenShift: window['_env'].IS_OPENSHIFT
       };
-    }
-    
-  }
 
-  updateKieSettings(kieSettings: KieSettings) {
-    this.kieSettings = kieSettings;
-    this.cookieService.putObject("kieSettingsHIMMS", this.kieSettings);
+      this.cookieService.putObject("himms", this.kieSettings);
+    }
+
+    if(localStorage.getItem("bundleData")) {
+      this.bundleData = localStorage.getItem("bundleData");
+    } else {
+      this.bundleData = JSON.stringify(new Bundle().getConfiguration());
+    }
+    localStorage.setItem("bundleData",this.bundleData);
+   }
+ 
+ 
+   getCurrentBundleData() : any {
+     return this.bundleData;
+   }
+
+   createBundle(data : any) {
+     let url = this.kieSettings.fhirserverURL;
+     let postData = data;
+     const headers = { };
+     return this.http.post(url, postData, { headers });
+   } 
+
+   updateKieSettings(kieSettings: KieSettings,bundleData : string) {
+     this.kieSettings = kieSettings;
+     this.bundleData = bundleData;
+     this.cookieService.putObject("himms", this.kieSettings);
+     localStorage.setItem("bundleData",this.bundleData);
   }
 
   getCurrentKieSettings(): KieSettings {

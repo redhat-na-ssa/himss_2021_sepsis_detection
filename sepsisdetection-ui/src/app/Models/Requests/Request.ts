@@ -73,10 +73,10 @@ export interface TaskInstance {
     processInstanceId : number,
     taskId : number;
     taskName : string;
+    taskStatus : string;
     taskSubject : string;
     taskDescription? : string;
     taskCreatedDate : number;
-    taskStatus: string;
 }
 
 export interface TaskInstanceList

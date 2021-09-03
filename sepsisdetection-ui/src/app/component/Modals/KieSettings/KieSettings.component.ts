@@ -14,17 +14,19 @@ export class KieSettingsComponent implements OnInit {
   baseurl : string = "";
   pamService : PAMServices;
   kieSettings : KieSettings;
+  bundleData : string;
  
 
   constructor(pamService : PAMServices,public activeModal: NgbActiveModal) { 
     this.pamService = pamService;
     this.kieSettings = pamService.getCurrentKieSettings();
+    this.bundleData = pamService.getCurrentBundleData();
    
   }
 
   updateKieSettings()
   {
-      this.pamService.updateKieSettings(this.kieSettings);
+      this.pamService.updateKieSettings(this.kieSettings,this.bundleData);
       window.alert("Settings Saved Successfully");
   }
 

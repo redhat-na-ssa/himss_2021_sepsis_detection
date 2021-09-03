@@ -5,6 +5,9 @@ import { PAMServices } from 'src/app/service/PAMServices';
 import { UserRole } from 'src/app/Models/UserRole';
 import { RiskEvaluvationComponent } from '../Modals/RiskEvaluvation/RiskEvaluvation.component';
 import { RiskMitigationComponent } from '../Modals/RiskMitigation/RiskMitigation.component';
+import { Bundle } from './Bundle';
+import { faRecycle } from '@fortawesome/free-solid-svg-icons';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-Admin',
@@ -16,6 +19,10 @@ export class AdminComponent implements OnInit {
   @ViewChild("svgContent") svgContentElement: ElementRef;
   @ViewChild("svgContentSubProcess") svgSubContentElement: ElementRef;
   @ViewChild("svgContentClosed") svgContentElementClosed: ElementRef;
+
+  bundle : Bundle;
+  faRecycle = faRecycle;
+
   @Input() user : UserRole;
   closeResult: string = "";
   activeProcessInstances: ProcessInstanceList[] = new Array();
@@ -30,16 +37,19 @@ export class AdminComponent implements OnInit {
 
    constructor(private modalService: NgbModal,service : PAMServices) {
       this.service = service;
+      this.bundle = new Bundle();
    }
 
   ngOnInit(): void {
     this.getCaseList();
   }
 
-  getCaseList()
+  private getCaseList()
   {
     this.activeProcessInstances = new Array();
-    this.activeManagerTasks.instanceList = new Array();
+    this.activeManagerTasks = {
+      instanceList : new Array()
+    }
     this.service.getProcessInstances("Active").subscribe((res: any) => {
       this.buildCaseList(res, this.activeProcessInstances, "Active");
     }, err => { console.log(err) });
@@ -150,9 +160,9 @@ export class AdminComponent implements OnInit {
                   processInstanceId : processInstanceId,
                   taskCreatedDate : task["task-created-on"]["java.util.Date"],
                   taskId : task["task-id"],
+                  taskStatus : task["task-status"],
                   taskName : task["task-name"],
                   taskSubject : task["task-subject"],
-                  taskStatus : task["task-status"],
                   taskDescription  : task["task-description"]
                 }
 
@@ -171,9 +181,9 @@ export class AdminComponent implements OnInit {
                   processInstanceId : processInstanceId,
                   taskCreatedDate : task["task-created-on"]["java.util.Date"],
                   taskId : task["task-id"],
+                  taskStatus : task["task-status"],
                   taskName : task["task-name"],
                   taskSubject : task["task-subject"],
-                  taskStatus : task["task-status"],
                   taskDescription  : task["task-description"]
                 }
 
@@ -231,6 +241,44 @@ export class AdminComponent implements OnInit {
   {
     this.service.signalEvent(instance.processInstanceId,"Stop Process",{}).subscribe((res : any) => {
       console.log("Process Aborted : " + instance.processInstanceId);
+    });
+  }
+
+  
+
+  onReset()
+  {
+     let serviceArray = new Array();
+     this.activeProcessInstances.forEach((instance : ProcessInstanceList) => {
+        serviceArray.push(this.service.signalEvent(instance.processInstanceId,"Stop Process",{}));
+     });
+     
+
+     if(serviceArray.length == 0)
+      this.createBundle();
+     else
+     {
+      forkJoin(serviceArray).subscribe(data => {
+        this.createBundle();
+      });
+     }
+     
+  }
+
+  refreshScreen()
+  {
+    window.alert("Reset Complete. Page will be refreshed");
+    location.reload();
+    
+  }
+
+  private createBundle()
+  {
+    var data = JSON.parse(this.service.getCurrentBundleData());
+    this.service.createBundle(data).subscribe((bundleResp : any) => {
+      console.log(bundleResp);
+      this.getCaseList();
+      setTimeout(this.refreshScreen,5000)
     });
   }
 
