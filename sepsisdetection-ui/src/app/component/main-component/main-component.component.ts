@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { UserRole } from 'src/app/Models/UserRole';
 import { faUser,faCog,faDatabase } from '@fortawesome/free-solid-svg-icons';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-import { KieSettingsComponent } from 'src/app/component/Modals/KieSettings/KieSettings.component';
+import { BackendSettingsComponent } from 'src/app/component/Modals/BackendSettings/BackendSettings.component';
 import { CompletedProcessInstanceComponent } from 'src/app/component/Modals/completed-process-instance/completed-process-instance.component';
 
  
@@ -62,7 +62,7 @@ export class MainComponentComponent implements OnInit {
 
   openSettings()
   {
-    const modalRef = this.modalService.open(KieSettingsComponent, { ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: 'static' });
+    const modalRef = this.modalService.open(BackendSettingsComponent, { ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: 'static' });
     
     modalRef.result.then((result) => {
      

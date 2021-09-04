@@ -27,75 +27,75 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="form-group">
-                    <label for="id_baseurl1">KieServer Base URL</label>
-                    <input type="text" class="form-control input-sm" id="id_baseurl" [(ngModel)]="kieSettings.baseurl" />
+                    <label for="id_kieserverUrl">KieServer Base URL</label>
+                    <input type="text" class="form-control input-sm" id="id_kieserverUrl" [(ngModel)]="backendSettings.kieserverUrl" />
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-group">
                     <label for="id_containerAlias1">Decision Manager Container Alias</label>
-                    <input type="text" class="form-control input-sm" id="id_containerAlias" [(ngModel)]="kieSettings.dmcontainerAlias" />
+                    <input type="text" class="form-control input-sm" id="id_containerAlias" [(ngModel)]="backendSettings.dmcontainerAlias" />
                 </div>
             </div>
 
             <div class="col-md-4">
                 <div class="form-group">
                     <label for="id_containerAlias2">Process Manager Container Alias</label>
-                    <input type="text" class="form-control input-sm" id="id_containerAlias" [(ngModel)]="kieSettings.picontainerAlias" />
+                    <input type="text" class="form-control input-sm" id="id_containerAlias" [(ngModel)]="backendSettings.picontainerAlias" />
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-group">
                     <label for="id_containerAlias">Process Id</label>
-                    <input type="text" class="form-control input-sm" id="id_containerAlias" [(ngModel)]="kieSettings.processId" />
+                    <input type="text" class="form-control input-sm" id="id_containerAlias" [(ngModel)]="backendSettings.processId" />
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="id_username">Username</label>
-                    <input type="text" class="form-control input-sm" id="id_username" [(ngModel)]="kieSettings.username" />
+                    <input type="text" class="form-control input-sm" id="id_username" [(ngModel)]="backendSettings.username" />
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="id_password">Password</label>
-                    <input type="password" class="form-control input-sm" id="id_password" [(ngModel)]="kieSettings.password" />
+                    <input type="password" class="form-control input-sm" id="id_password" [(ngModel)]="backendSettings.password" />
                 </div>
             </div>
             <div class="col-md-12">
                 <div class="form-group">
-                    <label for="id_baseurl1">FHIR Server Base URL</label>
-                    <input type="text" class="form-control input-sm" id="id_baseurl" [(ngModel)]="kieSettings.fhirserverURL" />
+                    <label for="id_fhirserverUrl">FHIR Server Base URL</label>
+                    <input type="text" class="form-control input-sm" id="id_fhirserverUrl" [(ngModel)]="backendSettings.fhirserverURL" />
                 </div>
             </div>
             <div class="col-md-12">
                 <div class="form-group">
-                    <label for="id_baseurl1">Patient Viewer Base URL</label>
-                    <input type="text" class="form-control input-sm" id="id_baseurl" [(ngModel)]="kieSettings.patientViewerURL" />
+                    <label for="id_patientViewerUrl">Patient Viewer Base URL</label>
+                    <input type="text" class="form-control input-sm" id="id_patientViewerUrl" [(ngModel)]="backendSettings.patientViewerURL" />
                 </div>
             </div>
             <div class="col-md-12">
                 <div class="form-group">
-                    <label for="id_baseurl1">Bundle Data</label>
+                    <label for="id_bundleData">Bundle Data</label>
                      <textarea style="height:342px;"class="form-control" [(ngModel)]="bundleData"></textarea>
                 </div>
             </div>
             <!--     <div class="col-md-6">
         <div class="form-group">
           <label for="id_password">Password</label>
-          <input type="password" class="form-control input-sm" id="id_password" [(ngModel)]="kieSettings.password" />
+          <input type="password" class="form-control input-sm" id="id_password" [(ngModel)]="backendSettings.password" />
         </div>
       </div> -->
             <!-- <div class="col-md-6">
         <label for="id_password">Running Environment</label>
         <div class="custom-control custom-switch">
-          <input type="checkbox" class="custom-control-input" id="customSwitch3" [(ngModel)]="kieSettings.isOpenShift">
+          <input type="checkbox" class="custom-control-input" id="customSwitch3" [(ngModel)]="backendSettings.isOpenShift">
           <label class="custom-control-label" for="customSwitch3"> is OpenShift</label>
         </div>
       </div> -->
             <div class="col-md-12">
                 <button class="btn btn-warning float-right btn-sm" (click)="dismiss()" style="margin-left: 5px;">Cancel</button>
-                <button class="btn btn-success float-right btn-sm" type="button" (click)="updateKieSettings()">Save</button>
+                <button class="btn btn-success float-right btn-sm" type="button" (click)="updateBackendSettings()">Save</button>
             </div>
         </div>
 

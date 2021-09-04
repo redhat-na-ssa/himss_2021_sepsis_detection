@@ -3,21 +3,21 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { KieSettingsComponent } from './KieSettings.component';
+import { BackendSettingsComponent } from './BackendSettings.component';
 
-describe('KieSettingsComponent', () => {
-  let component: KieSettingsComponent;
-  let fixture: ComponentFixture<KieSettingsComponent>;
+describe('BackendSettingsComponent', () => {
+  let component: BackendSettingsComponent;
+  let fixture: ComponentFixture<BackendSettingsComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ KieSettingsComponent ]
+      declarations: [ BackendSettingsComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(KieSettingsComponent);
+    fixture = TestBed.createComponent(BackendSettingsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

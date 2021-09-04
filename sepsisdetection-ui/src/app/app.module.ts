@@ -13,7 +13,7 @@ import { HighlightModule, HIGHLIGHT_OPTIONS,HighlightOptions } from 'ngx-highlig
 
 import { AppComponent } from './app.component';
 import { MainComponentComponent } from './component/main-component/main-component.component';
-import { KieSettingsComponent } from 'src/app/component/Modals/KieSettings/KieSettings.component';
+import { BackendSettingsComponent } from 'src/app/component/Modals/BackendSettings/BackendSettings.component';
 import { CompletedProcessInstanceComponent } from 'src/app/component/Modals/completed-process-instance/completed-process-instance.component';
 import { AdminComponent } from 'src/app/component/Admin/Admin.component';
 import { RiskEvaluvationComponent } from './component/Modals/RiskEvaluvation/RiskEvaluvation.component';
@@ -23,7 +23,7 @@ import { RiskMitigationComponent } from './component/Modals/RiskMitigation/RiskM
   declarations: [
     AppComponent,
     MainComponentComponent,
-    KieSettingsComponent,
+    BackendSettingsComponent,
     CompletedProcessInstanceComponent,
     AdminComponent,
     RiskEvaluvationComponent,

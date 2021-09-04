@@ -1,6 +1,5 @@
-export interface KieSettings
-{
-    baseurl : string;
+export interface BackendSettings {
+    kieserverUrl : string;
     dmcontainerAlias? : string;
     username? : string;
     password? : string;

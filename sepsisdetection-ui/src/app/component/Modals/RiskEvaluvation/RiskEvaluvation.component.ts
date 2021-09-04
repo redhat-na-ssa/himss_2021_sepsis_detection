@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { KieSettings } from 'src/app/Models/KieSettings/KieSettings';
+import { BackendSettings } from 'src/app/Models/BackendSettings/BackendSettings';
 import { TaskInstance } from 'src/app/Models/Requests/Request';
 import { UserRole } from 'src/app/Models/UserRole';
-import { PAMServices } from 'src/app/service/PAMServices';
+import { BackendServices } from 'src/app/service/BackendServices';
 
 
 @Component({
@@ -14,21 +14,21 @@ import { PAMServices } from 'src/app/service/PAMServices';
 })
 export class RiskEvaluvationComponent implements OnInit {
 
-  baseurl : string = "";
-  pamService : PAMServices;
+  kieserverUrl : string = "";
+  backendEndServices : BackendServices;
   taskResponse : any;
   taskInstance : TaskInstance;
   patient : any;
   riskEvaluation : string = "";
   currentUser : UserRole;
-  kieSettings : KieSettings;
+  backendSettings : BackendSettings;
   urlSafe: SafeResourceUrl;
   sanitizer: DomSanitizer;
 
 
-  constructor(pamService : PAMServices,public activeModal: NgbActiveModal, sanitizer: DomSanitizer) { 
-    this.pamService = pamService;
-    this.kieSettings = pamService.getCurrentKieSettings();
+  constructor(backendEndServices : BackendServices,public activeModal: NgbActiveModal, sanitizer: DomSanitizer) { 
+    this.backendEndServices = backendEndServices;
+    this.backendSettings = backendEndServices.getCurrentBackendSettings();
     this.sanitizer = sanitizer;
     //console.log(this.taskInstance);
    // this.patient = JSON.parse(this.taskResponse.patient);
@@ -37,7 +37,7 @@ export class RiskEvaluvationComponent implements OnInit {
 
 
   ngOnInit() {
-    this.urlSafe = this.sanitizer.bypassSecurityTrustResourceUrl(this.kieSettings.patientViewerURL);
+    this.urlSafe = this.sanitizer.bypassSecurityTrustResourceUrl(this.backendSettings.patientViewerURL);
     console.log(this.taskInstance);
     //this.patient = JSON.parse(this.taskResponse.patient);
     //this.patient.id = 12724066;
@@ -54,9 +54,9 @@ export class RiskEvaluvationComponent implements OnInit {
 
   onSubmit()
   {
-    this.pamService.updateTaskStatus(this.taskInstance.taskId,"started").subscribe((data :any) => {
-      this.pamService.updateVariables(this.taskInstance.taskId,{riskEvaluvationResult : this.riskEvaluation},null).subscribe((resp : any) => {
-        this.pamService.updateTaskStatus(this.taskInstance.taskId,"completed").subscribe((data : any)=>{
+    this.backendEndServices.updateTaskStatus(this.taskInstance.taskId,"started").subscribe((data :any) => {
+      this.backendEndServices.updateVariables(this.taskInstance.taskId,{riskEvaluvationResult : this.riskEvaluation},null).subscribe((resp : any) => {
+        this.backendEndServices.updateTaskStatus(this.taskInstance.taskId,"completed").subscribe((data : any)=>{
           console.log("Updated : " + data);
           this.dismiss();
         });
@@ -67,7 +67,7 @@ export class RiskEvaluvationComponent implements OnInit {
 
   onAbort()
   {
-    this.pamService.signalEvent(this.taskInstance.processInstanceId,"Stop Process",{}).subscribe((res : any) => {
+    this.backendEndServices.signalEvent(this.taskInstance.processInstanceId,"Stop Process",{}).subscribe((res : any) => {
       console.log("Process Aborted : " + this.taskInstance.processInstanceId);
       this.dismiss();
     });

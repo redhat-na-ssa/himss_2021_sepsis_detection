@@ -1,5 +1,5 @@
 import { Component, OnInit,ElementRef, ViewChild  } from '@angular/core';
-import { PAMServices } from 'src/app/service/PAMServices';
+import { BackendServices } from 'src/app/service/BackendServices';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ProcessInstanceList } from 'src/app/Models/Requests/Request';
 
@@ -15,11 +15,11 @@ export class CompletedProcessInstanceComponent implements OnInit {
   svgContent : string = "";
   allowSvgContent : boolean = false;
 
-  service : PAMServices;
+  service : BackendServices;
   closedProcessInstances: ProcessInstanceList[] = new Array();
 
-  constructor(pamService : PAMServices,public activeModal: NgbActiveModal) { 
-    this.service = pamService;
+  constructor(backendEndServices : BackendServices,public activeModal: NgbActiveModal) { 
+    this.service = backendEndServices;
    
   }
 

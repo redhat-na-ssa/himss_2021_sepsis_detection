@@ -1,7 +1,7 @@
 import { Component, OnInit, ElementRef, ViewChild ,Input} from '@angular/core';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { ProcessInstanceList,TaskInstanceList, TaskInstance } from 'src/app/Models/Requests/Request';
-import { PAMServices } from 'src/app/service/PAMServices';
+import { BackendServices } from 'src/app/service/BackendServices';
 import { UserRole } from 'src/app/Models/UserRole';
 import { RiskEvaluvationComponent } from '../Modals/RiskEvaluvation/RiskEvaluvation.component';
 import { RiskMitigationComponent } from '../Modals/RiskMitigation/RiskMitigation.component';
@@ -32,10 +32,10 @@ export class AdminComponent implements OnInit {
   };
   svgContent : string = "";
   allowSvgContent : boolean = false;
-  service: PAMServices;
+  service: BackendServices;
  
 
-   constructor(private modalService: NgbModal,service : PAMServices) {
+   constructor(private modalService: NgbModal,service : BackendServices) {
       this.service = service;
       this.bundle = new Bundle();
    }
@@ -44,8 +44,7 @@ export class AdminComponent implements OnInit {
     this.getCaseList();
   }
 
-  private getCaseList()
-  {
+  private getCaseList() {
     this.activeProcessInstances = new Array();
     this.activeManagerTasks = {
       instanceList : new Array()
@@ -195,8 +194,7 @@ export class AdminComponent implements OnInit {
       }
   }
 
-  getTaskVaribles(taskid : number,taskInstance: TaskInstance)
-  {
+  getTaskVaribles(taskid : number,taskInstance: TaskInstance) {
       this.service.getTaskVariables(taskid).subscribe((res:any) => {
         console.log(res);
         if(taskInstance.taskName == "Primary Doctor Evaluates Risk" || taskInstance.taskName == "On Call Doctor Evaluates Risk") 
@@ -237,8 +235,7 @@ export class AdminComponent implements OnInit {
     modalRef.componentInstance.taskInstance = taskInstance;
   }
 
-  onAbort(instance : ProcessInstanceList)
-  {
+  onAbort(instance : ProcessInstanceList) {
     this.service.signalEvent(instance.processInstanceId,"Stop Process",{}).subscribe((res : any) => {
       console.log("Process Aborted : " + instance.processInstanceId);
     });
@@ -246,8 +243,7 @@ export class AdminComponent implements OnInit {
 
   
 
-  onReset()
-  {
+  onReset() {
      let serviceArray = new Array();
      this.activeProcessInstances.forEach((instance : ProcessInstanceList) => {
         serviceArray.push(this.service.signalEvent(instance.processInstanceId,"Stop Process",{}));
@@ -272,8 +268,7 @@ export class AdminComponent implements OnInit {
     
   }
 
-  private createBundle()
-  {
+  private createBundle() {
     var data = JSON.parse(this.service.getCurrentBundleData());
     this.service.createBundle(data).subscribe((bundleResp : any) => {
       console.log(bundleResp);
