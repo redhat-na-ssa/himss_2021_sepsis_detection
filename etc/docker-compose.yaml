@@ -176,7 +176,7 @@ services:
 #      - psql_rhpam
 
   sepsis_ui:
-    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.4
+    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.5
     restart: always
     ports:
       - "7080:7080"

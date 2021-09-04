@@ -39,4 +39,4 @@ namespace_knativeeventing: knative-eventing
 
 sepsis_detection_ml_app_name: sepsis-detection
 
-patient_viewer_url: "https://my.healthflow.io"
+patient_viewer_url: "https://my.healthflow.io/patient-chart?patientId=12724066"
