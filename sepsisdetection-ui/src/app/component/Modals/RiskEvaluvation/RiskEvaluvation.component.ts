@@ -40,8 +40,8 @@ export class RiskEvaluvationComponent implements OnInit {
     this.urlSafe = this.sanitizer.bypassSecurityTrustResourceUrl(this.backendSettings.patientViewerURL);
     console.log(this.taskInstance);
     //this.patient = JSON.parse(this.taskResponse.patient);
-    //this.patient.id = 12724066;
-    // Sample URL : https://my.healthflow.io/patient-chart?patientId=12724066 
+    //this.patient.id = 610f11c05b041e00082c54c2;
+    // Sample URL : https://my.healthflow.io/patient-chart?patientId=610f11c05b041e00082c54c2 
     
    // console.log(this.patient);
   }

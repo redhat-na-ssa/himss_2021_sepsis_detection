@@ -188,7 +188,7 @@ services:
       PAM_CONTAINER_ALIAS: "sepsisdetection-kjar-1.0.0"
       PROCESS_ID: "sepsisdetection"
       FHIR_SERVER_URL: 'http:\/\/hapi_fhir:8080'
-      PATIENT_VIEWER_URL: "https:\/\/my.healthflow.io\/patient-chart?patientId=12724066"
+      PATIENT_VIEWER_URL: "https:\/\/my.healthflow.io\/patient-chart?patientId=610f11c05b041e00082c54c2"
       IS_OPENSHIFT: 'false'
     networks:
       - default
