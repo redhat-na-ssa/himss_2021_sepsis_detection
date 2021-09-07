@@ -8,7 +8,10 @@
   window._env.DM_CONTAINER_ALIAS = "";
   window._env.PAM_CONTAINER_ALIAS = "{{ sepsisdetection_rhpam_deployment_name }}-{{ sepsisdetection_rhpam_deployment_version }}";
   window._env.PROCESS_ID = "{{ sepsisdetection_rhpam_process_id }}";
-  window._env.FHIR_SERVER_URL = "https://{{ fhir_server_application_hostname }}";
+
+  // CORS is enabled only on the fhir context-path
+  window._env.FHIR_SERVER_URL = "https://{{ fhir_server_application_hostname }}/fhir";
+
   window._env.PATIENT_VIEWER_URL = "{{ patient_viewer_url }}";
   window._env.IS_OPENSHIFT = "true";
 })(this);

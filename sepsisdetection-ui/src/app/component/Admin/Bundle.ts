@@ -461,7 +461,7 @@ export class Bundle  {
                         },
                         "performer": [
                             {
-                                "reference": "Organization/8",
+                                "reference": "Organization/1",
                                 "display": "COD Hospital"
                             }
                         ],

@@ -8,7 +8,7 @@
   window._env.DM_CONTAINER_ALIAS = '';
   window._env.PAM_CONTAINER_ALIAS = 'sepsisdetection-kjar-1.0.0';
   window._env.PROCESS_ID = 'sepsisdetection';
-  window._env.FHIR_SERVER_URL = 'http://localhost:8080';
+  window._env.FHIR_SERVER_URL = 'http://localhost:8080/fhir';
   window._env.PATIENT_VIEWER_URL = 'https://my.healthflow.io/patient-chart?patientId=12724066';
   window._env.IS_OPENSHIFT = 'false';
 })(this);
