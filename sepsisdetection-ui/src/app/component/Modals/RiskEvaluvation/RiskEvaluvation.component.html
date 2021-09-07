@@ -59,7 +59,7 @@
       <label>Risk Evaluation Result : </label>
       <select class="form-control" [(ngModel)]="riskEvaluation">
         <option value="">--------- Select ---------</option>
-        <option value="Forward" *ngIf="taskInstance.taskName != 'On Call Doctor Evaluates Risk'">Forward to peer</option>
+        <option value="Forward" *ngIf="taskInstance.taskName != 'On Call Doctor Evaluates Risk'" disabled>Forward to peer</option>
         <option value="Probable">Probable Sepsis</option>
         <option value="Possible">Possible Sepsis</option>
         <option value="Unlikely">Unlikely</option>
