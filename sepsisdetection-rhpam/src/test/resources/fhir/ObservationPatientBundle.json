@@ -498,6 +498,10 @@
           "reference": "Patient/1"
         },
         "performer": [
+           {
+            "system": "http://michigan.gov/state-dept-ids",
+            "value": "24"
+           }
         ],
         "valueQuantity": {
           "value": 5.7,

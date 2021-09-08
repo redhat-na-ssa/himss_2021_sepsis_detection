@@ -176,20 +176,10 @@ services:
 #      - psql_rhpam
 
   sepsis_ui:
-    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.6
+    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.9
     restart: always
     ports:
       - "7080:7080"
-    environment:
-      KIE_SERVER_URL: 'http:\/\/localhost:9080'
-      KIE_SERVER_USERID: "kieserver"
-      KIE_SERVER_PASSWORD: "kieserver"
-      DM_CONTAINER_ALIAS: ""
-      PAM_CONTAINER_ALIAS: "sepsisdetection-kjar-1.0.0"
-      PROCESS_ID: "sepsisdetection"
-      FHIR_SERVER_URL: 'http:\/\/hapi_fhir:8080'
-      PATIENT_VIEWER_URL: "https:\/\/my.healthflow.io\/patient-chart?patientId=610f11c05b041e00082c54c2"
-      IS_OPENSHIFT: 'false'
     networks:
       - default
 

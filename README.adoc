@@ -195,8 +195,16 @@ FHIR_SERVER_URL=https://$(oc get route fhir-server -n user1-sepsisdetection --te
 FHIR_SERVER_URL=http://localhost:8080
 -----
 
+. POST Demo Observation to FHIR server
++
+-----
+$ curl -X POST \
+       -H "Content-Type:application/fhir+json" \
+       $FHIR_SERVER_URL/fhir \
+       -d "@sepsisdetection-rhpam/src/test/resources/fhir/DemoBundle.json"
+-----
 
-. POST Observation to FHIR server
+. POST Test Observation to FHIR server
 +
 -----
 $ curl -X POST \
@@ -333,8 +341,62 @@ NOTE:  This step is not needed when running the solution in OpenShift.  It's onl
 $ docker-compose -f etc/docker-compose.yaml down
 -----
 
+. Test HAPI FHIR Server CORS headers using a _preflight_ request:
++
+-----
+$ curl -i -X OPTIONS -H "Origin: http://localhost:7080" \
+    -H 'Access-Control-Request-Method: POST' \
+    -H 'Access-Control-Request-Headers: Content-Type, Authorization' \
+    "http://localhost:8080/fhir"
+
+HTTP/1.1 200 
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET,POST,PUT,DELETE,OPTIONS,PATCH,HEAD
+Access-Control-Allow-Headers: Content-Type, Authorization
+Access-Control-Expose-Headers: Location, Content-Location
+-----
+
 
 == Development
+
+=== HAPI FHIR Server Development & Customizations
+
+. Start HAPI FHIR server in debug mode:
++
+-----
+$ JAVA_OPTS="$JAVA_OPTS -agentlib:jdwp=transport=dt_socket,address=*:5005,server=y,suspend=n"
+$ mvn clean package -DskipTests -Pboot
+$ java -DJAVA_OPTS=$JAVA_OPTS -jar target/ROOT.war
+-----
+
+
+. View _bytea_ type in _res_text_ field of _public.hfj_res_ver_ table:
++
+-----
+fhir=# \d hfj_res_ver
+                          Table "public.hfj_res_ver"
+     Column     |            Type             | Collation | Nullable | Default 
+----------------+-----------------------------+-----------+----------+---------
+ pid            | bigint                      |           | not null | 
+ partition_date | date                        |           |          | 
+ partition_id   | integer                     |           |          | 
+ res_deleted_at | timestamp without time zone |           |          | 
+ res_version    | character varying(7)        |           |          | 
+ has_tags       | boolean                     |           | not null | 
+ res_published  | timestamp without time zone |           | not null | 
+ res_updated    | timestamp without time zone |           | not null | 
+ res_encoding   | character varying(5)        |           | not null | 
+ res_text       | bytea                       |           |          | 
+ res_id         | bigint                      |           | not null | 
+ res_type       | character varying(40)       |           | not null | 
+ res_ver        | bigint                      |           | not null |
+-----
+
+
+=== sepsisdetection-rhpam
 
 . Build and install _kjar_ project:
 +

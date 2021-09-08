@@ -461,8 +461,8 @@ export class Bundle  {
                         },
                         "performer": [
                             {
-                                "reference": "Organization/1",
-                                "display": "COD Hospital"
+                                "system": "http://michigan.gov/state-dept-ids",
+                                "value": "24"
                             }
                         ],
                         "valueQuantity": {

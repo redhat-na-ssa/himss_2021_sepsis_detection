@@ -7,7 +7,7 @@
     state: list
     namespace: "{{ namespace }}"
     name: "{{ application_name }}"
-    kind: dc
+    kind: kservice
   register: result
 
 - name: "Download {{ binary_imagestream_template_url }}"
