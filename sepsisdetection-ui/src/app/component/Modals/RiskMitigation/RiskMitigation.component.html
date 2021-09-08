@@ -59,7 +59,7 @@
       <label>Risk Mitigation Result : </label>
       <select class="form-control" [(ngModel)]="riskMitigationResp">
         <option value="">--------- Select ---------</option>
-        <option value="Forward" *ngIf="taskInstance.taskName != 'Escalation Licensed Provider Disposition'">Forward to Peer</option>
+        <option value="Forward" *ngIf="taskInstance.taskName != 'Escalation Licensed Provider Disposition'" disabled>Forward to Peer</option>
         <option value="Continue Monitoring">Continue Home Monitoring</option>
         <option value="Transport patient">Transport patient</option>
       </select>
