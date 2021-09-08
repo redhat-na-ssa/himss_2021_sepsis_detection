@@ -8,6 +8,8 @@
     namespace: openshift-marketplace
     name: "{{ packagemanifest }}"
   register: r_packagemanifest
+  failed_when:
+    - r_packagemanifest.ansible_module_results.stderr is defined
 
 - name: "set facts for {{ operator_name }} operator"
   set_fact:
