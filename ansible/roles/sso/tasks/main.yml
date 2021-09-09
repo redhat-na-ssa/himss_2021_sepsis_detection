@@ -1,0 +1,83 @@
+---
+
+- name: "create operatorgroup in {{ namespace_sso }}"
+  import_role:
+    name: ../roles/operatorgroup
+  vars:
+    operatorgroup_name: "{{ namespace_sso }}"
+    operatorgroup_namespace: "{{ namespace_sso }}"
+    operatorgroup_target_namespace: "{{ namespace_sso }}"
+
+- name: "deploy sso operator in {{ namespace_sso }}"
+  import_role:
+    name: ../roles/operator_olm
+  vars:
+    operator_name: sso-operator
+    packagemanifest: "{{ sso_operator_packagemanifest }}"
+    subscription_channel: "{{ sso_operator_subscription_channel }}"
+    subscription_namespace: "{{ namespace_sso }}"
+    subscription_name: "{{ sso_operator_subscription_name }}"
+    automatic_installplan_approval: "{{ sso_operator_subscription_automatic_installplan_approval }}"
+    subscription_starting_csv: "{{ sso_operator_subscription_starting_csv  }}"
+    csv_prefix: "{{ sso_operator_csv_prefix }}"
+
+- name: "wait until sso operator is active in {{ namespace_sso }}"
+  oc_obj:
+    state: list
+    oc_binary: "{{ openshift_cli }}"
+    kind: Deployment
+    name: "{{ sso_operator_deployment_name }}"
+    namespace: "{{ namespace_sso }}"
+  register: r_sso_operator_deployment
+  retries: 30
+  delay: 10
+  changed_when: false
+  until:
+    - r_sso_operator_deployment.ansible_module_results.results[0].status.readyReplicas is defined
+    - r_sso_operator_deployment.ansible_module_results.results[0].status.replicas is defined
+    - >-
+      r_sso_operator_deployment.ansible_module_results.results[0].status.readyReplicas ==
+      r_sso_operator_deployment.ansible_module_results.results[0].status.replicas
+
+- name: "copy keycloak custom resource template"
+  template:
+    src: "{{ resources_dir }}/{{ keycloak_cr_template }}"
+    dest: "{{ work_dir }}/{{ keycloak_cr_template }}"
+
+- name: "create keycloak custom resource"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: present
+    kind: keycloaks.keycloak.org
+    name: rhsso
+    namespace: "{{ namespace_sso }}"
+    files:
+      - "{{ work_dir }}/{{ keycloak_cr_template }}"
+
+- name: "create keycloak route"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: present
+    kind: route
+    name: sso
+    namespace: "{{ namespace_sso }}"
+    files:
+      - "{{ resources_dir }}/{{ keycloak_route_template }}"
+
+- name: "wait until sso server database is active in {{ namespace_sso }}"
+  oc_obj:
+    state: list
+    oc_binary: "{{ openshift_cli }}"
+    kind: Deployment
+    name: "keycloak-postgresql"
+    namespace: "{{ namespace_sso }}"
+  register: r_sso_db_deployment
+  retries: 30
+  delay: 10
+  changed_when: false
+  until:
+    - r_sso_db_deployment.ansible_module_results.results[0].status.readyReplicas is defined
+    - r_sso_db_deployment.ansible_module_results.results[0].status.replicas is defined
+    - >-
+      r_sso_db_deployment.ansible_module_results.results[0].status.readyReplicas ==
+      r_sso_db_deployment.ansible_module_results.results[0].status.replicas

@@ -13,6 +13,7 @@
     - group_vars/sepsisdetection_rhpam.yml
 
   tasks:
+  - include: tasks/sso.yml
   - include: tasks/amq-streams.yml
   - include: tasks/knative.yml
   - include: tasks/sepsisdetection-ml.yml

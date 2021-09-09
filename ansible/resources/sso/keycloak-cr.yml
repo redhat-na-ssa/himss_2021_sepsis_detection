@@ -1,0 +1,14 @@
+apiVersion: keycloak.org/v1alpha1
+kind: Keycloak
+metadata:
+  name: rhsso
+  labels:
+    app: rhsso
+spec:
+  instances: 1
+  extensions:
+    - https://github.com/aerogear/keycloak-metrics-spi/releases/download/2.5.0/keycloak-metrics-spi-2.5.0.jar
+#    - {{ sepsisdetection_theme_extension }}
+  externalAccess:
+    enabled: False
+  profile: RHSSO

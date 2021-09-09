@@ -1,0 +1,32 @@
+{
+    "username": "siteadmin",
+    "enabled": true,
+    "emailVerified": true,
+    "firstName": "Site",
+    "lastName": "Admin",
+    "email": "siteadmin@redhat.com",
+    "attributes": {
+        "medical": [
+            "true"
+        ],
+        "phoneNumber": [
+            "703-867-5309"
+        ]
+    },
+    "disableableCredentialTypes": [
+        "password"
+    ],
+    "access": {
+        "manageGroupMembership": true,
+        "view": true,
+        "mapRoles": true,
+        "impersonate": true,
+        "manage": true
+    },
+    "credentials": [
+        {
+            "type": "password",
+            "value": "{{ sso_siteadmin_password }}"
+        }
+    ]
+}

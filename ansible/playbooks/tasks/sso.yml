@@ -1,0 +1,40 @@
+---
+
+- set_fact:
+    namespace: "{{ namespace_sso }}"
+    resources_dir: "{{ resources_base_dir }}/sso"
+    work_dir_name: sso
+- include_role:
+    name: ../roles/sso
+  when: >
+    ACTION is not defined or
+    ACTION is none or
+    ACTION|trim() == "" or
+    ACTION|trim() == "install"
+
+
+- set_fact:
+    resources_dir: "{{ resources_base_dir }}/sso_realm"
+    work_dir_name: sso_realm
+- include_role:
+    name: ../roles/sso_realm
+  when: >
+    ACTION is not defined or
+    ACTION is none or
+    ACTION|trim() == "" or
+    ACTION|trim() == "install"
+
+
+- include_role:
+    name: ../roles/sso_realm
+    tasks_from: uninstall
+  when: >
+    ACTION is defined and
+    ACTION|trim() == "uninstall"
+
+- include_role:
+    name: ../roles/sso
+    tasks_from: uninstall
+  when: >
+    ACTION is defined and
+    ACTION|trim() == "uninstall"

@@ -1,0 +1,33 @@
+---
+
+- name: "delete keycloak custom resource"
+  oc_obj:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    kind: keycloaks.keycloak.org
+    name: rhsso
+    namespace: "{{ namespace }}"
+
+- name: "delete sso operator in {{ namespace_sso }}"
+  import_role:
+    name: ../roles/operator_olm
+    tasks_from: uninstall
+  vars:
+    operator_name: sso-operator
+    subscription_namespace: "{{ namespace_sso }}"
+    subscription_name: "{{ sso_operator_subscription_name }}"
+    csv_prefix: "{{ sso_operator_csv_prefix }}"
+
+- name: "delete operatorgroup from {{ namespace_sso }} namespace"
+  import_role:
+    name: ../roles/operatorgroup
+    tasks_from: uninstall
+  vars:
+    operatorgroup_name: "{{ namespace_sso }}"
+    operatorgroup_namespace: "{{ namespace_sso }}"
+
+- name: "delete namespace {{ namespace_sso }}"
+  oc_project:
+    oc_binary: "{{ openshift_cli }}"
+    state: absent
+    name: "{{ namespace_sso }}"

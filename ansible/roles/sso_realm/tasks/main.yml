@@ -1,0 +1,186 @@
+---
+
+- name: wait for sso to be ready
+  oc_obj:
+    state: list
+    oc_binary: "{{ openshift_cli }}"    
+    kind: Statefulset
+    name: keycloak
+    namespace: "{{ namespace_sso }}"
+  register: r_sso_statefulset
+  retries: 30
+  delay: 10
+  changed_when: false
+  until:
+    - r_sso_statefulset.ansible_module_results.results[0].status.readyReplicas is defined
+    - r_sso_statefulset.ansible_module_results.results[0].status.replicas is defined
+    - >-
+      r_sso_statefulset.ansible_module_results.results[0].status.readyReplicas ==
+      r_sso_statefulset.ansible_module_results.results[0].status.replicas
+
+# https://github.com/Emergency-Response-Demo/install/issues/71
+- name: "Define random value for variable siteadmin_role_id "
+  set_fact:
+    siteadmin_role_id: "{{ lookup('password', '/dev/null chars=ascii_letters length=32') }}"
+
+- name: "wait for sso statefulset to be ready in {{ namespace_sso }}"
+  shell: "{{ openshift_cli }} get statefulset/keycloak -o jsonpath='{.status.readyReplicas}' -n {{ namespace_sso }}"
+  register: result
+  until: result.stdout == '1'
+  retries: 50
+  delay: 10
+  changed_when: False
+
+- name: retrieve sso route
+  shell: "{{ openshift_cli }} get route sso -o jsonpath='{.spec.host}' -n {{ namespace_sso }}"
+  register: sso_route_cmd
+
+- name: get sso admin credentials secret
+  oc_secret:
+    state: list
+    oc_binary: "{{ openshift_cli }}"
+    namespace: "{{ namespace_sso }}"
+    decode: true
+    name: "{{ sso_admin_credentials_secret }}"
+  register: sso_admin_credentials
+
+- set_fact:
+    sso_admin_user: "{{ sso_admin_credentials.ansible_module_results.decoded[\"ADMIN_USERNAME\"] }}"
+    sso_admin_password: "{{ sso_admin_credentials.ansible_module_results.decoded[\"ADMIN_PASSWORD\"] }}"
+    sso_url: "https://{{ sso_route_cmd.stdout }}"
+
+- name: get admin token
+  uri:
+    url: "{{ sso_url }}/auth/realms/master/protocol/openid-connect/token"
+    method: POST
+    headers:
+      Content-Type: application/x-www-form-urlencoded
+    body: "username={{ sso_admin_user }}&password={{ sso_admin_password }}&grant_type=password&client_id=admin-cli"
+    status_code: 200
+    validate_certs: no
+  register: admin_token_result
+
+- name: set admin token fact
+  set_fact:
+    admin_token: "{{ admin_token_result | json_query('json.access_token') }}"
+
+- name: copy realm template
+  template:
+    src: "{{ sso_realm_template }}"
+    dest: "{{ work_dir }}/{{ sso_realm_id }}.json"
+
+- name: copy siteadmin template
+  template:
+    src: "{{ siteadmin_template }}"
+    dest: "{{ work_dir }}/siteadmin-user.json"
+
+- name: copy json to add role to siteadmin
+  template:
+    src: "{{ siteadmin_add_role }}"
+    dest: "{{ work_dir }}/add-role-to-siteadmin.json"
+
+- name: check if {{ sso_realm_id }} exists
+  uri:
+    url: "{{ sso_url }}/auth/admin/realms/{{ sso_realm_id }}"
+    method: GET
+    headers:
+      Authorization: Bearer {{ admin_token }}
+    status_code: 200,404
+    validate_certs: no
+  register: result
+  changed_when: false
+
+- name: create {{ sso_realm_id }} realm
+  uri:
+    url: "{{ sso_url }}/auth/admin/realms"
+    method: POST
+    headers:
+      Authorization: Bearer {{ admin_token }}
+      Content-Type: application/json
+    body: "{{ lookup('file', work_dir + '/' + sso_realm_id + '.json') }}"
+    body_format: json
+    status_code: 201
+    validate_certs: no
+  when: result.status == 404
+
+- name: create siteadmin user
+  uri:
+    url: "{{ sso_url }}/auth/admin/realms/{{ sso_realm_id }}/users"
+    method: POST
+    headers:
+      Authorization: Bearer {{ admin_token }}
+      Content-Type: application/json
+    body: "{{ lookup('file', work_dir + '/siteadmin-user.json') }}"
+    body_format: json
+    status_code: 201,409
+    validate_certs: no
+  register: commander_creation
+
+- name: set siteadmin user id fact
+  set_fact: 
+    siteadmin_user_id: "{{ commander_creation.location | regex_replace('^.*/users/(.*)$', '\\1') }}"
+  when: commander_creation.status == 201
+
+- name: add role to siteadmin user
+  uri:
+    url: "{{ sso_url }}/auth/admin/realms/{{ sso_realm_id }}/users/{{ siteadmin_user_id }}/role-mappings/realm"
+    method: POST
+    headers:
+      Authorization: Bearer {{ admin_token }}
+      Content-Type: application/json
+    body: "{{ lookup('file', work_dir + '/add-role-to-siteadmin.json') }}"
+    body_format: json
+    status_code: 204  
+    validate_certs: no
+  when: commander_creation.status == 201
+
+- name: get rhsso realm certs
+  uri:
+    url: "{{ sso_url }}/auth/realms/{{ sso_realm_id }}/protocol/openid-connect/certs"
+    validate_certs: false
+    return_content: true
+  register: sso_realm_certs
+  changed_when: false
+
+- name: extract sso realm cert modulus
+  shell: echo "{{ sso_realm_certs.content|from_json|json_query(json_query) }}" | sed s/-/+/g | sed s/_/\\//g
+  vars:
+    json_query: keys[?kty=='RSA']|[0].n
+  register: sso_realm_certs_modulus
+
+- name: extract sso realm cert exponent
+  shell: echo "{{ sso_realm_certs.content|from_json|json_query(json_query) }}"
+  vars:
+    json_query: keys[?kty=='RSA']|[0].e
+  register: sso_realm_certs_exponent
+
+- name: extract sso realm public key
+  shell: |
+    echo {{ sso_realm_certs_exponent.stdout }} | base64 -d > {{ work_dir }}/exponent.bin
+    echo '02 03' | xxd -r -p > {{ work_dir }}/mid-header.bin
+    echo 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA' | base64 -d > {{ work_dir }}/header.bin
+    _m={{ sso_realm_certs_modulus.stdout }}
+    _l={{ shell1 }}
+    if [ $_l -eq 2 ]; then _s="$_m"'=='
+    elif [ $_l -eq 3 ]; then _s="$_m"'='
+    else _s="$_m" ; fi
+    echo $_s | base64 -d > {{ work_dir }}/modulus.bin
+    cat {{ work_dir }}/header.bin {{ work_dir }}/modulus.bin {{ work_dir }}/mid-header.bin {{ work_dir }}/exponent.bin > {{ work_dir }}/key.der
+    openssl pkey -inform der -outform pem -pubin -in {{ work_dir }}/key.der -out {{ work_dir }}/key.pem
+    echo $(cat {{ work_dir }}/key.pem | tr -d "\n" | sed 's/-----BEGIN PUBLIC KEY-----//' | sed 's/-----END PUBLIC KEY-----//' ) > {{ work_dir }}/sso_public_key.txt
+    rm {{ work_dir }}/*.bin {{ work_dir }}/*.der {{ work_dir }}/*.pem
+  vars:
+    shell1: !unsafe "$((${#_m} % 4))"
+
+- name: create client configmap
+  oc_configmap:
+    oc_binary: "{{ openshift_cli }}"
+    state: present
+    namespace: "{{ namespace }}"
+    name: "{{ sso_config_configmap }}"
+    from_literal:
+      AUTH_URL: "{{ sso_url }}/auth"
+      KEYCLOAK: "true"
+      PUBLIC_KEY: "{{ lookup('file', work_dir + '/sso_public_key.txt') }}"
+      REALM: "{{ sso_realm_id }}"
+      CLIENTID: "{{ sso_js_clientId }}"

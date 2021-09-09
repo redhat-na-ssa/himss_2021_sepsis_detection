@@ -1,0 +1,57 @@
+---
+
+- name: retrieve sso route
+  shell: "{{ openshift_cli }} get route sso -o jsonpath='{.spec.host}' -n {{ namespace_sso }}"
+  register: sso_route_cmd
+
+- name: get sso admin credentials secret
+  oc_secret:
+    state: list
+    oc_binary: "{{ openshift_cli }}"
+    namespace: "{{ namespace_sso }}"
+    decode: true
+    name: "{{ sso_admin_credentials_secret }}"
+  register: sso_admin_credentials
+
+- set_fact:
+    sso_admin_user: "{{ sso_admin_credentials.ansible_module_results.decoded[\"ADMIN_USERNAME\"] }}"
+    sso_admin_password: "{{ sso_admin_credentials.ansible_module_results.decoded[\"ADMIN_PASSWORD\"] }}"
+    sso_url: "https://{{ sso_route_cmd.stdout }}"
+
+- name: get admin token
+  uri:
+    url: "{{ sso_url }}/auth/realms/master/protocol/openid-connect/token"
+    method: POST
+    headers:
+      Content-Type: application/x-www-form-urlencoded
+    body: "username={{ sso_admin_user }}&password={{ sso_admin_password }}&grant_type=password&client_id=admin-cli"
+    status_code: 200
+    validate_certs: no
+  register: admin_token_result
+
+- name: set admin token fact
+  set_fact:
+    admin_token: "{{ admin_token_result | json_query('json.access_token') }}"
+
+- name: check if {{ sso_realm_id }} exists
+  uri:
+    url: "{{ sso_url }}/auth/admin/realms/{{ sso_realm_id }}"
+    method: GET
+    headers:
+      Authorization: Bearer {{ admin_token }}
+    status_code: 200,404
+    validate_certs: no
+  register: result
+  changed_when: false
+
+- name: delete {{ sso_realm_id }} realm
+  uri:
+    url: "{{ sso_url }}/auth/admin/realms/{{ sso_realm_id }}"
+    method: DELETE
+    headers:
+      Authorization: Bearer {{ admin_token }}
+    status_code: 204
+    validate_certs: no
+  when: result.status == 200
+
+- import_tasks: main.yml
