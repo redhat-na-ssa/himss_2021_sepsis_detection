@@ -2,6 +2,63 @@ version: '3.7'
 
 services:
 
+  psql_sso:
+    image: registry.redhat.io/rhel8/postgresql-12:1-72.1626836556
+    restart: always
+    ports:
+      - "4432:4432"
+    environment:
+      PGPORT: 4432
+      POSTGRESQL_USER: sso
+      POSTGRESQL_PASSWORD: sso
+      POSTGRESQL_DATABASE: sso
+      POSTGRESQL_MAX_PREPARED_TRANSACTIONS: 10
+      SCRIPT_DIR: /opt/sql
+    volumes:
+      - type: bind
+        source: ./sso/db/sso-psql.conf
+        target: /opt/app-root/src/postgresql-cfg/sso-psql.conf
+    networks:
+      - sso
+
+  sso:
+    image: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:7.4-36
+    restart: always
+    ports:
+      - "4443:8443"
+      - "4080:8080"
+    environment:
+      SSO_POSTGRESQL_SERVICE_HOST: psql_sso
+      SSO_POSTGRESQL_SERVICE_PORT: 4432
+      DB_SERVICE_PREFIX_MAPPING: "sso-postgresql=DB"
+      DB_JNDI: "java:jboss/datasources/KeycloakDS"
+      DB_USERNAME: sso
+      DB_PASSWORD: sso
+      DB_DATABASE: sso
+      TX_DATABASE_PREFIX_MAPPING: "sso-postgresql=DB"
+      DB_MIN_POOL_SIZE: 5
+      DB_MAX_POOL_SIZE: 10
+      SSO_ADMIN_USERNAME: master
+      SSO_ADMIN_PASSWORD: master
+      JAVA_OPTS_APPEND: -Dkeycloak.migration.strategy=IGNORE_EXISTING -Dkeycloak.import=/opt/kie-realm.json
+    volumes:
+      - type: bind
+        source: ./sso/kie-realm.json
+        target: /opt/kie-realm.json
+    depends_on:
+      - psql_sso
+    networks:
+      - sso
+
+  sepsisdetection-ml:
+    image: quay.io/redhat_naps_da/sepsis-detection:1.3
+    restart: always
+    ports:
+      - "5080:8080"
+    networks:
+      - sepsisdetection-ml
+
+
   zookeeper:
     image: quay.io/strimzi/kafka:latest-kafka-2.6.0
     command: [
@@ -62,14 +119,6 @@ services:
       - kafka
     networks:
       - default
-
-  sepsisdetection-ml:
-    image: quay.io/redhat_naps_da/sepsis-detection:1.3
-    restart: always
-    ports:
-      - "5080:8080"
-    networks:
-      - sepsisdetection-ml
 
   psql_fhir:
     image: registry.redhat.io/rhel8/postgresql-12
@@ -187,4 +236,6 @@ networks:
   default:
     driver: bridge
   sepsisdetection-ml:
+    driver: bridge
+  sso:
     driver: bridge
