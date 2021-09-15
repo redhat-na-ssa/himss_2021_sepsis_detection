@@ -1,4 +1,4 @@
-<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:bpsim="http://www.bpsim.org/schemas/1.0" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:drools="http://www.jboss.org/drools" id="_J9KWwNXvEDmMgvO-uAwQRQ" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.jboss.org/drools drools.xsd http://www.bpsim.org/schemas/1.0 bpsim.xsd http://www.omg.org/spec/DD/20100524/DC DC.xsd http://www.omg.org/spec/DD/20100524/DI DI.xsd " exporter="jBPM Process Modeler" exporterVersion="2.0" targetNamespace="http://www.omg.org/bpmn20">
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:bpsim="http://www.bpsim.org/schemas/1.0" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:drools="http://www.jboss.org/drools" id="_E18yoPicEDmWv5lCXHO_Og" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.jboss.org/drools drools.xsd http://www.bpsim.org/schemas/1.0 bpsim.xsd http://www.omg.org/spec/DD/20100524/DC DC.xsd http://www.omg.org/spec/DD/20100524/DI DI.xsd " exporter="jBPM Process Modeler" exporterVersion="2.0" targetNamespace="http://www.omg.org/bpmn20">
   <bpmn2:itemDefinition id="_riskevaluvationResultItem" structureRef="String"/>
   <bpmn2:itemDefinition id="_patientItem" structureRef="org.hl7.fhir.r4.model.Patient"/>
   <bpmn2:itemDefinition id="_riskAssessmentItem" structureRef="org.hl7.fhir.r4.model.RiskAssessment"/>
@@ -232,11 +232,13 @@ Patient Disposition]]></drools:metaValue>
         <bpmn2:dataInput id="_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_TaskNameInputX" drools:dtype="Object" itemSubjectRef="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_TaskNameInputXItem" name="TaskName"/>
         <bpmn2:dataInput id="_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_patientInputX" drools:dtype="org.hl7.fhir.r4.model.Patient" itemSubjectRef="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_patientInputXItem" name="patient"/>
         <bpmn2:dataInput id="_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_SkippableInputX" drools:dtype="Object" itemSubjectRef="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_SkippableInputXItem" name="Skippable"/>
+        <bpmn2:dataInput id="_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_GroupIdInputX" drools:dtype="Object" itemSubjectRef="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_GroupIdInputXItem" name="GroupId"/>
         <bpmn2:dataOutput id="_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_dispositionResultOutputX" drools:dtype="String" itemSubjectRef="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_dispositionResultOutputXItem" name="dispositionResult"/>
         <bpmn2:inputSet>
           <bpmn2:dataInputRefs>_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_TaskNameInputX</bpmn2:dataInputRefs>
           <bpmn2:dataInputRefs>_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_patientInputX</bpmn2:dataInputRefs>
           <bpmn2:dataInputRefs>_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_SkippableInputX</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_GroupIdInputX</bpmn2:dataInputRefs>
         </bpmn2:inputSet>
         <bpmn2:outputSet>
           <bpmn2:dataOutputRefs>_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_dispositionResultOutputX</bpmn2:dataOutputRefs>
@@ -260,15 +262,17 @@ Patient Disposition]]></drools:metaValue>
           <bpmn2:to xsi:type="bpmn2:tFormalExpression"><![CDATA[_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_SkippableInputX]]></bpmn2:to>
         </bpmn2:assignment>
       </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation>
+        <bpmn2:targetRef>_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_GroupIdInputX</bpmn2:targetRef>
+        <bpmn2:assignment>
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression"><![CDATA[provider]]></bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression"><![CDATA[_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_GroupIdInputX]]></bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
       <bpmn2:dataOutputAssociation>
         <bpmn2:sourceRef>_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_dispositionResultOutputX</bpmn2:sourceRef>
         <bpmn2:targetRef>dispositionResult</bpmn2:targetRef>
       </bpmn2:dataOutputAssociation>
-      <bpmn2:potentialOwner id="_J9TgsNXvEDmMgvO-uAwQRQ">
-        <bpmn2:resourceAssignmentExpression id="_J9TgsdXvEDmMgvO-uAwQRQ">
-          <bpmn2:formalExpression>kieserver</bpmn2:formalExpression>
-        </bpmn2:resourceAssignmentExpression>
-      </bpmn2:potentialOwner>
     </bpmn2:userTask>
     <bpmn2:userTask id="_E8A16633-BED8-41B7-915D-3400F2053137" name="Licensed Provider Determines Patient Disposition">
       <bpmn2:extensionElements>
@@ -282,11 +286,13 @@ Patient Disposition]]></drools:metaValue>
         <bpmn2:dataInput id="_E8A16633-BED8-41B7-915D-3400F2053137_TaskNameInputX" drools:dtype="Object" itemSubjectRef="__E8A16633-BED8-41B7-915D-3400F2053137_TaskNameInputXItem" name="TaskName"/>
         <bpmn2:dataInput id="_E8A16633-BED8-41B7-915D-3400F2053137_patientInputX" drools:dtype="org.hl7.fhir.r4.model.Patient" itemSubjectRef="__E8A16633-BED8-41B7-915D-3400F2053137_patientInputXItem" name="patient"/>
         <bpmn2:dataInput id="_E8A16633-BED8-41B7-915D-3400F2053137_SkippableInputX" drools:dtype="Object" itemSubjectRef="__E8A16633-BED8-41B7-915D-3400F2053137_SkippableInputXItem" name="Skippable"/>
+        <bpmn2:dataInput id="_E8A16633-BED8-41B7-915D-3400F2053137_GroupIdInputX" drools:dtype="Object" itemSubjectRef="__E8A16633-BED8-41B7-915D-3400F2053137_GroupIdInputXItem" name="GroupId"/>
         <bpmn2:dataOutput id="_E8A16633-BED8-41B7-915D-3400F2053137_dispositionResultOutputX" drools:dtype="String" itemSubjectRef="__E8A16633-BED8-41B7-915D-3400F2053137_dispositionResultOutputXItem" name="dispositionResult"/>
         <bpmn2:inputSet>
           <bpmn2:dataInputRefs>_E8A16633-BED8-41B7-915D-3400F2053137_TaskNameInputX</bpmn2:dataInputRefs>
           <bpmn2:dataInputRefs>_E8A16633-BED8-41B7-915D-3400F2053137_patientInputX</bpmn2:dataInputRefs>
           <bpmn2:dataInputRefs>_E8A16633-BED8-41B7-915D-3400F2053137_SkippableInputX</bpmn2:dataInputRefs>
+          <bpmn2:dataInputRefs>_E8A16633-BED8-41B7-915D-3400F2053137_GroupIdInputX</bpmn2:dataInputRefs>
         </bpmn2:inputSet>
         <bpmn2:outputSet>
           <bpmn2:dataOutputRefs>_E8A16633-BED8-41B7-915D-3400F2053137_dispositionResultOutputX</bpmn2:dataOutputRefs>
@@ -310,15 +316,17 @@ Patient Disposition]]></drools:metaValue>
           <bpmn2:to xsi:type="bpmn2:tFormalExpression"><![CDATA[_E8A16633-BED8-41B7-915D-3400F2053137_SkippableInputX]]></bpmn2:to>
         </bpmn2:assignment>
       </bpmn2:dataInputAssociation>
+      <bpmn2:dataInputAssociation>
+        <bpmn2:targetRef>_E8A16633-BED8-41B7-915D-3400F2053137_GroupIdInputX</bpmn2:targetRef>
+        <bpmn2:assignment>
+          <bpmn2:from xsi:type="bpmn2:tFormalExpression"><![CDATA[provider]]></bpmn2:from>
+          <bpmn2:to xsi:type="bpmn2:tFormalExpression"><![CDATA[_E8A16633-BED8-41B7-915D-3400F2053137_GroupIdInputX]]></bpmn2:to>
+        </bpmn2:assignment>
+      </bpmn2:dataInputAssociation>
       <bpmn2:dataOutputAssociation>
         <bpmn2:sourceRef>_E8A16633-BED8-41B7-915D-3400F2053137_dispositionResultOutputX</bpmn2:sourceRef>
         <bpmn2:targetRef>dispositionResult</bpmn2:targetRef>
       </bpmn2:dataOutputAssociation>
-      <bpmn2:potentialOwner id="_J9Uu0NXvEDmMgvO-uAwQRQ">
-        <bpmn2:resourceAssignmentExpression id="_J9Uu0dXvEDmMgvO-uAwQRQ">
-          <bpmn2:formalExpression>kieserver</bpmn2:formalExpression>
-        </bpmn2:resourceAssignmentExpression>
-      </bpmn2:potentialOwner>
     </bpmn2:userTask>
     <bpmn2:endEvent id="_DDA71AD4-9783-4FEC-80F0-58DDC9E97429">
       <bpmn2:incoming>_B8E15341-3F35-4166-B09D-370A64895C8D</bpmn2:incoming>
@@ -594,7 +602,7 @@ Patient Disposition]]></drools:metaValue>
         </bpsim:Scenario>
       </bpsim:BPSimData>
     </bpmn2:extensionElements>
-    <bpmn2:source>_J9KWwNXvEDmMgvO-uAwQRQ</bpmn2:source>
-    <bpmn2:target>_J9KWwNXvEDmMgvO-uAwQRQ</bpmn2:target>
+    <bpmn2:source>_E18yoPicEDmWv5lCXHO_Og</bpmn2:source>
+    <bpmn2:target>_E18yoPicEDmWv5lCXHO_Og</bpmn2:target>
   </bpmn2:relationship>
 </bpmn2:definitions>

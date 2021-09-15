@@ -250,11 +250,13 @@ The sepsisdetection-rhpam deployment is enabled with the _kie_server_ as well as
 
 === SepsisDetection RHPAM
 
-. Set SEPSISDETECTION_RHPAM_URL env var:
+. Set the following environment variables with values similar to the following:
 .. If testing environment deployed locally:
 +
 -----
 SEPSISDETECTION_RHPAM_URL=http://localhost:9080
+RHSSO_URL=http://localhost:4080
+retrieve_token_url="$RHSSO_URL/auth/realms/kieRealm/protocol/openid-connect/token"
 -----
 
 .. If testing environment deployed to OpenShift:
@@ -263,16 +265,46 @@ SEPSISDETECTION_RHPAM_URL=http://localhost:9080
 SEPSISDETECTION_RHPAM_URL=https://$(oc get route sepsisdetection-rhpam -n user1-sepsisdetection --template='{{ .spec.host }}')
 -----
 
+. Retrieve an OAuth2 token using the `kie-server` SSO client of `kieRealm`:
++
+-----
+TKN=$(curl -X POST "$retrieve_token_url" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "username=pamAdmin" \
+            -d "password=pam" \
+            -d "grant_type=password" \
+            -d "client_id=kie-server" \
+            | sed 's/.*access_token":"//g' | sed 's/".*//g')
+
+echo $TKN
+-----
+
+. By setting _fullScopeAllowed=true_ in SSO client, all roles assocated with an authenticated user will be included in the access token.
++
+These roles can be visualized as follows:
++
+-----
+$ jq -R 'split(".") | .[1] | @base64d | fromjson' <<< $TKN | jq .realm_access.roles
+
+[
+  "interviewer",
+  "kie-server",
+  "user"
+]
+-----
+
 . Health Check Report
 +
 -----
-$ curl -u "kieserver:kieserver" -H 'Accept:application/json' $SEPSISDETECTION_RHPAM_URL/rest/server/healthcheck?report=true
+$ curl -H "Authorization: Bearer $TKN" \
+       -H 'Accept:application/json' \
+       $SEPSISDETECTION_RHPAM_URL/rest/server/healthcheck?report=true
 -----
 
 . View raw swagger json
 +
 -----
-$ curl -v -u "kieserver:kieserver" $SEPSISDETECTION_RHPAM_URL/rest/swagger.json | jq .
+$ curl -H "Authorization: Bearer $TKN" $SEPSISDETECTION_RHPAM_URL/rest/swagger.json | jq .
 -----
 
 . View swagger-ui:
@@ -288,19 +320,24 @@ image::docs/images/swagger-ui.png[]
 . List KIE Containers
 +
 -----
-$ curl -u "kieserver:kieserver" -X GET $SEPSISDETECTION_RHPAM_URL/rest/server/containers
+$ curl -H "Authorization: Bearer $TKN" \
+       -X GET $SEPSISDETECTION_RHPAM_URL/rest/server/containers
 -----
 
 . List process definitions in JSON representation:
 +
 -----
-$ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' $SEPSISDETECTION_RHPAM_URL/rest/server/containers/sepsisdetection-kjar/processes/
+$ curl -H "Authorization: Bearer $TKN" \
+       -X GET -H 'Accept:application/json' \
+       $SEPSISDETECTION_RHPAM_URL/rest/server/containers/sepsisdetection-kjar/processes/
 -----
 
 . List cases in JSON representation:
 +
 -----
-$ curl -u "kieserver:kieserver" -X GET -H 'Accept:application/json' $SEPSISDETECTION_RHPAM_URL/rest/server/queries/cases/
+$ curl -H "Authorization: Bearer $TKN" \
+       -X GET -H 'Accept:application/json' \
+       $SEPSISDETECTION_RHPAM_URL/rest/server/queries/cases/
 -----
 
 

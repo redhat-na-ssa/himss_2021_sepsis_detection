@@ -15,5 +15,7 @@ public class FHIRUtil {
     public static final String O2SAT_CODE_STRING = "Oxygen saturation in Arterial blood";
     public static final String HR_CODE_STRING = "Heart rate";
     public static final String RESPRATE_CODE_STRING = "Respiratory rate";
+
+    public static final String AVAILABLE_SSO_GROUPS = "com.redhat.naps.sso.available.groups";
     
 }

@@ -204,6 +204,7 @@
             }
          ],
          "realmRoles":[
+            "patient",
             "applicant",
             "kie-server",
             "user"
@@ -228,6 +229,7 @@
             }
          ],
          "realmRoles":[
+            "patient",
             "applicant",
             "kie-server",
             "user"
@@ -252,6 +254,7 @@
             }
          ],
          "realmRoles":[
+            "doctor",
             "talent-acquisition",
             "kie-server",
             "user"
@@ -276,6 +279,7 @@
             }
          ],
          "realmRoles":[
+            "doctor",
             "talent-acquisition",
             "kie-server",
             "user"
@@ -300,6 +304,7 @@
             }
          ],
          "realmRoles":[
+            "doctor",
             "interviewer",
             "kie-server",
             "user"
@@ -324,6 +329,7 @@
             }
          ],
          "realmRoles":[
+            "provider",
             "interviewer",
             "agent",
             "kie-server",
@@ -349,6 +355,7 @@
             }
          ],
          "realmRoles":[
+            "provider",
             "interviewer",
             "agent",
             "kie-server",
@@ -374,6 +381,7 @@
             }
          ],
          "realmRoles":[
+            "provider",
             "kie-server",
             "rest-all",
             "developer"
