@@ -106,19 +106,19 @@ services:
     networks:
       - default
 
-  kafdrop:
-    image: docker.io/obsidiandynamics/kafdrop:3.27.0
-    restart: always
-    ports:
-      - "9000:9000"
-    environment:
-      KAFKA_BROKERCONNECT: "kafka:9092"
-      JVM_OPTS: "-Xms32M -Xmx64M"
-      SERVER_SERVLET_CONTEXTPATH: "/"
-    depends_on:
-      - kafka
-    networks:
-      - default
+#  kafdrop:
+#    image: docker.io/obsidiandynamics/kafdrop:3.27.0
+#    restart: always
+#    ports:
+#      - "9000:9000"
+#    environment:
+#      KAFKA_BROKERCONNECT: "kafka:9092"
+#      JVM_OPTS: "-Xms32M -Xmx64M"
+#      SERVER_SERVLET_CONTEXTPATH: "/"
+#    depends_on:
+#      - kafka
+#    networks:
+#      - default
 
   psql_fhir:
     image: registry.redhat.io/rhel8/postgresql-12
@@ -187,17 +187,17 @@ services:
     networks:
       - default
 
-  dashbuilder:
-    image: quay.io/redhat_naps_da/dashbuilder-rhpam-db:0.0.1
-    restart: always
-    ports:
-      - "6080:6080"
-    environment:
-      JAVA_OPTIONS: "-Dquarkus.http.host=0.0.0.0 -Dquarkus.http.port=6080 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Ddashbuilder.runtime.multi=true -Ddashbuilder.datasources=jbpmdb -Ddashbuilder.datasource.jbpmdb.jdbcUrl=jdbc:postgresql://psql_rhpam:6432/rhpam -Ddashbuilder.datasource.jbpmdb.providerClassName=org.postgresql.Driver -Ddashbuilder.datasource.jbpmdb.maxSize=10 -Ddashbuilder.datasource.jbpmdb.principal=rhpam -Ddashbuilder.datasource.jbpmdb.credential=rhpam -Dquarkus.http.enable-compression=false -Ddashbuilder.import.base.dir=/opt/dashbuilder"
-    depends_on:
-      - psql_rhpam
-    networks:
-      - default
+#  dashbuilder:
+#    image: quay.io/redhat_naps_da/dashbuilder-rhpam-db:0.0.1
+#    restart: always
+#    ports:
+#      - "6080:6080"
+#    environment:
+#      JAVA_OPTIONS: "-Dquarkus.http.host=0.0.0.0 -Dquarkus.http.port=6080 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Ddashbuilder.runtime.multi=true -Ddashbuilder.datasources=jbpmdb -Ddashbuilder.datasource.jbpmdb.jdbcUrl=jdbc:postgresql://psql_rhpam:6432/rhpam -Ddashbuilder.datasource.jbpmdb.providerClassName=org.postgresql.Driver -Ddashbuilder.datasource.jbpmdb.maxSize=10 -Ddashbuilder.datasource.jbpmdb.principal=rhpam -Ddashbuilder.datasource.jbpmdb.credential=rhpam -Dquarkus.http.enable-compression=false -Ddashbuilder.import.base.dir=/opt/dashbuilder"
+#    depends_on:
+#      - psql_rhpam
+#    networks:
+#      - default
 
 #  sepsisdetection-rhpam:
 #    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.5
@@ -224,13 +224,13 @@ services:
 #    depends_on:
 #      - psql_rhpam
 
-  sepsis_ui:
-    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.9
-    restart: always
-    ports:
-      - "7080:7080"
-    networks:
-      - default
+#  sepsis_ui:
+#    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.9
+#    restart: always
+#    ports:
+#      - "7080:7080"
+#    networks:
+#      - default
 
 networks:
   default:

@@ -1,4 +1,7 @@
 export interface BackendSettings {
+    keycloakUrl: string,
+    ssoRealm: string,
+    ssoClient: string,
     kieserverUrl : string;
     dmcontainerAlias? : string;
     username? : string;

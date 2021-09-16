@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JsonPipe } from '@angular/common';
 import { CookieModule } from 'ngx-cookie';
@@ -10,19 +10,36 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http';
 import { HighlightModule, HIGHLIGHT_OPTIONS,HighlightOptions } from 'ngx-highlightjs';
+import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
 
 import { AppComponent } from './app.component';
-import { MainComponentComponent } from './component/main-component/main-component.component';
-import { BackendSettingsComponent } from 'src/app/component/Modals/BackendSettings/BackendSettings.component';
-import { CompletedProcessInstanceComponent } from 'src/app/component/Modals/completed-process-instance/completed-process-instance.component';
-import { AdminComponent } from 'src/app/component/Admin/Admin.component';
+import { MainComponent } from './component/main-component/main-component.component';
+import { BackendSettingsComponent } from './component/Modals/BackendSettings/BackendSettings.component';
+import { CompletedProcessInstanceComponent } from './component/Modals/completed-process-instance/completed-process-instance.component';
+import { AdminComponent } from './component/Admin/Admin.component';
 import { RiskEvaluvationComponent } from './component/Modals/RiskEvaluvation/RiskEvaluvation.component';
 import { RiskMitigationComponent } from './component/Modals/RiskMitigation/RiskMitigation.component';
+
+function initializeKeycloak(keycloak: KeycloakService) {
+  
+  return () =>
+    keycloak.init({
+      config: {
+        url: window['_env'].KEYCLOAK_URL+"/auth",
+        realm: window['_env'].SSO_REALM,
+        clientId: window['_env'].SSO_CLIENT
+      },
+      initOptions: {
+        onLoad: 'check-sso',
+        silentCheckSsoRedirectUri: window.location.origin + '/assets/silent-check-sso.html',
+      },
+    });
+}
 
 @NgModule({
   declarations: [
     AppComponent,
-    MainComponentComponent,
+    MainComponent,
     BackendSettingsComponent,
     CompletedProcessInstanceComponent,
     AdminComponent,
@@ -30,6 +47,7 @@ import { RiskMitigationComponent } from './component/Modals/RiskMitigation/RiskM
     RiskMitigationComponent
   ],
   imports: [
+    KeycloakAngularModule,
     BrowserModule,
     HighlightModule,
     AppRoutingModule,
@@ -54,7 +72,13 @@ import { RiskMitigationComponent } from './component/Modals/RiskMitigation/RiskM
         css: () => import('highlight.js/lib/languages/css')
       }
     }
-  }],
+  },{
+    provide: APP_INITIALIZER,
+    useFactory: initializeKeycloak,
+    multi: true,
+    deps: [KeycloakService],
+  }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

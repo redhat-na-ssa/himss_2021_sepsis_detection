@@ -20,6 +20,9 @@ export class BackendServices {
     this.backendSettings = <BackendSettings>this.cookieService.getObject("himms")
     if (this.backendSettings === undefined) {
       this.backendSettings = {
+        keycloakUrl: window['_env'].KEYCLOAK_URL,
+        ssoRealm: window['_env'].SSO_REALM,
+        ssoClient: window['_env'].SSO_CLIENT,
         kieserverUrl: window['_env'].KIE_SERVER_URL,
         dmcontainerAlias: window['_env'].DM_CONTAINER_ALIAS,
         picontainerAlias: window['_env'].PAM_CONTAINER_ALIAS,

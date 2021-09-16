@@ -71,7 +71,6 @@ public class TaskController {
 
         for(String contentKey : tVariables.keySet()){
             Object contentObj = tVariables.get(contentKey);
-            log.info("getTaskVariables() Key : " + contentKey + " ,  Object : " + contentObj.getClass());
             if(contentObj instanceof ArrayList) {
             }else {
                 if(IBaseResource.class.isInstance(contentObj)) {

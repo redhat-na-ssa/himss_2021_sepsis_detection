@@ -58,11 +58,18 @@ public class KeycloakUserGroupCallback implements UserGroupCallback {
     @Override
     // When a task is created, verify that userId assigned to task is actually registered in Identity Provider
     public boolean existsUser(String userId) {
-        log.info("existsUser() : " + userId);
+
+        /*
         if (userId.equals("kieserver") || userId.equals("wbadmin") || userId.equals("user") || userId.equals("Administrator"))
             return true;
-        else
+        else {
+            log.warn("existsUser() will not allow the following user to manage a task: "+userId);
             return false;
+        }
+        */
+
+        // Just keeps things simple by not explicitiy restricting any user
+        return true;
     }
 
     @Override

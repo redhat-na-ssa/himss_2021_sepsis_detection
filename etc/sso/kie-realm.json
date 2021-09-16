@@ -911,7 +911,9 @@
          "clientAuthenticatorType":"client-secret",
          "secret":"**********",
          "redirectUris":[
-            "http://localhost:9080/*"
+            "http://localhost:9080/*",
+            "http://localhost:4200/*",
+            "http://localhost:7800/*"
          ],
          "webOrigins":[
             "+"

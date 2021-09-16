@@ -17,37 +17,50 @@
 </style>
 
 <div class="card" style="margin-top:20px;">
-    <div class="card-header panel-background">
+    <div>
+        <div class="float-right">
+            <button *ngIf="isLoggedIn" type="button" (click)="logout()">Log out</button>
+            <button *ngIf="!isLoggedIn" type="button" (click)="login()">Log in</button>
+        </div>
+        <div class="float-right" style="padding: 10px;"></div>
+        <div class="float-right" *ngIf="userProfile">
+            <td>{{ userProfile.username }}</td>
+        </div>
+    </div>
+    <div class="card-header panel-background" *ngIf="userProfile">
         Sepsis Demo
 
         <div class="dropdown float-right" triggers="mouseenter:mouseleave" placement="left">
-            <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <span style="font-size: 15px"></span>
-        <fa-icon [icon]="faUser" style="margin-right:10px;"> </fa-icon>{{user.name}} ( {{user.role}} )
-      </button>
+            <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownMenuButton"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span style="font-size: 15px"></span>
+                <fa-icon [icon]="faUser" style="margin-right:10px;"> </fa-icon>{{user.name}} ( {{user.role}} )
+            </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" *ngFor="let curuser of userList" (click)="changeSelectedOption(curuser)" href="#">
+                <a class="dropdown-item" *ngFor="let curuser of userList" (click)="changeSelectedOption(curuser)"
+                    href="#">
                     <div>
                         <p>
-                            <fa-icon [icon]="faUser" style="margin-right:10px;"></fa-icon> {{curuser.name}} <span style="font-size:12px">({{curuser.role}})</span>
+                            <fa-icon [icon]="faUser" style="margin-right:10px;"></fa-icon> {{curuser.name}} <span
+                                style="font-size:12px">({{curuser.role}})</span>
                         </p>
 
                     </div>
                 </a>
             </div>
         </div>
-        <div class="float-right" style="margin-right:10px;" (click)="openSettings()">
+        <div class="float-right" style="margin-right:10px;" (click)="openSettings()" *ngIf="userProfile">
             <button class="btn btn-sm btn-warning">
-        <fa-icon [icon]="faCogs"></fa-icon>
-      </button>
+                <fa-icon [icon]="faCogs"></fa-icon>
+            </button>
         </div>
-        <div class="float-right" style="margin-right:10px;">
+        <div class="float-right" style="margin-right:10px;" *ngIf="userProfile">
             <button class="btn btn-sm btn-warning" (click)="openClosedCases()">
-        <fa-icon [icon]="faDatabase"></fa-icon> Show Closed Cases
-      </button>
+                <fa-icon [icon]="faDatabase"></fa-icon> Show Closed Cases
+            </button>
         </div>
     </div>
-    <div class="card-body">
+    <div class="card-body" *ngIf="userProfile">
         <app-Admin *ngIf="user.userid == 'AndrewSmith'" [user]="user"></app-Admin>
         <!-- <app-claim *ngIf="user.userid == 'AndrewSmith'" [user]="user"></app-claim>
         <app-broker *ngIf="user.userid == 'JohnStark'" [user]="user"></app-broker>

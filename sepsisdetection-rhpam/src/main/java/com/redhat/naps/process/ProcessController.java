@@ -100,7 +100,7 @@ public class ProcessController {
                 if(IBaseResource.class.isInstance(contentObj)) {
                     log.info("getProcessVariables() contentKey = "+contentKey+" instanceof = "+contentObj.getClass().toString());
                     String jsonFhir = fhirCtx.newJsonParser().encodeResourceToString((IBaseResource)contentObj);
-                    log.info("getProcessVariables() done parsing "+contentKey);
+                    log.debug("getProcessVariables() done parsing "+contentKey);
                     vResponse.put(contentKey, jsonFhir);
                 }else {
                     vResponse.put(contentKey, pVariables.get(contentKey));

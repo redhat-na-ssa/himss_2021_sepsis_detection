@@ -2,6 +2,9 @@
 (function(window) {
   window._env = window._env || {};
 
+  window._env.KEYCLOAK_URL = "http://localhost:4080";
+  window._env.SSO_REALM = "kieRealm";
+  window._env.SSO_CLIENT = "kie-server";
   window._env.KIE_SERVER_URL = "http://localhost:9080";
   window._env.KIE_SERVER_USERID = 'kieserver';
   window._env.KIE_SERVER_PASSWORD = 'kieserver';
