@@ -15,6 +15,13 @@ export class BackendServices {
 
   bundleData: string;
 
+
+  /*
+    The requests to various backends created in this class include a default Authorization header similar to the following:
+        'Authorization': 'Basic ' + btoa(this.backendSettings.username + ":" + this.backendSettings.password)
+
+    When configured to use keycloak, this Authorization header is over-written with the Bearer token
+   */
   constructor(private http: HttpClient, private cookieService: CookieService) {
     this.cookieService.putObject("test",{testcookie : "test"});
     this.backendSettings = <BackendSettings>this.cookieService.getObject("himms")
@@ -134,17 +141,30 @@ export class BackendServices {
   }
 
 
-  getActiveTaskInstances(processInstanceId: number) {
-    let url = this.backendSettings.kieserverUrl + "/rest/server/queries/tasks/instances/process/" + processInstanceId;
+  getActiveTaskInstancesForPotentialOwner(roles: string[]) {
+    let url = this.backendSettings.kieserverUrl + "/rest/server/queries/tasks/instances/pot-owners";
     const headers = {
       'Authorization': 'Basic ' + btoa(this.backendSettings.username + ":" + this.backendSettings.password),
       'content-type': 'application/json',
       'X-KIE-ContentType': 'JSON',
       'accept': 'application/json'
     };
-    console.log("getActiveTaskInstances() for pId = "+processInstanceId);
+    console.log("getActiveTaskInstances() for potential user with roles: = "+roles);
     return this.http.get(url, { headers });
   }
+
+  getActiveTaskInstancesForBusinessAdmin() {
+    let url = this.backendSettings.kieserverUrl + "/rest/server/queries/tasks/instances/admins";
+    const headers = {
+      'Authorization': 'Basic ' + btoa(this.backendSettings.username + ":" + this.backendSettings.password),
+      'content-type': 'application/json',
+      'X-KIE-ContentType': 'JSON',
+      'accept': 'application/json'
+    };
+    console.log("getActiveTaskInstances() for business admins");
+    return this.http.get(url, { headers });
+  }
+  
 
   getTaskVariables(taskInstanceId: number) {
     let url = this.backendSettings.kieserverUrl + "/fhir/tasks/taskinstance/"+taskInstanceId+ "/variables";

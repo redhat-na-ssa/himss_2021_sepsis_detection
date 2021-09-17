@@ -8,6 +8,8 @@ import { RiskMitigationComponent } from '../Modals/RiskMitigation/RiskMitigation
 import { Bundle } from './Bundle';
 import { faRecycle } from '@fortawesome/free-solid-svg-icons';
 import { forkJoin } from 'rxjs';
+import { KeycloakService } from 'keycloak-angular';
+import { KeycloakProfile } from 'keycloak-js';
 
 @Component({
   selector: 'app-Admin',
@@ -33,15 +35,29 @@ export class AdminComponent implements OnInit {
   svgContent : string = "";
   allowSvgContent : boolean = false;
   service: BackendServices;
+  keycloak: KeycloakService;
+
+  public isLoggedIn = false;
+  public isAdminUser = false;
+  public userProfile: KeycloakProfile | null = null;
+
  
 
-   constructor(private modalService: NgbModal,service : BackendServices) {
+   constructor(private modalService: NgbModal, service : BackendServices, keycloak: KeycloakService) {
       this.service = service;
+      this.keycloak = keycloak;
       this.bundle = new Bundle();
    }
 
-  ngOnInit(): void {
+  public async ngOnInit() {
     this.getCaseList();
+
+    this.isLoggedIn = await this.keycloak.isLoggedIn();
+    this.isAdminUser = this.keycloak.isUserInRole("Administrators");
+
+    if (this.isLoggedIn) {
+      this.userProfile = await this.keycloak.loadUserProfile();
+    }
   }
 
   private getCaseList() {
@@ -96,7 +112,7 @@ export class AdminComponent implements OnInit {
     caseList.forEach((currentInstance: ProcessInstanceList) => {
       this.service.getProcessInstanceVariables(currentInstance.processInstanceId).subscribe((res: any) => {
          this.mapVariableNameValue(res,currentInstance);
-         this.onGetActiveTask(currentInstance.processInstanceId,this.user.userid,currentInstance);
+         this.onGetActiveTask();
       }, err => {
 
       });
@@ -147,16 +163,15 @@ export class AdminComponent implements OnInit {
       this.allowSvgContent = true;
   }
 
-
-
-  onGetActiveTask(processInstanceId : number,userid : string,instance: ProcessInstanceList)
-  {
-      this.service.getActiveTaskInstances(processInstanceId).subscribe((res:any)=>{
+  onGetActiveTask() {
+      
+      if(this.isAdminUser) {
+        this.service.getActiveTaskInstancesForBusinessAdmin().subscribe((res:any)=>{
           if(res["task-summary"] && res["task-summary"] instanceof Array)
           {
             res["task-summary"].forEach((task : any)=> {
                 let taskInstance : TaskInstance = {
-                  processInstanceId : processInstanceId,
+                  processInstanceId : task["task-proc-inst-id"],
                   taskCreatedDate : task["task-created-on"]["java.util.Date"],
                   taskId : task["task-id"],
                   taskStatus : task["task-status"],
@@ -164,33 +179,30 @@ export class AdminComponent implements OnInit {
                   taskSubject : task["task-subject"],
                   taskDescription  : task["task-description"]
                 }
-
-                //if(taskInstance.taskName == "Primary Doctor Evaluates Risk" || taskInstance.taskName == "On Call Doctor Evaluates Risk") 
-                    this.activeManagerTasks.instanceList.push(taskInstance);
+                this.activeManagerTasks.instanceList.push(taskInstance);
             });
           }
-      },err=>{});
-      if(instance.subProcess)
-      {
-        this.service.getActiveTaskInstances(instance.subProcess["process-instance-id"]).subscribe((res:any)=>{
-          if(res["task-summary"] && res["task-summary"] instanceof Array)
-          {
-            res["task-summary"].forEach((task : any)=> {
-                let taskInstance : TaskInstance = {
-                  processInstanceId : processInstanceId,
-                  taskCreatedDate : task["task-created-on"]["java.util.Date"],
-                  taskId : task["task-id"],
-                  taskStatus : task["task-status"],
-                  taskName : task["task-name"],
-                  taskSubject : task["task-subject"],
-                  taskDescription  : task["task-description"]
-                }
+        },err=>{});
+      }else {
 
-                //if(taskInstance.taskName == "Primary Doctor Evaluates Risk" || taskInstance.taskName == "On Call Doctor Evaluates Risk") 
-                    this.activeManagerTasks.instanceList.push(taskInstance);
-            });
-          }
-        });
+        this.service.getActiveTaskInstancesForPotentialOwner(this.keycloak.getUserRoles()).subscribe((res:any)=>{
+            if(res["task-summary"] && res["task-summary"] instanceof Array)
+            {
+              res["task-summary"].forEach((task : any)=> {
+                  let taskInstance : TaskInstance = {
+                    processInstanceId : task["task-proc-inst-id"],
+                    taskCreatedDate : task["task-created-on"]["java.util.Date"],
+                    taskId : task["task-id"],
+                    taskStatus : task["task-status"],
+                    taskName : task["task-name"],
+                    taskSubject : task["task-subject"],
+                    taskDescription  : task["task-description"]
+                  }
+                  this.activeManagerTasks.instanceList.push(taskInstance);
+              });
+            }
+        },err=>{});
+        
       }
   }
 

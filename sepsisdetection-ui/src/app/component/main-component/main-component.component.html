@@ -30,7 +30,7 @@
     <div class="card-header panel-background" *ngIf="userProfile">
         Sepsis Demo
 
-        <div class="dropdown float-right" triggers="mouseenter:mouseleave" placement="left">
+        <div class="dropdown float-right" triggers="mouseenter:mouseleave" placement="left" *ngIf="isAdminUser">
             <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownMenuButton"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span style="font-size: 15px"></span>
@@ -49,12 +49,12 @@
                 </a>
             </div>
         </div>
-        <div class="float-right" style="margin-right:10px;" (click)="openSettings()" *ngIf="userProfile">
+        <div class="float-right" style="margin-right:10px;" (click)="openSettings()" *ngIf="isAdminUser">
             <button class="btn btn-sm btn-warning">
                 <fa-icon [icon]="faCogs"></fa-icon>
             </button>
         </div>
-        <div class="float-right" style="margin-right:10px;" *ngIf="userProfile">
+        <div class="float-right" style="margin-right:10px;" *ngIf="isAdminUser" >
             <button class="btn btn-sm btn-warning" (click)="openClosedCases()">
                 <fa-icon [icon]="faDatabase"></fa-icon> Show Closed Cases
             </button>

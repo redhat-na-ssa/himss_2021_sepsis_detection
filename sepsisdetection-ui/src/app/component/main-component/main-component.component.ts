@@ -24,9 +24,10 @@ export class MainComponent implements OnInit {
   faDatabase = faDatabase;
 
   public isLoggedIn = false;
+  public isAdminUser = false;
   public userProfile: KeycloakProfile | null = null;
 
-  constructor(private modalService: NgbModal, private readonly keycloak: KeycloakService) {
+  constructor(private modalService: NgbModal, public readonly keycloak: KeycloakService) {
     
     this.userList = [
       {
@@ -63,7 +64,8 @@ export class MainComponent implements OnInit {
 
   public async ngOnInit() {
     this.isLoggedIn = await this.keycloak.isLoggedIn();
-    console.log("ngOnInit() keycloak is logged in = "+this.isLoggedIn);
+    this.isAdminUser = this.keycloak.isUserInRole("Administrators");
+    console.log("ngOnInit() keycloak is logged in = "+this.isLoggedIn+" : isAdminUser = "+this.isAdminUser);
 
     if (this.isLoggedIn) {
       this.userProfile = await this.keycloak.loadUserProfile();
@@ -72,9 +74,7 @@ export class MainComponent implements OnInit {
 
   public login() {
     try {
-      console.log("login()");
       this.keycloak.login();
-
     }catch(error) {
       console.error("login() error = "+error);
       error.stack;

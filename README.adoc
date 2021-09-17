@@ -123,6 +123,10 @@ image::docs/images/demo_routes.png[]
 
 As seen in the list of routes created in the _user1_sepsisdetection_ namespace, the demo provides the following user interfaces and APIs:
 
+==== Red Hat SSO
+
+image::docs/images/rh-sso.png[]
+
 ==== Dashbuilder
 
 image::docs/images/dashbuilder_tasks.png[]
@@ -174,6 +178,127 @@ image::docs/images/sepsisui-home.png[]
 
 == Demo Scenario
 
+The demo scenario involves 3 different users each with different roles.
+
+An _Administrator_ starts a business process.
+A _doctor_ reviews the state of the business process and administers any tasks assigned to she/he .
+A _provider_ then administers any tasks assigned to she/he .
+
+=== Reset Demo
+
+. Point your browser to the output of the following command: 
++
+-----
+$ echo -en "\nhttps://$(oc get route sepsisdetection-ui -n user1-sepsisdetection --template='{{ .spec.host }}' )\n"
+-----
++
+image::docs/images/sepsisui-login.png[]
++
+Use credentials of:   _pamAdmin / pam_
+
+. Click the _Reset Demo_ button: 
++
+image::docs/images/sepsisui-admin-no-process.png[]
+
+. After a few seconds, there should be an active business process:
++
+image::docs/images/sepsisui-singleprocess.png[]
+
+. Click the _Log out_ button at the top right corner to log out as an Administrator.
+
+
+=== Doctors:   Administer Tasks
+
+. Log back into the Sepsis Detection UI as a _doctor_.
++
+Use credentials of:   _eve / pam_.
+
+
+. Click `Show/Hide Workflow`:
++
+image::docs/images/sepsisui-risk_assessment.png[]
++
+Notice the timer on the _Primary Doctor Evaluates Risk_ task.
+For the purpose of the demo, this timer is set to 1 minute.
+If not administered within 1 minute of creation, the workflow will automatically route to the _On Call Doctor Evaluates Risk_ task.
+
+. Click the `My Tasks` tab: 
++
+image::docs/images/sepsisui-singletask.png[]
+
+. On any of the tasks, click the _Open_ button and decide on an appropriate course of action.
++
+image::docs/images/sepsisui_risk_evaluation.png[]
+
+.. Select one of the options from the _Risk Evaluation Result_ drop-down.
+.. Click _Submit_.
+
+. Click the _Log out_ button at the top right corner to log out as a _doctor_.
+
+=== Providers:  Administer Tasks
+
+. Log back into the Sepsis Detection UI as a _provider_.
++
+Use credentials of:   _bob / pam_.
+
+. Similar to what you already did as a simualated _doctor_, manage the lifecycle of any tasks assigned to a _provider_.
+
+
+
+== Local containerized environment
+
+This project includes a _docker-compose_ config file that allows for deployment of the application as containers in your local environment.
+
+. Start application pod with all linux containers:
++
+-----
+$ docker-compose -f etc/docker-compose.yaml up -d
+-----
++
+NOTE:  If underlying linux container system in use in your local environment is podman, then follow this link:https://fedoramagazine.org/use-docker-compose-with-podman-to-orchestrate-containers-on-fedora/[set-up guide].
+
+. The following diagram depicts the containers instantiated as part of this pod:  
++
+image::docs/images/docker-compose-architecture.png[]
+
+
+. Post Debezium configs to kafka_connect container:
++
+-----
+$ curl -X POST \
+        -H "Accept:application/json" -H "Content-Type:application/json" \
+        localhost:8083/connectors/ \
+        -d "@etc/hapi-fhir/debezium-fhir-server-pgsql.json"
+-----
++
+NOTE:  This step is not needed when running the solution in OpenShift.  It's only needed when running the solution in a local containerized environmennt (ie:  docker-compose)
+
+. Stop application pod with all linux containers:
++
+-----
+$ docker-compose -f etc/docker-compose.yaml down
+-----
+
+. Test HAPI FHIR Server CORS headers using a _preflight_ request:
++
+-----
+$ curl -i -X OPTIONS -H "Origin: http://localhost:7080" \
+    -H 'Access-Control-Request-Method: POST' \
+    -H 'Access-Control-Request-Headers: Content-Type, Authorization' \
+    "http://localhost:8080/fhir"
+
+HTTP/1.1 200 
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET,POST,PUT,DELETE,OPTIONS,PATCH,HEAD
+Access-Control-Allow-Headers: Content-Type, Authorization
+Access-Control-Expose-Headers: Location, Content-Location
+-----
+
+== Test
+The sepsisdetection-rhpam deployment is enabled with the _kie_server_ as well as various endpoints that can consume FHIR payloads.
 
 === POST Patient to HAPI FHIR Server
 
@@ -186,7 +311,7 @@ The demo scenario starts by submitting an HTTP POST with a FHIR bundle (which in
 .. If testing environment deployed to OpenShift:
 +
 -----
-FHIR_SERVER_URL=https://$(oc get route fhir-server -n user1-sepsisdetection --template='{{ .spec.host }}')
+FHIR_SERVER_URL=http://$(oc get route fhir-server -n user1-sepsisdetection --template='{{ .spec.host }}')
 -----
 
 .. If testing environment deployed locally:
@@ -212,40 +337,6 @@ $ curl -X POST \
        $FHIR_SERVER_URL/fhir \
        -d "@sepsisdetection-rhpam/src/test/resources/fhir/ObservationPatientBundle.json"
 -----
-
-
-=== View and Administer SepsisDetection Human Tasks
-
-. Point your browser to the output of the following command: 
-+
------
-$ echo -en "\nhttps://$(oc get route sepsisdetection-ui -n user1-sepsisdetection --template='{{ .spec.host }}' )\n"
------
-+
-image::docs/images/sepsisui-singleprocess.png[]
-
-. Click `Show/Hide Workflow`:
-+
-image::docs/images/sepsisui-risk_assessment.png[]
-
-. Click the `My Tasks` tab: 
-+
-image::docs/images/sepsisui-singletask.png[]
-
-
-== my.healthflow.io notes
-
-HealthFlow was initially supposed to have been deployed on the kubeframe as part of the demo, but they couldn't get it containerized in time, so it was relegated to being displayed in that iFrame. 
-There's a container image out there for it, but it's monolithic and bulky, and we kind of shelved helping them with it for the time being. 
-It's based on a project called Meteor, and includes an embedded FHIR server with database instance, as well as some other stuff. Pretty heavy duty.
-
-Example URL: 
-
-https://my.healthflow.io/patient-chart?patientId=610f11c05b041e00082c54c2
-
-
-== Test
-The sepsisdetection-rhpam deployment is enabled with the _kie_server_ as well as various endpoints that can consume FHIR payloads.
 
 
 === SepsisDetection RHPAM
@@ -342,61 +433,6 @@ $ curl -H "Authorization: Bearer $TKN" \
 
 
 
-
-
-== Local containerized environment
-
-This project includes a _docker-compose_ config file that allows for deployment of the application as containers in your local environment.
-
-. Start application pod with all linux containers:
-+
------
-$ docker-compose -f etc/docker-compose.yaml up -d
------
-+
-NOTE:  If underlying linux container system in use in your local environment is podman, then follow this link:https://fedoramagazine.org/use-docker-compose-with-podman-to-orchestrate-containers-on-fedora/[set-up guide].
-
-. The following diagram depicts the containers instantiated as part of this pod:  
-+
-image::docs/images/docker-compose-architecture.png[]
-
-
-. Post Debezium configs to kafka_connect container:
-+
------
-$ curl -X POST \
-        -H "Accept:application/json" -H "Content-Type:application/json" \
-        localhost:8083/connectors/ \
-        -d "@etc/hapi-fhir/debezium-fhir-server-pgsql.json"
------
-+
-NOTE:  This step is not needed when running the solution in OpenShift.  It's only needed when running the solution in a local containerized environmennt (ie:  docker-compose)
-
-. Stop application pod with all linux containers:
-+
------
-$ docker-compose -f etc/docker-compose.yaml down
------
-
-. Test HAPI FHIR Server CORS headers using a _preflight_ request:
-+
------
-$ curl -i -X OPTIONS -H "Origin: http://localhost:7080" \
-    -H 'Access-Control-Request-Method: POST' \
-    -H 'Access-Control-Request-Headers: Content-Type, Authorization' \
-    "http://localhost:8080/fhir"
-
-HTTP/1.1 200 
-Vary: Origin
-Vary: Access-Control-Request-Method
-Vary: Access-Control-Request-Headers
-Access-Control-Allow-Origin: *
-Access-Control-Allow-Methods: GET,POST,PUT,DELETE,OPTIONS,PATCH,HEAD
-Access-Control-Allow-Headers: Content-Type, Authorization
-Access-Control-Expose-Headers: Location, Content-Location
------
-
-
 == Development
 
 === HAPI FHIR Server Development & Customizations
@@ -491,7 +527,17 @@ $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/rhpam/kie
 
 == Bug list
 
-. Decide what to do about integrating with Healthflow.io .  Maybe create a simulator
+. Decide what to do about integrating with Healthflow.io .
+Maybe create a simulator
++
+HealthFlow was initially supposed to have been deployed on the kubeframe as part of the demo, but they couldn't get it containerized in time, so it was relegated to being displayed in that iFrame. 
+There's a container image out there for it, but it's monolithic and bulky, and we kind of shelved helping them with it for the time being. 
+It's based on a project called Meteor, and includes an embedded FHIR server with database instance, as well as some other stuff. Pretty heavy duty.
++
+Example URL: 
++
+https://my.healthflow.io/patient-chart?patientId=610f11c05b041e00082c54c2
+
 . Persisting list of Observations as part of process instance variables caused problems when retrieving those pInstance variables and marshalling to json (so as to be rendered in sepsisdetection-ui ).
 
 == Operator notes
