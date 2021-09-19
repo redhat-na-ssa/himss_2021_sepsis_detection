@@ -14,13 +14,18 @@
         background: #0b2265;
         color: white;
     }
+    
+    .loginout{
+    height:40px;
+    width:120px;
+}
 </style>
 
 <div class="card" style="margin-top:20px;">
     <div>
         <div class="float-right">
-            <button *ngIf="isLoggedIn" type="button" (click)="logout()">Log out</button>
-            <button *ngIf="!isLoggedIn" type="button" (click)="login()">Log in</button>
+            <button *ngIf="isLoggedIn" type="button" (click)="logout()"><img  class="loginout" src="../../../assets/images/logout.jpg"></button>
+            <button *ngIf="!isLoggedIn" type="button" (click)="login()"><img  class="loginout" src="../../../assets/images/login.jpg"></button>
         </div>
         <div class="float-right" style="padding: 10px;"></div>
         <div class="float-right" *ngIf="userProfile">
