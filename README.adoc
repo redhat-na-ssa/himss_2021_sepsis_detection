@@ -598,7 +598,7 @@ deployment.apps/ansible-controller-manager created
 . Install HIMSS2021 resource
 +
 -----
-$ oc apply -f config/samples/cache_v1alpha1_himss2021.yaml
+$ oc apply -f config/samples/cache_v1alpha1_himss2021.yaml -n ansible-system
 -----
 
 . Acquire needed configs for use in RHPDS:

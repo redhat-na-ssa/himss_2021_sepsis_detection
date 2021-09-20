@@ -13,4 +13,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: quay.io/redhat_naps_da/sepsisdetection-operator
-  newTag: 0.0.5
+  newTag: 0.0.10
