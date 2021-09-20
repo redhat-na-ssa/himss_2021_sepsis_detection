@@ -1,0 +1,155 @@
+:scrollbar:
+:data-uri:
+:toc2:
+:linkattrs:
+
+= OIDC & CORS Enabled Workflow Applications
+
+:numbered:
+
+== Overview
+
+The link:https://github.com/redhat-naps-da/himss_interoperability_showcase_2021/blob/master/README.adoc[HIMSS demo] leverages the OpenID Connect (OIDC) protocol to secure the user interface and workflow engine of the demo.
+
+The purpose of this blog post is to deep-dive into the configurations that enable OIDC in the demo.  In particular, the learning objectives are as follows:
+
+1)  
+
+== Environment Variables
+To facilitate the commands listed in this blog, please execute the following to set environment variables: 
+
+-----
+SEPSISDETECTION_RHPAM_URL=https://$(oc get route sepsisdetection-rhpam -n user1-sepsisdetection --template='{{ .spec.host }}')
+RHSSO_URL=https://$(oc get route sso -n sepsisdetection-sso --template='{{ .spec.host }}')
+REALM_ID=user1-sepsis
+retrieve_token_url="$RHSSO_URL/auth/realms/$REALM_ID/protocol/openid-connect/token"
+FHIR_SERVER_URL=http://$(oc get route fhir-server -n user1-sepsisdetection --template='{{ .spec.host }}')
+-----
+
+== Sepsis Detection Workflow Roles
+
+
+. In Chrome or Brave, navigate to the link:https://github.com/redhat-naps-da/himss_interoperability_showcase_2021/blob/master/sepsisdetection-kjar/src/main/resources/com/demo/sepsis/sepsisdetection.bpmn[sepsisdetection.bpmn]
+
+. Click on any of the _Human Tasks_ in the business process and notice the assigned role at: _Properties -> Implementation / Execution -> Groups_
++
+image::images/task_property_group.png[]
+
+. Notice that some of the human tasks are assigned to users with a role of _doctor_.
+. Other human tasks are assigned to users with a role of _provider_.
+. In addition, all human tasks are implicitely assigned by default to users with a role of _Administrators_.  Related, all human tasks are also assigned by default to a user whose name is: _Administrator_.
++
+Doing so allows an administrator to view and manage the lifecycle of all human tasks.
+
+== RH-SSO Details
+
+You have seen how the Human Task of the _sepsis detection_ demo are assigned to users with roles of _doctor_, _provider_ and _Administrators_.
+
+In this section, you will review the SSO realm that provides User and Role management.
+
+This SSO realm is managed by the OpenID Connect provider of the demo:  RH-SSO.
+
+
+=== SSO Realm
+Login directly to the custom SSO realm used in the demo.  Details as follows: 
+
+.. *URL* : Execute the following
++
+-----
+$ echo -en "\n$RHSSO_URL/auth/admin/$REALM_ID/console\n"
+-----
+
+.. *userId* :  ssoRealmAdmin
+.. *password* : pam
++
+image::images/rh-sso.png[]
+
+=== User roles
+
+The SSO realm comes with users pre-configured with various roles to support the demo use case.  A list of users for each role can be determined as follows:
+
+... *Administrators* role
++
+View the list of _Administrators_ as follows: _user1-sepsis realm -> Configure -> Roles -> _Administrators_ -> Users in Role_
++
+image::images/business_admin_users.png[]
++
+By default, user task admins in RH-PAM are defined as users with the _Administrators_ role.
+
+... *Doctors role*
++
+View the list of _Doctors_ as follows: _user1-sepsis realm -> Configure -> Roles -> _Doctors_ -> Users in Role_
++
+image::images/doctors_role.png[]
+
+... *Providers* role
++
+View the list of _Providers_ as follows: _user1-sepsis realm -> Configure -> Roles -> _Providers_ -> Users in Role_
++
+image::images/providers_role.png[]
+
+... *Patients* role
++
+View the list of _Patients_ as follows: _user1-sepsis realm -> Configure -> Roles -> _Doctors_ -> Users in Role_
++
+image::images/patients_role.png[]
+
+=== SSO Client
+
+image::images/full_scope_allowed.png[]
+
+. Retrieve an OAuth2 token using the `kie-server` SSO client of the pre-configured SSO realm:
++
+-----
+TKN=$(curl -X POST "$retrieve_token_url" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "username=pamAdmin" \
+            -d "password=pam" \
+            -d "grant_type=password" \
+            -d "client_id=kie-server" \
+            | sed 's/.*access_token":"//g' | sed 's/".*//g')
+
+echo $TKN
+-----
+
+. By setting _fullScopeAllowed=true_ in SSO client, all roles assocated with an authenticated user will be included in the access token.
++
+These roles found in the access token can be visualized as follows:
++
+-----
+$ jq -R 'split(".") | .[1] | @base64d | fromjson' <<< $TKN | jq .realm_access.roles
+
+[
+  "interviewer",
+  "kie-server",
+  "user"
+]
+-----
+
+== RH-PAM Process Engine
+
+=== Keycloak Adapter
+
+link:https://github.com/redhat-naps-da/himss_interoperability_showcase_2021/blob/master/ansible/resources/sepsisdetection-rhpam/application.properties#L69-L77[keycloak adapter configs] in SpringBoot application.properties.
+
+=== UserGroupCallback
+
+link:https://github.com/kiegroup/droolsjbpm-integration/blob/main/kie-spring-boot/kie-spring-boot-autoconfiguration/jbpm-spring-boot-autoconfiguration/src/main/java/org/jbpm/springboot/security/SpringSecurityUserGroupCallback.java[SpringSecurityUserGroupCallback] is the default UserGroupCallback implementation when jbpm is deployed in SpringBoot.
+
+This default UserGroupCallback interacts with the embedded keycloak adapter to query the list of roles of an authenticated user.
+
+In the Sepsis Detection demo, this UserGroupCallback implementation is replaced with the following custom implementation:  _com.redhat.naps.process.KeycloakUserGroupCallback_.
+
+This custom implementation adds the following features:
+
+. Allows for restricting (via configuration) the list of potential valid roles that can be specified in a BPMN process (as per the link:https://github.com/redhat-naps-da/himss_interoperability_showcase_2021/blob/master/sepsisdetection-rhpam/src/main/java/com/redhat/naps/process/KeycloakUserGroupCallback.java#L55[existsGroup()] function).
+
+. Increased logging in the link:https://github.com/redhat-naps-da/himss_interoperability_showcase_2021/blob/master/sepsisdetection-rhpam/src/main/java/com/redhat/naps/process/KeycloakUserGroupCallback.java#L82-L84[getGroupsForUser()] function.
+
+== Reference
+
+. link:https://developers.redhat.com/blog/2020/09/22/troubleshooting-user-task-errors-in-red-hat-process-automation-manager-and-red-hat-jboss-bpm-suite#task_access_control[Troubleshooting User Task Errors in RH-PAM]
++
+September 2020, Anton Giertli .
++
+Very nice deep-dive on human task lifecycle 

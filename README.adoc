@@ -124,19 +124,7 @@ $ ansible-playbook playbooks/uninstall.yml
 
 image::docs/images/rh-sso.png[]
 
-Credentials for the _master_ realm of RH-SSO can be determined as follows:
 
-. *userId* : admin
-. *password* : execute the following from the command line:
-+
------
-$ echo -en "\n$(
-     oc get secret credential-rhsso -o json -n sepsisdetection-sso \
-     | jq .data.ADMIN_PASSWORD \
-     | sed 's/"//g' \
-     | base64 -d
-  )\n"
------
 
 ==== Dashbuilder
 
@@ -290,6 +278,79 @@ NOTE:  This step is not needed when running the solution in OpenShift.  It's onl
 $ docker-compose -f etc/docker-compose.yaml down
 -----
 
+
+== Test
+
+
+=== Environment Variables
+
+Set the following environment variables with values similar to the following:
+
+. If testing environment deployed locally:
++
+-----
+SEPSISDETECTION_RHPAM_URL=http://localhost:9080
+RHSSO_URL=http://localhost:4080
+REALM_ID=kieRealm
+retrieve_token_url="$RHSSO_URL/auth/realms/REALM_ID/protocol/openid-connect/token"
+FHIR_SERVER_URL=http://localhost:8080
+-----
+
+. If testing environment deployed to OpenShift:
++
+-----
+SEPSISDETECTION_RHPAM_URL=https://$(oc get route sepsisdetection-rhpam -n user1-sepsisdetection --template='{{ .spec.host }}')
+RHSSO_URL=https://$(oc get route sso -n sepsisdetection-sso --template='{{ .spec.host }}')
+REALM_ID=user1-sepsis
+retrieve_token_url="$RHSSO_URL/auth/realms/$REALM_ID/protocol/openid-connect/token"
+FHIR_SERVER_URL=http://$(oc get route fhir-server -n user1-sepsisdetection --template='{{ .spec.host }}')
+-----
+
+=== RH-SSO
+
+==== *Master* Realm
+
+You can also login directly to the custom SSO realm used in the demo.  Details as follows: 
+
+.. *userId* : admin
+.. *password* : execute the following from the command line:
++
+-----
+$ echo -en "\n$(
+     oc get secret credential-rhsso -o json -n sepsisdetection-sso \
+     | jq .data.ADMIN_PASSWORD \
+     | sed 's/"//g' \
+     | base64 -d
+  )\n"
+-----
+
+.. *url:*
++
+Using the credentials listed above, log into the _master_ realm of the RH-SSO server at the following URL: 
++
+-----
+$ echo -en "\n$RHSSO_URL\n"
+-----
+
+==== Demo Realm
+
+. You can also login directly to the custom SSO realm used in the demo.  Details as follows: 
+
+.. *URL*
++
+-----
+$ echo -en "\n$RHSSO_URL/auth/admin/$REALM_ID/console\n"
+-----
+
+.. *userId* :  ssoRealmAdmin
+.. *password* : pam
+
+
+=== HAPI FHIR Server
+
+The application includes a HAPI FHIR Server that exposes RESTful endpoints.
+
+
 . Test HAPI FHIR Server CORS headers using a _preflight_ request:
 +
 -----
@@ -308,28 +369,6 @@ Access-Control-Allow-Headers: Content-Type, Authorization
 Access-Control-Expose-Headers: Location, Content-Location
 -----
 
-== Test
-The sepsisdetection-rhpam deployment is enabled with the _kie_server_ as well as various endpoints that can consume FHIR payloads.
-
-=== POST Patient to HAPI FHIR Server
-
-The application includes a HAPI FHIR Server that exposes RESTful endpoints.
-
-The demo scenario starts by submitting an HTTP POST with a FHIR bundle (which includes a FHIR R4 Patient) to the HAPI FHIR Server. 
-
-. Set FHIR_SERVER_URL env var:
-
-.. If testing environment deployed to OpenShift:
-+
------
-FHIR_SERVER_URL=http://$(oc get route fhir-server -n user1-sepsisdetection --template='{{ .spec.host }}')
------
-
-.. If testing environment deployed locally:
-+
------
-FHIR_SERVER_URL=http://localhost:8080
------
 
 . POST Demo Observation to FHIR server
 +
@@ -352,26 +391,9 @@ $ curl -X POST \
 
 === SepsisDetection RHPAM
 
-. Set the following environment variables with values similar to the following:
-.. If testing environment deployed locally:
-+
------
-SEPSISDETECTION_RHPAM_URL=http://localhost:9080
-RHSSO_URL=http://localhost:4080
-REALM_ID=kieRealm
-retrieve_token_url="$RHSSO_URL/auth/realms/REALM_ID/protocol/openid-connect/token"
------
+The sepsisdetection-rhpam deployment is enabled with the _kie_server_ as well as various endpoints that can consume FHIR payloads.
 
-.. If testing environment deployed to OpenShift:
-+
------
-SEPSISDETECTION_RHPAM_URL=https://$(oc get route sepsisdetection-rhpam -n user1-sepsisdetection --template='{{ .spec.host }}')
-RHSSO_URL=https://$(oc get route sso -n sepsisdetection-sso --template='{{ .spec.host }}')
-REALM_ID=user1-sepsis
-retrieve_token_url="$RHSSO_URL/auth/realms/$REALM_ID/protocol/openid-connect/token"
------
-
-. Retrieve an OAuth2 token using the `kie-server` SSO client of `kieRealm`:
+. Retrieve an OAuth2 token using the `kie-server` SSO client of the pre-configured SSO realm:
 +
 -----
 TKN=$(curl -X POST "$retrieve_token_url" \
