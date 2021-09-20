@@ -31,10 +31,15 @@
     files:
       - "{{ work_dir }}/{{ binary_imagestream_template }}"
 
+- name: retrieve sso route
+  shell: "{{ openshift_cli }} get route sso -o jsonpath='{.spec.host}' -n {{ namespace_sso }}"
+  register: sso_route_cmd
+
 - name: set env var facts
   set_fact:
     sepsisdetection_rhpam_hostname: "{{ sepsisdetection_rhpam_app_name }}-{{ project_name }}.{{ ocp_domain }}"
     fhir_server_application_hostname: "{{ fhir_server_application_name }}-{{ project_name }}.{{ ocp_domain }}"
+    sso_url: "https://{{ sso_route_cmd.stdout }}"
 
 - name: copy env.js file to work directory
   template:

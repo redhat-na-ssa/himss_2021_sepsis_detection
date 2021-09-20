@@ -2,6 +2,9 @@
 (function(window) {
   window._env = window._env || {};
 
+  window._env.KEYCLOAK_URL = "{{ sso_url }}";
+  window._env.SSO_REALM = "{{ sso_realm_id }}";
+  window._env.SSO_CLIENT = "{{ sso_clientId }}";
   window._env.KIE_SERVER_URL = "https://{{ sepsisdetection_rhpam_hostname }}";
   window._env.KIE_SERVER_USERID = "kieserver";
   window._env.KIE_SERVER_PASSWORD = "{{ sepsisdetection_rhpam_api_passwd }}";

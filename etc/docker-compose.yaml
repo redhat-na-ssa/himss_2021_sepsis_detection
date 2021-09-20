@@ -200,7 +200,7 @@ services:
 #      - default
 
 #  sepsisdetection-rhpam:
-#    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.5
+#    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.6
 #    restart: always
 #    ports:
 #      - "9080:9080"
@@ -225,7 +225,7 @@ services:
 #      - psql_rhpam
 
 #  sepsis_ui:
-#    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.9
+#    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.10
 #    restart: always
 #    ports:
 #      - "7080:7080"

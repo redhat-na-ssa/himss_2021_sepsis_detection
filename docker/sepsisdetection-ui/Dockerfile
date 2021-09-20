@@ -1,6 +1,6 @@
-#  Build:  buildah bud -f docker/sepsisdetection-ui/Dockerfile -t quay.io/redhat_naps_da/sepsisdetection-ui:0.0.9 sepsisdetection-ui
-#  Push:   podman push quay.io/redhat_naps_da/sepsisdetection-ui:0.0.9
-#  Run  :  podman run -it -p 70.0.8080 --rm quay.io/redhat_naps_da/sepsisdetection-ui:0.0.9
+#  Build:  buildah bud -f docker/sepsisdetection-ui/Dockerfile -t quay.io/redhat_naps_da/sepsisdetection-ui:0.0.10 sepsisdetection-ui
+#  Push:   podman push quay.io/redhat_naps_da/sepsisdetection-ui:0.0.10
+#  Run  :  podman run -it -p 70.0.8080 --rm quay.io/redhat_naps_da/sepsisdetection-ui:0.0.10
 
 
 # Stage 1: Compile and Build angular codebase

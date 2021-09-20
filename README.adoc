@@ -117,15 +117,26 @@ localhost                  :  ok=137  changed=77   unreachable=0    failed=0    
 $ ansible-playbook playbooks/uninstall.yml
 -----
 
-== User Interfaces
+== Demo Components
 
-image::docs/images/demo_routes.png[]
-
-As seen in the list of routes created in the _user1_sepsisdetection_ namespace, the demo provides the following user interfaces and APIs:
 
 ==== Red Hat SSO
 
 image::docs/images/rh-sso.png[]
+
+Credentials for the _master_ realm of RH-SSO can be determined as follows:
+
+. *userId* : admin
+. *password* : execute the following from the command line:
++
+-----
+$ echo -en "\n$(
+     oc get secret credential-rhsso -o json -n sepsisdetection-sso \
+     | jq .data.ADMIN_PASSWORD \
+     | sed 's/"//g' \
+     | base64 -d
+  )\n"
+-----
 
 ==== Dashbuilder
 
@@ -347,13 +358,17 @@ $ curl -X POST \
 -----
 SEPSISDETECTION_RHPAM_URL=http://localhost:9080
 RHSSO_URL=http://localhost:4080
-retrieve_token_url="$RHSSO_URL/auth/realms/kieRealm/protocol/openid-connect/token"
+REALM_ID=kieRealm
+retrieve_token_url="$RHSSO_URL/auth/realms/REALM_ID/protocol/openid-connect/token"
 -----
 
 .. If testing environment deployed to OpenShift:
 +
 -----
 SEPSISDETECTION_RHPAM_URL=https://$(oc get route sepsisdetection-rhpam -n user1-sepsisdetection --template='{{ .spec.host }}')
+RHSSO_URL=https://$(oc get route sso -n sepsisdetection-sso --template='{{ .spec.host }}')
+REALM_ID=user1-sepsis
+retrieve_token_url="$RHSSO_URL/auth/realms/$REALM_ID/protocol/openid-connect/token"
 -----
 
 . Retrieve an OAuth2 token using the `kie-server` SSO client of `kieRealm`:

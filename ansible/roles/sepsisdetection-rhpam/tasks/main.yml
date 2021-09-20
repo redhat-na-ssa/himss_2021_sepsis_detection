@@ -1,6 +1,6 @@
 ---
 
-#######    Fhir Server Database    ##################
+#######    RH-PAM Database    ##################
 
 - name: "create {{ postgresql_service_account }} service account in {{ namespace }}"
   oc_serviceaccount:
@@ -78,7 +78,7 @@
 ###########################################################
 
 
-########    FHIR Server    #############
+########    RH-PAM Server    #############
 - name: create {{ service_account }} service account for {{ application_name }} application
   oc_serviceaccount:
     oc_binary: "{{ openshift_cli }}"
@@ -100,6 +100,13 @@
   file:
     path: "{{ work_dir }}/{{ application_name }}"
     state: directory
+
+- name: retrieve sso route
+  shell: "{{ openshift_cli }} get route sso -o jsonpath='{.spec.host}' -n {{ namespace_sso }}"
+  register: sso_route_cmd
+
+- set_fact:
+    sso_url: "https://{{ sso_route_cmd.stdout }}"
 
 - name: copy config files to work directory
   template:

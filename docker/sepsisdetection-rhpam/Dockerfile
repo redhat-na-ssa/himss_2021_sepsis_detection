@@ -1,6 +1,6 @@
 # mvn clean package
-# buildah bud -f docker/sepsisdetection-rhpam/Dockerfile -t quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.5 sepsisdetection-rhpam
-# podman push quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.5
+# buildah bud -f docker/sepsisdetection-rhpam/Dockerfile -t quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.6 sepsisdetection-rhpam
+# podman push quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.6
 
 # https://github.com/Emergency-Response-Demo/container-images/tree/master/ubi8-java11-mvn
 FROM quay.io/emergencyresponsedemo/ubi8-jdk-11-mvn:0.0.2

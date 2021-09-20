@@ -48,6 +48,7 @@
     sso_admin_user: "{{ sso_admin_credentials.ansible_module_results.decoded[\"ADMIN_USERNAME\"] }}"
     sso_admin_password: "{{ sso_admin_credentials.ansible_module_results.decoded[\"ADMIN_PASSWORD\"] }}"
     sso_url: "https://{{ sso_route_cmd.stdout }}"
+    sepsis_ui_route_url: "https://{{ sepsisdetection_ui_app_name }}-{{ project_name }}.{{ ocp_domain }}"
 
 - name: get admin token
   uri:
@@ -68,16 +69,6 @@
   template:
     src: "{{ sso_realm_template }}"
     dest: "{{ work_dir }}/{{ sso_realm_id }}.json"
-
-- name: copy siteadmin template
-  template:
-    src: "{{ siteadmin_template }}"
-    dest: "{{ work_dir }}/siteadmin-user.json"
-
-- name: copy json to add role to siteadmin
-  template:
-    src: "{{ siteadmin_add_role }}"
-    dest: "{{ work_dir }}/add-role-to-siteadmin.json"
 
 - name: check if {{ sso_realm_id }} exists
   uri:
@@ -102,37 +93,6 @@
     status_code: 201
     validate_certs: no
   when: result.status == 404
-
-- name: create siteadmin user
-  uri:
-    url: "{{ sso_url }}/auth/admin/realms/{{ sso_realm_id }}/users"
-    method: POST
-    headers:
-      Authorization: Bearer {{ admin_token }}
-      Content-Type: application/json
-    body: "{{ lookup('file', work_dir + '/siteadmin-user.json') }}"
-    body_format: json
-    status_code: 201,409
-    validate_certs: no
-  register: commander_creation
-
-- name: set siteadmin user id fact
-  set_fact: 
-    siteadmin_user_id: "{{ commander_creation.location | regex_replace('^.*/users/(.*)$', '\\1') }}"
-  when: commander_creation.status == 201
-
-- name: add role to siteadmin user
-  uri:
-    url: "{{ sso_url }}/auth/admin/realms/{{ sso_realm_id }}/users/{{ siteadmin_user_id }}/role-mappings/realm"
-    method: POST
-    headers:
-      Authorization: Bearer {{ admin_token }}
-      Content-Type: application/json
-    body: "{{ lookup('file', work_dir + '/add-role-to-siteadmin.json') }}"
-    body_format: json
-    status_code: 204  
-    validate_certs: no
-  when: commander_creation.status == 201
 
 - name: get rhsso realm certs
   uri:
@@ -183,4 +143,4 @@
       KEYCLOAK: "true"
       PUBLIC_KEY: "{{ lookup('file', work_dir + '/sso_public_key.txt') }}"
       REALM: "{{ sso_realm_id }}"
-      CLIENTID: "{{ sso_js_clientId }}"
+      CLIENTID: "{{ sso_clientId }}"
