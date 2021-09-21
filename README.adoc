@@ -393,7 +393,7 @@ $ curl -X POST \
 
 The sepsisdetection-rhpam deployment is enabled with the _kie_server_ as well as various endpoints that can consume FHIR payloads.
 
-. Retrieve an OAuth2 token using the `kie-server` SSO client of the pre-configured SSO realm:
+. Retrieve an OAuth2 token using the `sepsisdetection` SSO client of the pre-configured SSO realm:
 +
 -----
 TKN=$(curl -X POST "$retrieve_token_url" \
@@ -401,7 +401,7 @@ TKN=$(curl -X POST "$retrieve_token_url" \
             -d "username=pamAdmin" \
             -d "password=pam" \
             -d "grant_type=password" \
-            -d "client_id=kie-server" \
+            -d "client_id=sepsisdetection" \
             | sed 's/.*access_token":"//g' | sed 's/".*//g')
 
 echo $TKN

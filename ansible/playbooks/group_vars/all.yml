@@ -27,7 +27,7 @@ set_realm_admin_as_default: false
 
 sso_realm_id: "{{ project_admin }}-sepsis"
 
-sso_clientId: kie-server
+sso_clientId: sepsisdetection
 
 
 # The following two options are allowed:
