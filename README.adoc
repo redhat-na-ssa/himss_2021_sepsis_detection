@@ -94,6 +94,9 @@ $ cd ansible
 . Deploy to OpenShift:
 +
 -----
+NOTE: If you are running the install from a Mac, it will be necessary to manually create the user1-sepsisdetection namespace prior to the step below.
+-----
+-----
 $ ansible-playbook playbooks/install.yml
 -----
 
