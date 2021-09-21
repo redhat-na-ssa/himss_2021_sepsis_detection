@@ -41,6 +41,15 @@
 
 
   <dependencies>
+
+    <!-- SSO -->
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-spring-boot-starter</artifactId>
+    </dependency>
+
+
+    <!-- BPMN and rules artifacts -->
     <dependency>
       <groupId>com.redhat.naps</groupId>
       <artifactId>sepsisdetection-kjar</artifactId>
@@ -87,12 +96,6 @@
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
 
-
-    <!-- SSO -->
-    <dependency>
-      <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-spring-boot-starter</artifactId>
-    </dependency>
 
     <!-- database persistence -->
     <dependency>

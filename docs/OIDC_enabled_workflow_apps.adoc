@@ -3,7 +3,7 @@
 :toc2:
 :linkattrs:
 
-= OIDC & CORS Enabled Workflow Applications
+= OIDC & CORS Enabled Workflow Apps
 
 :numbered:
 
@@ -11,9 +11,13 @@
 
 The link:https://github.com/redhat-naps-da/himss_interoperability_showcase_2021/blob/master/README.adoc[HIMSS demo] leverages the OpenID Connect (OIDC) protocol to secure the user interface and workflow engine of the demo.
 
-The purpose of this blog post is to deep-dive into the configurations that enable OIDC in the demo.  In particular, the learning objectives are as follows:
+The purpose of this tutorial is to deep-dive into the configurations that enable OIDC and CORS in the demo.  In particular, the learning objectives are as follows:
 
-1)  
+.  Understand the relevance of the _Full Scope Allowed_ config in an SSO client to a BPM workflow application.
+
+. Understand the relevance of a _UserGroupCallback_ implementation.
+
+. Understand where to enable CORS when using RH-SSO and RH-PAM.
 
 == Environment Variables
 To facilitate the commands listed in this blog, please execute the following to set environment variables: 
@@ -41,7 +45,7 @@ image::images/task_property_group.png[]
 +
 Doing so allows an administrator to view and manage the lifecycle of all human tasks.
 
-== RH-SSO Details
+== RH-SSO
 
 You have seen how the Human Task of the _sepsis detection_ demo are assigned to users with roles of _doctor_, _provider_ and _Administrators_.
 
@@ -96,9 +100,43 @@ image::images/patients_role.png[]
 
 === SSO Client
 
+==== Token Flows
+The SSO _client_ used to gain an OIDC _access token_ by all other services in the demo is called:  _kie-server_.
+
+. Navigate to this client in the RH-SSO admin portal.
+
+. Notice that this sso _client_ allows for acquiring a token via the following _flows_ : 
+
+.. *Authorization Flow Code*
++
+Most useful for single page web-app (ie:  such as the _sepsis detection ui_) to acquire an access token.
++
+Enabled in the sso _client_ via the _Standard Flow Enabled_ checkbox.
+
+.. *Resource Owner Password Credentials*
++
+Most useful for a test client such as the _curl_ utility (as used in this tutorial).
++
+Enabled in the sso _client_ via the _Direct Access Grant Enabled_ checkbox.
+
+==== CORS
+
+image::images/sso_cors.png[]
+
+==== Access Token roles
+
+To support security related requirements in a workflow, it is critical that the _roles_ associated with an authenticated user are included in the SSO access token.
+
+. In RH-SSO, all roles associated with a user can be included in an access token by enabling _Full Scope Allowed_ on the SSO client.
++
+Do so by navigating as follows in the Admin Portal of RH-SSO:
++
+user1-sepsis realm -> configure -> clients -> kie-server -> Scope -> Full Scope Allowed .
++
 image::images/full_scope_allowed.png[]
 
-. Retrieve an OAuth2 token using the `kie-server` SSO client of the pre-configured SSO realm:
+. Test
+.. Retrieve an OAuth2 token using the `kie-server` SSO client of the pre-configured SSO realm:
 +
 -----
 TKN=$(curl -X POST "$retrieve_token_url" \
@@ -112,7 +150,7 @@ TKN=$(curl -X POST "$retrieve_token_url" \
 echo $TKN
 -----
 
-. By setting _fullScopeAllowed=true_ in SSO client, all roles assocated with an authenticated user will be included in the access token.
+.. By setting _fullScopeAllowed=true_ in SSO client, all roles assocated with an authenticated user will be included in the access token.
 +
 These roles found in the access token can be visualized as follows:
 +
@@ -126,25 +164,58 @@ $ jq -R 'split(".") | .[1] | @base64d | fromjson' <<< $TKN | jq .realm_access.ro
 ]
 -----
 
-== RH-PAM Process Engine
+.. Repeat the above with a different user.  What roles are listed in the access token for the user you used to authenticate ?
+
+.. Disable the _Full Scope Allowed_ config of the SSO client.  What roles are now available in the access token ?
++
+NOTE:  Be sure to re-enable this config after done experimenting.
+
+== RH-PAM Process Engine & KIE Server
+
+Security in RH-PAM typically involves AuthN and AuthZ of the _kie-server_ RESTful APIs.  In addition, roles associated with an authenticated user are typically utilized to determine access and updates to an human tasks in a workflow process.
+
+The _sepsisdetection-rhpam_ component of the demo integrates with RH-SSO.
+
+In this section of the tutorial, you unpack all configs and code related to this integration.
 
 === Keycloak Adapter
 
-link:https://github.com/redhat-naps-da/himss_interoperability_showcase_2021/blob/master/ansible/resources/sepsisdetection-rhpam/application.properties#L69-L77[keycloak adapter configs] in SpringBoot application.properties.
+A _keycloak adapter_ is loaded at runtime in the SpringBoot based _sepsisdetection-rhpam_ component.  When an external client invokes the _kie-server_ RESTful APIs, the keycloak adapter verifies that that the _bearer_ token included in the request is valid.
+
+The _keycloak_ adapter is enabled via the following: 
+
+. Definiing a _org.keycloak:keycloak-spring-boot-starter_ dependency in the _pom.xml_ of the project.
+
+. link:https://github.com/redhat-naps-da/himss_interoperability_showcase_2021/blob/master/ansible/resources/sepsisdetection-rhpam/application.properties#L69-L77[keycloak adapter configs] in SpringBoot application.properties.
 
 === UserGroupCallback
 
-link:https://github.com/kiegroup/droolsjbpm-integration/blob/main/kie-spring-boot/kie-spring-boot-autoconfiguration/jbpm-spring-boot-autoconfiguration/src/main/java/org/jbpm/springboot/security/SpringSecurityUserGroupCallback.java[SpringSecurityUserGroupCallback] is the default UserGroupCallback implementation when jbpm is deployed in SpringBoot.
+An important aspect of dealing with user tasks is task access control. If you want to execute a task-related action, the user must be eligible to execute that action. For a user to be eligible, the process engine must consider that user to be a potential owner of the task.  The component that plays a vital role in checking task access is UserGroupCallback. It's a simple interface, and jBPM allows you to plug in various (even custom) implementations.
 
-This default UserGroupCallback interacts with the embedded keycloak adapter to query the list of roles of an authenticated user.
+link:https://github.com/kiegroup/droolsjbpm-integration/blob/main/kie-spring-boot/kie-spring-boot-autoconfiguration/jbpm-spring-boot-autoconfiguration/src/main/java/org/jbpm/springboot/security/SpringSecurityUserGroupCallback.java[SpringSecurityUserGroupCallback] is the default UserGroupCallback implementation when the _RH-PAM_ process engine is deployed in SpringBoot.  This default UserGroupCallback is able to access the list of roles found in a valid OIDC _access token_.  For most needs, this UserGroupCallback implementation is sufficient.
 
-In the Sepsis Detection demo, this UserGroupCallback implementation is replaced with the following custom implementation:  _com.redhat.naps.process.KeycloakUserGroupCallback_.
-
-This custom implementation adds the following features:
+In the Sepsis Detection demo, this UserGroupCallback implementation is replaced with the following custom implementation:  _com.redhat.naps.process.KeycloakUserGroupCallback_.  This custom implementation adds the following features:
 
 . Allows for restricting (via configuration) the list of potential valid roles that can be specified in a BPMN process (as per the link:https://github.com/redhat-naps-da/himss_interoperability_showcase_2021/blob/master/sepsisdetection-rhpam/src/main/java/com/redhat/naps/process/KeycloakUserGroupCallback.java#L55[existsGroup()] function).
 
 . Increased logging in the link:https://github.com/redhat-naps-da/himss_interoperability_showcase_2021/blob/master/sepsisdetection-rhpam/src/main/java/com/redhat/naps/process/KeycloakUserGroupCallback.java#L82-L84[getGroupsForUser()] function.
+
+This custom UserGroupCallback is injected via the link:https://github.com/redhat-naps-da/himss_interoperability_showcase_2021/blob/master/sepsisdetection-rhpam/src/main/java/com/redhat/naps/process/KeycloakWebSecurityConfig.java#L129-L132[keycloakWebSecurityConfig] (discussed in the next section).
+
+=== KeycloakWebSecurityConfigurerAdapter
+
+When integrating with RH-SSO, a SpringBoot application requires a Component that extends:  _org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter_.  
+
+In the Sepsis Detection Demo, the link:https://github.com/redhat-naps-da/himss_interoperability_showcase_2021/blob/master/sepsisdetection-rhpam/src/main/java/com/redhat/naps/process/KeycloakWebSecurityConfig.java#L129-L132[KeycloakWebSecurityConfig] serves this purpose.
+
+This class implements the following: 
+
+.. Using the _keycloak_ prefixed SpringBoot properties, injects the _keycloak_ adapter into the application.
+
+.. Enables CORS headers in the responses back to clients invoking the _kie-server_ RESTful APIs.
+
+
+== Sepsis Detection UI
 
 == Reference
 
