@@ -1,36 +1,8 @@
-<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:bpsim="http://www.bpsim.org/schemas/1.0" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:drools="http://www.jboss.org/drools" id="_Ud_ksP1hEDmM7MBDiXDhAA" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.jboss.org/drools drools.xsd http://www.bpsim.org/schemas/1.0 bpsim.xsd http://www.omg.org/spec/DD/20100524/DC DC.xsd http://www.omg.org/spec/DD/20100524/DI DI.xsd " exporter="jBPM Process Modeler" exporterVersion="2.0" targetNamespace="http://www.omg.org/bpmn20">
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:bpsim="http://www.bpsim.org/schemas/1.0" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:drools="http://www.jboss.org/drools" id="_SzOSEP27EDmBMNuWmIhTZQ" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.jboss.org/drools drools.xsd http://www.bpsim.org/schemas/1.0 bpsim.xsd http://www.omg.org/spec/DD/20100524/DC DC.xsd http://www.omg.org/spec/DD/20100524/DI DI.xsd " exporter="jBPM Process Modeler" exporterVersion="2.0" targetNamespace="http://www.omg.org/bpmn20">
   <bpmn2:itemDefinition id="_riskevaluvationResultItem" structureRef="String"/>
   <bpmn2:itemDefinition id="_patientItem" structureRef="org.hl7.fhir.r4.model.Patient"/>
   <bpmn2:itemDefinition id="_riskAssessmentItem" structureRef="org.hl7.fhir.r4.model.RiskAssessment"/>
   <bpmn2:itemDefinition id="_dispositionResultItem" structureRef="String"/>
-  <bpmn2:itemDefinition id="__E8A16633-BED8-41B7-915D-3400F2053137_SkippableInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__E8A16633-BED8-41B7-915D-3400F2053137_PriorityInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__E8A16633-BED8-41B7-915D-3400F2053137_CommentInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__E8A16633-BED8-41B7-915D-3400F2053137_DescriptionInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__E8A16633-BED8-41B7-915D-3400F2053137_CreatedByInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__E8A16633-BED8-41B7-915D-3400F2053137_TaskNameInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__E8A16633-BED8-41B7-915D-3400F2053137_GroupIdInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__E8A16633-BED8-41B7-915D-3400F2053137_ContentInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__E8A16633-BED8-41B7-915D-3400F2053137_NotStartedReassignInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__E8A16633-BED8-41B7-915D-3400F2053137_NotCompletedReassignInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__E8A16633-BED8-41B7-915D-3400F2053137_NotStartedNotifyInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__E8A16633-BED8-41B7-915D-3400F2053137_NotCompletedNotifyInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__E8A16633-BED8-41B7-915D-3400F2053137_patientInputXItem" structureRef="org.hl7.fhir.r4.model.Patient"/>
-  <bpmn2:itemDefinition id="__E8A16633-BED8-41B7-915D-3400F2053137_dispositionResultOutputXItem" structureRef="String"/>
-  <bpmn2:itemDefinition id="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_SkippableInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_PriorityInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_CommentInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_DescriptionInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_CreatedByInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_TaskNameInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_GroupIdInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_ContentInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_NotStartedReassignInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_NotCompletedReassignInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_NotStartedNotifyInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_NotCompletedNotifyInputXItem" structureRef="Object"/>
-  <bpmn2:itemDefinition id="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_patientInputXItem" structureRef="org.hl7.fhir.r4.model.Patient"/>
-  <bpmn2:itemDefinition id="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_dispositionResultOutputXItem" structureRef="String"/>
   <bpmn2:process id="highmediummitigation" drools:packageName="com.redhat.naps" drools:version="1.0" drools:adHoc="true" name="HighMediumMitigation" isExecutable="true" processType="Public">
     <bpmn2:property id="riskevaluvationResult" itemSubjectRef="_riskevaluvationResultItem" name="riskevaluvationResult"/>
     <bpmn2:property id="patient" itemSubjectRef="_patientItem" name="patient"/>
@@ -82,6 +54,17 @@ if(!result.equals("Forward"))
 else
   return false;  ]]></bpmn2:conditionExpression>
     </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="_79FD75AA-AC97-422F-AEFB-5A09456FD381" name="Provider Provides Disposition" sourceRef="_4C696DC9-743B-4CFF-861F-EF7B77FBBE8B" targetRef="_E2631ACC-E8D2-4032-A3C8-A2ECDAB5CCA2">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[Provider Provides Disposition]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" language="http://www.java.com/java"><![CDATA[return true;]]></bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="_A41882A1-966B-475D-8D60-CFF90C7B96F1" sourceRef="_4C696DC9-743B-4CFF-861F-EF7B77FBBE8B" targetRef="_2A5C238D-BF12-4DF2-A129-862ADFCAB63E">
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" language="http://www.java.com/java"><![CDATA[return false;]]></bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
     <bpmn2:sequenceFlow id="_AD6F65EA-1C1E-4B6A-97BE-52D601C2D6DA" name="Forward to On-Call Provider" sourceRef="_E2631ACC-E8D2-4032-A3C8-A2ECDAB5CCA2" targetRef="_2A5C238D-BF12-4DF2-A129-862ADFCAB63E">
       <bpmn2:extensionElements>
         <drools:metaData name="elementname">
@@ -102,13 +85,7 @@ else
         </drools:metaData>
       </bpmn2:extensionElements>
     </bpmn2:sequenceFlow>
-    <bpmn2:sequenceFlow id="_79FD75AA-AC97-422F-AEFB-5A09456FD381" name="Provider Provides Disposition" sourceRef="_E8A16633-BED8-41B7-915D-3400F2053137" targetRef="_E2631ACC-E8D2-4032-A3C8-A2ECDAB5CCA2">
-      <bpmn2:extensionElements>
-        <drools:metaData name="elementname">
-          <drools:metaValue><![CDATA[Provider Provides Disposition]]></drools:metaValue>
-        </drools:metaData>
-      </bpmn2:extensionElements>
-    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="_565824E1-C28B-41EF-900C-D8951AB817DA" sourceRef="_E8A16633-BED8-41B7-915D-3400F2053137" targetRef="_4C696DC9-743B-4CFF-861F-EF7B77FBBE8B"/>
     <bpmn2:sequenceFlow id="_B8E15341-3F35-4166-B09D-370A64895C8D" sourceRef="_BC6A9584-7EA8-4E24-9F03-7AB45D4309B9" targetRef="_DDA71AD4-9783-4FEC-80F0-58DDC9E97429">
       <bpmn2:extensionElements>
         <drools:metaData name="isAutoConnection.source">
@@ -137,7 +114,11 @@ else
       </bpmn2:extensionElements>
     </bpmn2:sequenceFlow>
     <bpmn2:sequenceFlow id="_86009FEE-278C-4BBD-A4C0-2B93C3BA3AFA" sourceRef="_054D3BA9-9970-42C3-9328-E57CB74B78F0" targetRef="_E8A16633-BED8-41B7-915D-3400F2053137"/>
-    <bpmn2:sequenceFlow id="_AAE23A23-1561-4DB2-9069-3088C7E3483E" sourceRef="_6546E8A6-C904-4715-B71A-5112D0DAB3BD" targetRef="_2A5C238D-BF12-4DF2-A129-862ADFCAB63E"/>
+    <bpmn2:exclusiveGateway id="_4C696DC9-743B-4CFF-861F-EF7B77FBBE8B" gatewayDirection="Diverging">
+      <bpmn2:incoming>_565824E1-C28B-41EF-900C-D8951AB817DA</bpmn2:incoming>
+      <bpmn2:outgoing>_A41882A1-966B-475D-8D60-CFF90C7B96F1</bpmn2:outgoing>
+      <bpmn2:outgoing>_79FD75AA-AC97-422F-AEFB-5A09456FD381</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
     <bpmn2:exclusiveGateway id="_836D1BD1-0996-48BE-96A7-3D796F9AD3B6" name="Arrange   for &#10;Hospital Transfer?" gatewayDirection="Diverging">
       <bpmn2:extensionElements>
         <drools:metaData name="elementname">
@@ -196,11 +177,11 @@ Patient Disposition]]></drools:metaValue>
           <drools:metaValue><![CDATA[Send Request to On-Call Care Team]]></drools:metaValue>
         </drools:metaData>
       </bpmn2:extensionElements>
-      <bpmn2:incoming>_AAE23A23-1561-4DB2-9069-3088C7E3483E</bpmn2:incoming>
       <bpmn2:incoming>_AD6F65EA-1C1E-4B6A-97BE-52D601C2D6DA</bpmn2:incoming>
+      <bpmn2:incoming>_A41882A1-966B-475D-8D60-CFF90C7B96F1</bpmn2:incoming>
       <bpmn2:outgoing>_88E609C4-852D-4619-8AD5-CF675A2AA96F</bpmn2:outgoing>
     </bpmn2:exclusiveGateway>
-    <bpmn2:userTask id="_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9" name="Escalation Licensed Provider Disposition">
+    <bpmn2:scriptTask id="_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9" name="Escalation Licensed Provider Disposition" scriptFormat="http://www.java.com/java">
       <bpmn2:extensionElements>
         <drools:metaData name="elementname">
           <drools:metaValue><![CDATA[Escalation Licensed Provider Disposition]]></drools:metaValue>
@@ -208,106 +189,18 @@ Patient Disposition]]></drools:metaValue>
       </bpmn2:extensionElements>
       <bpmn2:incoming>_88E609C4-852D-4619-8AD5-CF675A2AA96F</bpmn2:incoming>
       <bpmn2:outgoing>_B91BFE2D-1C02-4AA3-9BB0-9205F5CFA941</bpmn2:outgoing>
-      <bpmn2:ioSpecification>
-        <bpmn2:dataInput id="_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_TaskNameInputX" drools:dtype="Object" itemSubjectRef="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_TaskNameInputXItem" name="TaskName"/>
-        <bpmn2:dataInput id="_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_patientInputX" drools:dtype="org.hl7.fhir.r4.model.Patient" itemSubjectRef="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_patientInputXItem" name="patient"/>
-        <bpmn2:dataInput id="_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_SkippableInputX" drools:dtype="Object" itemSubjectRef="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_SkippableInputXItem" name="Skippable"/>
-        <bpmn2:dataInput id="_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_GroupIdInputX" drools:dtype="Object" itemSubjectRef="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_GroupIdInputXItem" name="GroupId"/>
-        <bpmn2:dataOutput id="_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_dispositionResultOutputX" drools:dtype="String" itemSubjectRef="__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_dispositionResultOutputXItem" name="dispositionResult"/>
-        <bpmn2:inputSet>
-          <bpmn2:dataInputRefs>_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_TaskNameInputX</bpmn2:dataInputRefs>
-          <bpmn2:dataInputRefs>_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_patientInputX</bpmn2:dataInputRefs>
-          <bpmn2:dataInputRefs>_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_SkippableInputX</bpmn2:dataInputRefs>
-          <bpmn2:dataInputRefs>_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_GroupIdInputX</bpmn2:dataInputRefs>
-        </bpmn2:inputSet>
-        <bpmn2:outputSet>
-          <bpmn2:dataOutputRefs>_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_dispositionResultOutputX</bpmn2:dataOutputRefs>
-        </bpmn2:outputSet>
-      </bpmn2:ioSpecification>
-      <bpmn2:dataInputAssociation>
-        <bpmn2:targetRef>_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_TaskNameInputX</bpmn2:targetRef>
-        <bpmn2:assignment>
-          <bpmn2:from xsi:type="bpmn2:tFormalExpression"><![CDATA[Task]]></bpmn2:from>
-          <bpmn2:to xsi:type="bpmn2:tFormalExpression"><![CDATA[_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_TaskNameInputX]]></bpmn2:to>
-        </bpmn2:assignment>
-      </bpmn2:dataInputAssociation>
-      <bpmn2:dataInputAssociation>
-        <bpmn2:sourceRef>patient</bpmn2:sourceRef>
-        <bpmn2:targetRef>_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_patientInputX</bpmn2:targetRef>
-      </bpmn2:dataInputAssociation>
-      <bpmn2:dataInputAssociation>
-        <bpmn2:targetRef>_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_SkippableInputX</bpmn2:targetRef>
-        <bpmn2:assignment>
-          <bpmn2:from xsi:type="bpmn2:tFormalExpression"><![CDATA[false]]></bpmn2:from>
-          <bpmn2:to xsi:type="bpmn2:tFormalExpression"><![CDATA[_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_SkippableInputX]]></bpmn2:to>
-        </bpmn2:assignment>
-      </bpmn2:dataInputAssociation>
-      <bpmn2:dataInputAssociation>
-        <bpmn2:targetRef>_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_GroupIdInputX</bpmn2:targetRef>
-        <bpmn2:assignment>
-          <bpmn2:from xsi:type="bpmn2:tFormalExpression"><![CDATA[provider]]></bpmn2:from>
-          <bpmn2:to xsi:type="bpmn2:tFormalExpression"><![CDATA[_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_GroupIdInputX]]></bpmn2:to>
-        </bpmn2:assignment>
-      </bpmn2:dataInputAssociation>
-      <bpmn2:dataOutputAssociation>
-        <bpmn2:sourceRef>_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_dispositionResultOutputX</bpmn2:sourceRef>
-        <bpmn2:targetRef>dispositionResult</bpmn2:targetRef>
-      </bpmn2:dataOutputAssociation>
-    </bpmn2:userTask>
-    <bpmn2:userTask id="_E8A16633-BED8-41B7-915D-3400F2053137" name="Licensed Provider Determines Patient Disposition">
+      <bpmn2:script>System.out.println("Escalation Licensed Provider Disposition");</bpmn2:script>
+    </bpmn2:scriptTask>
+    <bpmn2:scriptTask id="_E8A16633-BED8-41B7-915D-3400F2053137" name="Licensed Provider Determines Patient Disposition" scriptFormat="http://www.java.com/java">
       <bpmn2:extensionElements>
         <drools:metaData name="elementname">
           <drools:metaValue><![CDATA[Licensed Provider Determines Patient Disposition]]></drools:metaValue>
         </drools:metaData>
       </bpmn2:extensionElements>
       <bpmn2:incoming>_86009FEE-278C-4BBD-A4C0-2B93C3BA3AFA</bpmn2:incoming>
-      <bpmn2:outgoing>_79FD75AA-AC97-422F-AEFB-5A09456FD381</bpmn2:outgoing>
-      <bpmn2:ioSpecification>
-        <bpmn2:dataInput id="_E8A16633-BED8-41B7-915D-3400F2053137_TaskNameInputX" drools:dtype="Object" itemSubjectRef="__E8A16633-BED8-41B7-915D-3400F2053137_TaskNameInputXItem" name="TaskName"/>
-        <bpmn2:dataInput id="_E8A16633-BED8-41B7-915D-3400F2053137_patientInputX" drools:dtype="org.hl7.fhir.r4.model.Patient" itemSubjectRef="__E8A16633-BED8-41B7-915D-3400F2053137_patientInputXItem" name="patient"/>
-        <bpmn2:dataInput id="_E8A16633-BED8-41B7-915D-3400F2053137_SkippableInputX" drools:dtype="Object" itemSubjectRef="__E8A16633-BED8-41B7-915D-3400F2053137_SkippableInputXItem" name="Skippable"/>
-        <bpmn2:dataInput id="_E8A16633-BED8-41B7-915D-3400F2053137_GroupIdInputX" drools:dtype="Object" itemSubjectRef="__E8A16633-BED8-41B7-915D-3400F2053137_GroupIdInputXItem" name="GroupId"/>
-        <bpmn2:dataOutput id="_E8A16633-BED8-41B7-915D-3400F2053137_dispositionResultOutputX" drools:dtype="String" itemSubjectRef="__E8A16633-BED8-41B7-915D-3400F2053137_dispositionResultOutputXItem" name="dispositionResult"/>
-        <bpmn2:inputSet>
-          <bpmn2:dataInputRefs>_E8A16633-BED8-41B7-915D-3400F2053137_TaskNameInputX</bpmn2:dataInputRefs>
-          <bpmn2:dataInputRefs>_E8A16633-BED8-41B7-915D-3400F2053137_patientInputX</bpmn2:dataInputRefs>
-          <bpmn2:dataInputRefs>_E8A16633-BED8-41B7-915D-3400F2053137_SkippableInputX</bpmn2:dataInputRefs>
-          <bpmn2:dataInputRefs>_E8A16633-BED8-41B7-915D-3400F2053137_GroupIdInputX</bpmn2:dataInputRefs>
-        </bpmn2:inputSet>
-        <bpmn2:outputSet>
-          <bpmn2:dataOutputRefs>_E8A16633-BED8-41B7-915D-3400F2053137_dispositionResultOutputX</bpmn2:dataOutputRefs>
-        </bpmn2:outputSet>
-      </bpmn2:ioSpecification>
-      <bpmn2:dataInputAssociation>
-        <bpmn2:targetRef>_E8A16633-BED8-41B7-915D-3400F2053137_TaskNameInputX</bpmn2:targetRef>
-        <bpmn2:assignment>
-          <bpmn2:from xsi:type="bpmn2:tFormalExpression"><![CDATA[Task]]></bpmn2:from>
-          <bpmn2:to xsi:type="bpmn2:tFormalExpression"><![CDATA[_E8A16633-BED8-41B7-915D-3400F2053137_TaskNameInputX]]></bpmn2:to>
-        </bpmn2:assignment>
-      </bpmn2:dataInputAssociation>
-      <bpmn2:dataInputAssociation>
-        <bpmn2:sourceRef>patient</bpmn2:sourceRef>
-        <bpmn2:targetRef>_E8A16633-BED8-41B7-915D-3400F2053137_patientInputX</bpmn2:targetRef>
-      </bpmn2:dataInputAssociation>
-      <bpmn2:dataInputAssociation>
-        <bpmn2:targetRef>_E8A16633-BED8-41B7-915D-3400F2053137_SkippableInputX</bpmn2:targetRef>
-        <bpmn2:assignment>
-          <bpmn2:from xsi:type="bpmn2:tFormalExpression"><![CDATA[false]]></bpmn2:from>
-          <bpmn2:to xsi:type="bpmn2:tFormalExpression"><![CDATA[_E8A16633-BED8-41B7-915D-3400F2053137_SkippableInputX]]></bpmn2:to>
-        </bpmn2:assignment>
-      </bpmn2:dataInputAssociation>
-      <bpmn2:dataInputAssociation>
-        <bpmn2:targetRef>_E8A16633-BED8-41B7-915D-3400F2053137_GroupIdInputX</bpmn2:targetRef>
-        <bpmn2:assignment>
-          <bpmn2:from xsi:type="bpmn2:tFormalExpression"><![CDATA[provider]]></bpmn2:from>
-          <bpmn2:to xsi:type="bpmn2:tFormalExpression"><![CDATA[_E8A16633-BED8-41B7-915D-3400F2053137_GroupIdInputX]]></bpmn2:to>
-        </bpmn2:assignment>
-      </bpmn2:dataInputAssociation>
-      <bpmn2:dataOutputAssociation>
-        <bpmn2:sourceRef>_E8A16633-BED8-41B7-915D-3400F2053137_dispositionResultOutputX</bpmn2:sourceRef>
-        <bpmn2:targetRef>dispositionResult</bpmn2:targetRef>
-      </bpmn2:dataOutputAssociation>
-    </bpmn2:userTask>
+      <bpmn2:outgoing>_565824E1-C28B-41EF-900C-D8951AB817DA</bpmn2:outgoing>
+      <bpmn2:script>System.out.println("Licensed Provider Determines Patient Disposition");</bpmn2:script>
+    </bpmn2:scriptTask>
     <bpmn2:endEvent id="_DDA71AD4-9783-4FEC-80F0-58DDC9E97429">
       <bpmn2:incoming>_B8E15341-3F35-4166-B09D-370A64895C8D</bpmn2:incoming>
       <bpmn2:terminateEventDefinition/>
@@ -329,23 +222,9 @@ Patient Disposition]]></drools:metaValue>
     <bpmn2:startEvent id="_054D3BA9-9970-42C3-9328-E57CB74B78F0">
       <bpmn2:outgoing>_86009FEE-278C-4BBD-A4C0-2B93C3BA3AFA</bpmn2:outgoing>
     </bpmn2:startEvent>
-    <bpmn2:boundaryEvent id="_6546E8A6-C904-4715-B71A-5112D0DAB3BD" drools:dockerinfo="122^74|" drools:boundaryca="true" name="Escalate to On-Call Provider Timer" attachedToRef="_E8A16633-BED8-41B7-915D-3400F2053137">
-      <bpmn2:extensionElements>
-        <drools:metaData name="elementname">
-          <drools:metaValue><![CDATA[Escalate to On-Call Provider Timer]]></drools:metaValue>
-        </drools:metaData>
-      </bpmn2:extensionElements>
-      <bpmn2:outgoing>_AAE23A23-1561-4DB2-9069-3088C7E3483E</bpmn2:outgoing>
-      <bpmn2:timerEventDefinition>
-        <bpmn2:timeDuration xsi:type="bpmn2:tFormalExpression">PT5M</bpmn2:timeDuration>
-      </bpmn2:timerEventDefinition>
-    </bpmn2:boundaryEvent>
   </bpmn2:process>
   <bpmndi:BPMNDiagram>
     <bpmndi:BPMNPlane bpmnElement="highmediummitigation">
-      <bpmndi:BPMNShape id="shape__6546E8A6-C904-4715-B71A-5112D0DAB3BD" bpmnElement="_6546E8A6-C904-4715-B71A-5112D0DAB3BD">
-        <dc:Bounds height="56" width="56" x="303" y="122"/>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="shape__054D3BA9-9970-42C3-9328-E57CB74B78F0" bpmnElement="_054D3BA9-9970-42C3-9328-E57CB74B78F0">
         <dc:Bounds height="56" width="56" x="69" y="71"/>
       </bpmndi:BPMNShape>
@@ -359,13 +238,13 @@ Patient Disposition]]></drools:metaValue>
         <dc:Bounds height="56" width="56" x="986" y="535"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="shape__E8A16633-BED8-41B7-915D-3400F2053137" bpmnElement="_E8A16633-BED8-41B7-915D-3400F2053137">
-        <dc:Bounds height="102" width="154" x="181" y="48"/>
+        <dc:Bounds height="102" width="154" x="158" y="48"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="shape__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9" bpmnElement="_AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9">
         <dc:Bounds height="102" width="154" x="751" y="335"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="shape__2A5C238D-BF12-4DF2-A129-862ADFCAB63E" bpmnElement="_2A5C238D-BF12-4DF2-A129-862ADFCAB63E">
-        <dc:Bounds height="56" width="56" x="303" y="259"/>
+        <dc:Bounds height="56" width="56" x="359" y="259"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="shape__E2631ACC-E8D2-4032-A3C8-A2ECDAB5CCA2" bpmnElement="_E2631ACC-E8D2-4032-A3C8-A2ECDAB5CCA2">
         <dc:Bounds height="56" width="56" x="543" y="71"/>
@@ -382,13 +261,12 @@ Patient Disposition]]></drools:metaValue>
       <bpmndi:BPMNShape id="shape__836D1BD1-0996-48BE-96A7-3D796F9AD3B6" bpmnElement="_836D1BD1-0996-48BE-96A7-3D796F9AD3B6">
         <dc:Bounds height="56" width="56" x="986" y="71"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="edge_shape__6546E8A6-C904-4715-B71A-5112D0DAB3BD_to_shape__2A5C238D-BF12-4DF2-A129-862ADFCAB63E" bpmnElement="_AAE23A23-1561-4DB2-9069-3088C7E3483E">
-        <di:waypoint x="331" y="150"/>
-        <di:waypoint x="331" y="287"/>
-      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="shape__4C696DC9-743B-4CFF-861F-EF7B77FBBE8B" bpmnElement="_4C696DC9-743B-4CFF-861F-EF7B77FBBE8B">
+        <dc:Bounds height="56" width="56" x="359" y="71"/>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="edge_shape__054D3BA9-9970-42C3-9328-E57CB74B78F0_to_shape__E8A16633-BED8-41B7-915D-3400F2053137" bpmnElement="_86009FEE-278C-4BBD-A4C0-2B93C3BA3AFA">
         <di:waypoint x="97" y="99"/>
-        <di:waypoint x="258" y="99"/>
+        <di:waypoint x="235" y="99"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="edge_shape__4FE99418-EE65-4827-8DFD-0C3785ABE1E9_to_shape__C60DF482-47E4-4A8A-8446-821A0E5FBE01" bpmnElement="_01A3E0C0-1AA3-4425-8EAE-AF7C564F02AD">
         <di:waypoint x="1325" y="99"/>
@@ -402,13 +280,13 @@ Patient Disposition]]></drools:metaValue>
         <di:waypoint x="1091" y="386"/>
         <di:waypoint x="986" y="563"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="edge_shape__E8A16633-BED8-41B7-915D-3400F2053137_to_shape__E2631ACC-E8D2-4032-A3C8-A2ECDAB5CCA2" bpmnElement="_79FD75AA-AC97-422F-AEFB-5A09456FD381">
-        <di:waypoint x="335" y="99"/>
-        <di:waypoint x="543" y="99"/>
+      <bpmndi:BPMNEdge id="edge_shape__E8A16633-BED8-41B7-915D-3400F2053137_to_shape__4C696DC9-743B-4CFF-861F-EF7B77FBBE8B" bpmnElement="_565824E1-C28B-41EF-900C-D8951AB817DA">
+        <di:waypoint x="312" y="99"/>
+        <di:waypoint x="359" y="99"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="edge_shape__2A5C238D-BF12-4DF2-A129-862ADFCAB63E_to_shape__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9" bpmnElement="_88E609C4-852D-4619-8AD5-CF675A2AA96F">
-        <di:waypoint x="331" y="287"/>
-        <di:waypoint x="331.0002456597154" y="386"/>
+        <di:waypoint x="387" y="287"/>
+        <di:waypoint x="386.95526704389886" y="386"/>
         <di:waypoint x="751" y="386"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="edge_shape__AB043A3A-A89D-4AE9-9BFE-19D77E0A4CE9_to_shape__CFC1DAF6-6CC3-4C35-A0C7-E1F1447FC724" bpmnElement="_B91BFE2D-1C02-4AA3-9BB0-9205F5CFA941">
@@ -418,7 +296,15 @@ Patient Disposition]]></drools:metaValue>
       <bpmndi:BPMNEdge id="edge_shape__E2631ACC-E8D2-4032-A3C8-A2ECDAB5CCA2_to_shape__2A5C238D-BF12-4DF2-A129-862ADFCAB63E" bpmnElement="_AD6F65EA-1C1E-4B6A-97BE-52D601C2D6DA">
         <di:waypoint x="571" y="99"/>
         <di:waypoint x="570.9999997836705" y="287"/>
-        <di:waypoint x="331" y="287"/>
+        <di:waypoint x="387" y="287"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_shape__4C696DC9-743B-4CFF-861F-EF7B77FBBE8B_to_shape__2A5C238D-BF12-4DF2-A129-862ADFCAB63E" bpmnElement="_A41882A1-966B-475D-8D60-CFF90C7B96F1">
+        <di:waypoint x="387" y="99"/>
+        <di:waypoint x="387" y="259"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_shape__4C696DC9-743B-4CFF-861F-EF7B77FBBE8B_to_shape__E2631ACC-E8D2-4032-A3C8-A2ECDAB5CCA2" bpmnElement="_79FD75AA-AC97-422F-AEFB-5A09456FD381">
+        <di:waypoint x="415" y="99"/>
+        <di:waypoint x="543" y="99"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="edge_shape__E2631ACC-E8D2-4032-A3C8-A2ECDAB5CCA2_to_shape__CFC1DAF6-6CC3-4C35-A0C7-E1F1447FC724" bpmnElement="_5DE76144-D8AA-485A-92B0-C4192D439EBE">
         <di:waypoint x="571" y="99"/>
@@ -553,7 +439,7 @@ Patient Disposition]]></drools:metaValue>
         </bpsim:Scenario>
       </bpsim:BPSimData>
     </bpmn2:extensionElements>
-    <bpmn2:source>_Ud_ksP1hEDmM7MBDiXDhAA</bpmn2:source>
-    <bpmn2:target>_Ud_ksP1hEDmM7MBDiXDhAA</bpmn2:target>
+    <bpmn2:source>_SzOSEP27EDmBMNuWmIhTZQ</bpmn2:source>
+    <bpmn2:target>_SzOSEP27EDmBMNuWmIhTZQ</bpmn2:target>
   </bpmn2:relationship>
 </bpmn2:definitions>
