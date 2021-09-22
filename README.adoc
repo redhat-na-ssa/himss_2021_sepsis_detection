@@ -661,4 +661,6 @@ $ operator-sdk olm install
 
 . agnosticd link:https://github.com/redhat-cop/agnosticd/pull/4071[pull request]
 
+== Kogito
 
+https://issues.redhat.com/browse/KOGITO-5946
