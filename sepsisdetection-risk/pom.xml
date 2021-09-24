@@ -32,11 +32,14 @@
     </dependencies>
   </dependencyManagement>
   <dependencies>
+
+    <!-- FHIR -->
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-structures-r4</artifactId>
       <version>${hapi.fhir.version}</version>
     </dependency>
+
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-reactive-messaging-kafka</artifactId>
@@ -54,6 +57,18 @@
       <artifactId>quarkus-resteasy-reactive</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-rest-client</artifactId>
+    </dependency>
+
+    <!-- Event Bus -->
+    <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-vertx</artifactId>
+    </dependency>
+
+    <!-- Cloud Events -->
+    <dependency>
       <groupId>io.cloudevents</groupId>
       <artifactId>cloudevents-api</artifactId>
       <version>${cloud.events.version}</version>
@@ -63,10 +78,18 @@
       <artifactId>cloudevents-json-jackson</artifactId>
       <version>${cloud.events.version}</version>
     </dependency>
+
+    <!-- Deployment -->
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-container-image-docker</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-smallrye-health</artifactId>
+    </dependency>
+
+
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5</artifactId>
@@ -86,10 +109,6 @@
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-health</artifactId>
     </dependency>
   </dependencies>
   <build>

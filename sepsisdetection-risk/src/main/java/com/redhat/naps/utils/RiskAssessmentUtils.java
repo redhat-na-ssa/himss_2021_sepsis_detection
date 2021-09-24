@@ -7,10 +7,13 @@ public class RiskAssessmentUtils {
     public static final String SEPSIS_RESULT = "sepsisResult";
     public static final String OBSERVATION_ID = "observationId";
     public static final String RISK_ASSESSMENT = "riskAssessment";
+    public static final String CORRELATION_KEY = "CorrelationKey";
 
     public static final String CLOUD_EVENT_DATA = "data";
 
     public static final String COMMAND_CHANNEL = "generate-risk-assessment-command";
     public static final String EVENT_CHANNEL = "risk-assessment-event";
-    
+
+    public static final String POST_TO_FHIR_SERVER = "com.redhat.naps.postToFhirServer";
+
 }

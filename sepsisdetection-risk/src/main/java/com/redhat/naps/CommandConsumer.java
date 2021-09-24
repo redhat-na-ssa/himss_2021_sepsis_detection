@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redhat.naps.utils.RiskAssessmentUtils;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 import org.eclipse.microprofile.reactive.messaging.Acknowledgment;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
 import ca.uhn.fhir.context.FhirContext;
 
 @ApplicationScoped
-public class RiskAssessmentConsumer {
+public class CommandConsumer {
 
-    private static final Logger log = LoggerFactory.getLogger("RiskAssessmentConsumer");
+    private static final Logger log = LoggerFactory.getLogger("CommandConsumer");
     private static ObjectMapper objectMapper = new ObjectMapper();
     private static FhirContext fhirCtx = FhirContext.forR4();
 
@@ -76,8 +76,12 @@ public class RiskAssessmentConsumer {
         String oNode = dataNode.get(RiskAssessmentUtils.OBSERVATION_ID);
         if(oNode == null)
           throw new RuntimeException("CloudEvent payload does not include element: "+RiskAssessmentUtils.OBSERVATION_ID);
+
+        String cNode = dataNode.get(RiskAssessmentUtils.CORRELATION_KEY);
+        if(cNode == null)
+            throw new RuntimeException("CloudEvent payload does not include element: "+RiskAssessmentUtils.CORRELATION_KEY);
         
-        raService.publishRiskAssessment(patient, srNode, oNode);
+        raService.publishRiskAssessment(patient, srNode, oNode, cNode);
         return CompletableFuture.completedFuture(null);
     }
 }

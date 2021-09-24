@@ -9,15 +9,18 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.redhat.naps.rest.FhirServerClient;
 import com.redhat.naps.utils.RiskAssessmentUtils;
 
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Patient;
@@ -29,9 +32,13 @@ import org.hl7.fhir.r4.model.RiskAssessment.RiskAssessmentStatus;
 import io.cloudevents.CloudEvent;
 import io.cloudevents.core.builder.CloudEventBuilder;
 import io.cloudevents.jackson.JsonFormat;
+import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.reactive.messaging.ce.CloudEventMetadata;
 import io.smallrye.reactive.messaging.ce.OutgoingCloudEventMetadata;
 import io.smallrye.reactive.messaging.kafka.KafkaRecord;
+import io.vertx.mutiny.core.eventbus.EventBus;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +56,15 @@ public class RiskAssessmentService {
     @Channel(RiskAssessmentUtils.EVENT_CHANNEL)
     Emitter eventChannel;
 
+    @Inject
+    @RestClient
+    FhirServerClient fhirServerClient;
+
+    @ConfigProperty(name=RiskAssessmentUtils.POST_TO_FHIR_SERVER, defaultValue = "true")
+    boolean postToFhirServer;
+
+    @Inject
+    EventBus eventBus;
 
     @PostConstruct
     public void start() {
@@ -59,10 +75,10 @@ public class RiskAssessmentService {
         objectMapper.registerModule(JsonFormat.getCloudEventJacksonModule());
     }
 
-    public void publishRiskAssessment(Patient patient, String sepsisResult, String observationId) throws JsonProcessingException {
+    public void publishRiskAssessment(Patient patient, String sepsisResult, String observationId, String correlationKey) throws JsonProcessingException {
         log.info("createRiskAssessment() patient = "+patient.getId()+" : sepsisResult = "+sepsisResult+" : obsId = "+observationId);
         String uid = UUID.randomUUID().toString();
-        RiskAssessment assessment = createRiskAssessment(patient, sepsisResult, observationId);
+        RiskAssessment assessment = createRiskAssessment(patient, sepsisResult, observationId, correlationKey);
 
         String cEventString = generateCloudEventJson(uid, assessment, RiskAssessmentUtils.MESSAGE_TYPE_EVENT);
         
@@ -73,6 +89,8 @@ public class RiskAssessmentService {
         Message<String> record = KafkaRecord.of(uid, cEventString).addMetadata(cloudEventMetadata);
 
         eventChannel.send(record);
+
+        eventBus.sendAndForget(RiskAssessmentUtils.POST_TO_FHIR_SERVER, assessment);
     }
 
     private String generateCloudEventJson(String uid, RiskAssessment assessment, String messageType ) throws JsonProcessingException {
@@ -94,13 +112,16 @@ public class RiskAssessmentService {
         return objectMapper.writeValueAsString(cloudEvent);
     }
 
-    private RiskAssessment createRiskAssessment(Patient patient, String sepsisResult, String observationId) {
+    private RiskAssessment createRiskAssessment(Patient patient, String sepsisResult, String observationId, String correlationKey) {
 
         RiskAssessment assessment = new RiskAssessment();
 
         Reference ref = new Reference();
         ref.setReference("Patient/"+patient.getId());
         assessment.setSubject(ref);
+
+        assessment.addIdentifier().setValue(correlationKey);
+
         assessment.setBasedOn(new Reference("Observation/"+observationId));
         assessment.setStatus(RiskAssessmentStatus.PRELIMINARY);
         Coding coding = new Coding("http://browser.ihtsdotools.org/","AIMODEL", "Inference of Sepsis");
@@ -115,6 +136,27 @@ public class RiskAssessmentService {
         predictionsList.add(component);
         assessment.setPrediction(predictionsList);
         return assessment;
+    }
+
+    @ConsumeEvent(RiskAssessmentUtils.POST_TO_FHIR_SERVER)
+    public void postRiskAssessmentToFhirServer(RiskAssessment assessment) {
+
+        if(!this.postToFhirServer){
+            log.warn("postRiskAssessment() will not post");
+            return;
+        }
+    
+        String riskAssessmentRequest = fhirCtx.newJsonParser().encodeResourceToString(assessment);
+        Response response = fhirServerClient.postRiskAssessment(riskAssessmentRequest);
+        if(response.getStatus() != 201)
+          throw new RuntimeException("postRiskAssessment() fhir server response code = "+response.getStatus());
+
+        String rAssessmentResponse = response.getEntity().toString();
+
+        
+        log.info("updateFhirServerwithRiskAssessment() rAssessmentResponse = \n"+rAssessmentResponse+"\n");
+        RiskAssessment rAssessmentResponseObj =  fhirCtx.newJsonParser().parseResource(RiskAssessment.class,rAssessmentResponse);
+        
     }
 
 }

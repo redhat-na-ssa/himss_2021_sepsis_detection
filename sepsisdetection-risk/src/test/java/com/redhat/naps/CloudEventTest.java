@@ -134,6 +134,7 @@ public class CloudEventTest {
         rootNode.put(RiskAssessmentUtils.PATIENT, patientPayload);
         rootNode.put(RiskAssessmentUtils.SEPSIS_RESULT, "1");
         rootNode.put(RiskAssessmentUtils.OBSERVATION_ID,"Observation/obs12345");
+        rootNode.put(RiskAssessmentUtils.CORRELATION_KEY, RiskAssessmentUtils.CORRELATION_KEY+"/ckey12345");
         String cloudEventPayload = objectMapper.writeValueAsString(rootNode);
 
         CloudEvent cloudEvent = CloudEventBuilder.v1()
