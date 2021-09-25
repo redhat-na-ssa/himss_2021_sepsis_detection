@@ -33,8 +33,6 @@ import io.cloudevents.CloudEvent;
 import io.cloudevents.core.builder.CloudEventBuilder;
 import io.cloudevents.jackson.JsonFormat;
 import io.quarkus.vertx.ConsumeEvent;
-import io.smallrye.reactive.messaging.ce.CloudEventMetadata;
-import io.smallrye.reactive.messaging.ce.OutgoingCloudEventMetadata;
 import io.smallrye.reactive.messaging.kafka.KafkaRecord;
 import io.vertx.mutiny.core.eventbus.EventBus;
 
@@ -75,18 +73,14 @@ public class RiskAssessmentService {
         objectMapper.registerModule(JsonFormat.getCloudEventJacksonModule());
     }
 
-    public void publishRiskAssessment(Patient patient, String sepsisResult, String observationId, String correlationKey) throws JsonProcessingException {
-        log.info("createRiskAssessment() patient = "+patient.getId()+" : sepsisResult = "+sepsisResult+" : obsId = "+observationId);
+    public void publishRiskAssessment(Patient patient, String sepsisResponse, String observationId, String correlationKey) throws JsonProcessingException {
+        log.info("createRiskAssessment() patient = "+patient.getId()+" : sepsisResponse = "+sepsisResponse+" : obsId = "+observationId);
         String uid = UUID.randomUUID().toString();
-        RiskAssessment assessment = createRiskAssessment(patient, sepsisResult, observationId, correlationKey);
+        RiskAssessment assessment = createRiskAssessment(patient, sepsisResponse, observationId, correlationKey);
 
         String cEventString = generateCloudEventJson(uid, assessment, RiskAssessmentUtils.MESSAGE_TYPE_EVENT);
         
-        CloudEventMetadata<String> cloudEventMetadata = OutgoingCloudEventMetadata.<String>builder()
-        .withType(RiskAssessmentUtils.MESSAGE_TYPE_EVENT)
-        .withTimestamp(OffsetDateTime.now().toZonedDateTime())
-        .build();
-        Message<String> record = KafkaRecord.of(uid, cEventString).addMetadata(cloudEventMetadata);
+        Message<String> record = KafkaRecord.of(uid, cEventString);
 
         eventChannel.send(record);
 
@@ -103,7 +97,7 @@ public class RiskAssessmentService {
 
         CloudEvent cloudEvent = CloudEventBuilder.v1()
             .withId(uid)
-            .withSource(URI.create(""))
+            .withSource(URI.create("http://riskassessment"))
             .withType(messageType)
             .withTime(OffsetDateTime.now())
             .withData(cloudEventPayload.getBytes())
@@ -112,7 +106,7 @@ public class RiskAssessmentService {
         return objectMapper.writeValueAsString(cloudEvent);
     }
 
-    private RiskAssessment createRiskAssessment(Patient patient, String sepsisResult, String observationId, String correlationKey) {
+    private RiskAssessment createRiskAssessment(Patient patient, String sepsisResponse, String observationId, String correlationKey) {
 
         RiskAssessment assessment = new RiskAssessment();
 
@@ -129,7 +123,7 @@ public class RiskAssessmentService {
         assessment.setCode(concept);
         RiskAssessmentPredictionComponent component = new RiskAssessmentPredictionComponent();
         String display = "Not Detected";
-        if(sepsisResult.equals("1"))
+        if(sepsisResponse.equals("1"))
           display = "Detected";
         component.setOutcome(new CodeableConcept(new Coding("http://browser.ihtsdotools.org/","1",display)));
         List<RiskAssessmentPredictionComponent> predictionsList = new ArrayList<RiskAssessmentPredictionComponent>();
@@ -154,7 +148,7 @@ public class RiskAssessmentService {
         String rAssessmentResponse = response.getEntity().toString();
 
         
-        log.info("updateFhirServerwithRiskAssessment() rAssessmentResponse = \n"+rAssessmentResponse+"\n");
+        log.info("postRiskAssessmentToFhirServer() rAssessmentResponse = \n"+rAssessmentResponse+"\n");
         RiskAssessment rAssessmentResponseObj =  fhirCtx.newJsonParser().parseResource(RiskAssessment.class,rAssessmentResponse);
         
     }

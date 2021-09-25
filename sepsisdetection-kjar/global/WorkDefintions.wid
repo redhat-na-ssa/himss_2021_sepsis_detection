@@ -89,5 +89,18 @@
     "displayName" : "Milestone",
     "icon" : "defaultmilestoneicon.png",
     "category" : "Milestone"
-    ]
+    ],
+
+    [
+    "name" : "RiskAssessmentWIH",
+    "parameters" : [
+        "Patient" : new ObjectDataType()
+        "ObservationId" : new StringDataType()
+        "SepsisResponse" : new StringDataType()
+    ],
+    "results" : [
+    ],
+    "displayName" : "RiskAssessmentWIH",
+    "icon" : "defaultservicenodeicon.png"
+  ]
 ]

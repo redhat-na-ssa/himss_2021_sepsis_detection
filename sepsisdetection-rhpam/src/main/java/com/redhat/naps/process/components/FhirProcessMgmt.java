@@ -38,7 +38,7 @@ public class FhirProcessMgmt {
     @Value("${sepsisdetection.process.id}")
     private String processId;
 
-    public Long startProcess(Patient patientObj, List<Observation> oEvent, String sepsisResponse, RiskAssessment assessment) {
+    public Long startProcess(Patient patientObj, List<Observation> obsList, String sepsisResponse ) {
         /* NOTE:  
             FHIR data object uses id convention of:   <FHIR data type>/id
             Will use just the latter substring (after the "/") as the process instance correlation key
@@ -47,16 +47,16 @@ public class FhirProcessMgmt {
         String cKey = idBase.substring(idBase.indexOf("/")+1);
         log.debug("doProcessMessage() correlationKey = "+cKey);
         CorrelationKey correlationKey = correlationKeyFactory.newCorrelationKey(cKey);
+
+        String obsId = obsList.get(0).getId().split("/")[obsList.get(0).getId().split("/").length - 1];
     
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("patient", patientObj);
+        parameters.put("sepsisResponse",sepsisResponse);
+        parameters.put("observationId", obsId);
 
         //TO-DO:  When persisting this list of Observations as part of process instance, upon retrieval of pInstanceVariables ..... the server thread is placed in an infinite loop of JSON processing
-        //parameters.put("observationList", oEvent);
-
-        parameters.put("sepsisResponse",sepsisResponse);
-        parameters.put("riskAssessment",assessment);
-    
+        //parameters.put("observationList", obsList);
     
         TransactionTemplate template = new TransactionTemplate(transactionManager);
         return template.execute((TransactionStatus s) -> {

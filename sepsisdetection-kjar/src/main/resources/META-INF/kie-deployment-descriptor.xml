@@ -9,7 +9,15 @@
   <event-listeners/>
   <task-event-listeners/>
   <globals/>
-  <work-item-handlers/>
+  <work-item-handlers>
+    <work-item-handler>
+            <resolver>mvel</resolver>
+            <identifier>new com.redhat.naps.process.wih.RiskAssessmentWIH()</identifier>
+            <parameters>
+            </parameters>
+            <name>RiskAssessmentWIH</name>
+    </work-item-handler>
+  </work-item-handlers>
   <environment-entries/>
   <configurations/>
   <required-roles/>

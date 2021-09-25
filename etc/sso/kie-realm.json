@@ -904,8 +904,8 @@
          "useTemplateMappers":false
       },
       {
-         "clientId":"kie-server",
-         "name":"kie-server",
+         "clientId":"sepsisdetection",
+         "name":"sepsisdetection",
          "surrogateAuthRequired":false,
          "enabled":true,
          "clientAuthenticatorType":"client-secret",

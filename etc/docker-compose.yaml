@@ -64,141 +64,141 @@ services:
 #      - default
 
 
-#  psql_sso:
-#    image: registry.redhat.io/rhel8/postgresql-12:1-72.1626836556
-#    restart: always
-#    ports:
-#      - "4432:4432"
-#    environment:
-#      PGPORT: 4432
-#      POSTGRESQL_USER: sso
-#      POSTGRESQL_PASSWORD: sso
-#      POSTGRESQL_DATABASE: sso
-#      POSTGRESQL_MAX_PREPARED_TRANSACTIONS: 10
-#      SCRIPT_DIR: /opt/sql
-#    volumes:
-#      - type: bind
-#        source: ./sso/db/sso-psql.conf
-#        target: /opt/app-root/src/postgresql-cfg/sso-psql.conf
-#    networks:
-#      - sso
-#
-#  sso:
-#    image: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:7.4-36
-#    restart: always
-#    ports:
-#      - "4443:8443"
-#      - "4080:8080"
-#    environment:
-#      SSO_POSTGRESQL_SERVICE_HOST: psql_sso
-#      SSO_POSTGRESQL_SERVICE_PORT: 4432
-#      DB_SERVICE_PREFIX_MAPPING: "sso-postgresql=DB"
-#      DB_JNDI: "java:jboss/datasources/KeycloakDS"
-#      DB_USERNAME: sso
-#      DB_PASSWORD: sso
-#      DB_DATABASE: sso
-#      TX_DATABASE_PREFIX_MAPPING: "sso-postgresql=DB"
-#      DB_MIN_POOL_SIZE: 5
-#      DB_MAX_POOL_SIZE: 10
-#      SSO_ADMIN_USERNAME: master
-#      SSO_ADMIN_PASSWORD: master
-#      JAVA_OPTS_APPEND: -Dkeycloak.migration.strategy=IGNORE_EXISTING -Dkeycloak.import=/opt/kie-realm.json
-#    volumes:
-#      - type: bind
-#        source: ./sso/kie-realm.json
-#        target: /opt/kie-realm.json
-#    depends_on:
-#      - psql_sso
-#    networks:
-#      - sso
-#
-#  sepsisdetection-ml:
-#    image: quay.io/redhat_naps_da/sepsis-detection:1.3
-#    restart: always
-#    ports:
-#      - "5080:8080"
-#    networks:
-#      - sepsisdetection-ml
-#
-
-  sepsisdetection-risk:
-    image: quay.io/redhat_naps_da/sepsisdetection-risk:0.0.1
+  psql_sso:
+    image: registry.redhat.io/rhel8/postgresql-12:1-72.1626836556
     restart: always
     ports:
-      - "3080:3080"
+      - "4432:4432"
     environment:
-      JAVA_OPTIONS: -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dquarkus.http.port=3080
+      PGPORT: 4432
+      POSTGRESQL_USER: sso
+      POSTGRESQL_PASSWORD: sso
+      POSTGRESQL_DATABASE: sso
+      POSTGRESQL_MAX_PREPARED_TRANSACTIONS: 10
+      SCRIPT_DIR: /opt/sql
+    volumes:
+      - type: bind
+        source: ./sso/db/sso-psql.conf
+        target: /opt/app-root/src/postgresql-cfg/sso-psql.conf
+    networks:
+      - sso
+
+  sso:
+    image: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:7.4-36
+    restart: always
+    ports:
+      - "4443:8443"
+      - "4080:8080"
+    environment:
+      SSO_POSTGRESQL_SERVICE_HOST: psql_sso
+      SSO_POSTGRESQL_SERVICE_PORT: 4432
+      DB_SERVICE_PREFIX_MAPPING: "sso-postgresql=DB"
+      DB_JNDI: "java:jboss/datasources/KeycloakDS"
+      DB_USERNAME: sso
+      DB_PASSWORD: sso
+      DB_DATABASE: sso
+      TX_DATABASE_PREFIX_MAPPING: "sso-postgresql=DB"
+      DB_MIN_POOL_SIZE: 5
+      DB_MAX_POOL_SIZE: 10
+      SSO_ADMIN_USERNAME: master
+      SSO_ADMIN_PASSWORD: master
+      JAVA_OPTS_APPEND: -Dkeycloak.migration.strategy=IGNORE_EXISTING -Dkeycloak.import=/opt/kie-realm.json
+    volumes:
+      - type: bind
+        source: ./sso/kie-realm.json
+        target: /opt/kie-realm.json
+    depends_on:
+      - psql_sso
+    networks:
+      - sso
+
+  sepsisdetection-ml:
+    image: quay.io/redhat_naps_da/sepsis-detection:1.3
+    restart: always
+    ports:
+      - "5080:8080"
+    networks:
+      - sepsisdetection-ml
+
+
+#  sepsisdetection-risk:
+#    image: quay.io/redhat_naps_da/sepsisdetection-risk:0.0.1
+#    restart: always
+#    ports:
+#      - "3080:3080"
+#    environment:
+#      JAVA_OPTIONS: -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dquarkus.http.port=3080 -Dkafka.bootstrap.servers=kafka:9092
+#    networks:
+#      - default
+
+
+  psql_fhir:
+    image: registry.redhat.io/rhel8/postgresql-12
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRESQL_USER: fhir
+      POSTGRESQL_PASSWORD: fhir
+      POSTGRESQL_DATABASE: fhir
+      POSTGRESQL_MAX_PREPARED_TRANSACTIONS: 10
+    volumes:
+      # https://github.com/sclorg/postgresql-container/tree/generated/12
+      - type: bind
+        source: ./hapi-fhir/hapi-psql-wal.conf
+        target: /opt/app-root/src/postgresql-cfg/hapi-psql-wal.conf
+      - type: bind
+        source: ./hapi-fhir/hapi-psql-wal.sh
+        target: /opt/app-root/src/postgresql-start/hapi-psql-wal.sh
     networks:
       - default
 
+  hapi_fhir:
+    # https://github.com/redhat-naps-da/hapi-fhir-jpaserver-starter
+    image: quay.io/redhat_naps_da/hapi-fhir-jpaserver-starter-ocp:v5.3.0-psql-bytea-1
 
-#  psql_fhir:
-#    image: registry.redhat.io/rhel8/postgresql-12
-#    restart: always
-#    ports:
-#      - "5432:5432"
-#    environment:
-#      POSTGRESQL_USER: fhir
-#      POSTGRESQL_PASSWORD: fhir
-#      POSTGRESQL_DATABASE: fhir
-#      POSTGRESQL_MAX_PREPARED_TRANSACTIONS: 10
-#    volumes:
-#      # https://github.com/sclorg/postgresql-container/tree/generated/12
-#      - type: bind
-#        source: ./hapi-fhir/hapi-psql-wal.conf
-#        target: /opt/app-root/src/postgresql-cfg/hapi-psql-wal.conf
-#      - type: bind
-#        source: ./hapi-fhir/hapi-psql-wal.sh
-#        target: /opt/app-root/src/postgresql-start/hapi-psql-wal.sh
-#    networks:
-#      - default
-#
-#  hapi_fhir:
-#    # https://github.com/redhat-naps-da/hapi-fhir-jpaserver-starter
-#    image: quay.io/redhat_naps_da/hapi-fhir-jpaserver-starter-ocp:v5.3.0-psql-bytea-1
-#
-#    restart: always
-#    ports:
-#      - "8080:8080"
-#    environment:
-#      JAVA_MAX_MEM_RATIO: '60'
-#      JAVA_INITIAL_MEM_RATIO: '0'
-#      GC_MAX_METASPACE_SIZE: '500'
-#      SPRING_CONFIG_LOCATION: "file:///deployments/config/application.yaml"
-#    volumes:
-#      - type: bind
-#        source: ./hapi-fhir/application.yaml
-#        target: /deployments/config/application.yaml
-#    depends_on:
-#      - "psql_fhir"
-#    networks:
-#      - default
-#
-#  psql_rhpam:
-#    image: registry.redhat.io/rhel8/postgresql-12
-#    restart: always
-#    ports:
-#      - "6432:6432"
-#    environment:
-#      PGPORT: 6432
-#      POSTGRESQL_USER: rhpam
-#      POSTGRESQL_PASSWORD: rhpam
-#      POSTGRESQL_DATABASE: rhpam
-#      POSTGRESQL_MAX_PREPARED_TRANSACTIONS: 10
-#      SCRIPT_DIR: /opt/sql
-#    volumes:
-#      - type: bind
-#        source: ./sepsisdetection-rhpam/db/rhpam-psql.conf
-#        target: /opt/app-root/src/postgresql-cfg/rhpam-psql.conf
-#      - type: bind
-#        source: ./sepsisdetection-rhpam/db/ddl-scripts/postgresql/
-#        target: /opt/sql
-#      - type: bind
-#        source: ./sepsisdetection-rhpam/db/create_rhpam_database.sh
-#        target: /opt/app-root/src/postgresql-start/create_rhpam_database.sh
-#    networks:
-#      - default
-#
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      JAVA_MAX_MEM_RATIO: '60'
+      JAVA_INITIAL_MEM_RATIO: '0'
+      GC_MAX_METASPACE_SIZE: '500'
+      SPRING_CONFIG_LOCATION: "file:///deployments/config/application.yaml"
+    volumes:
+      - type: bind
+        source: ./hapi-fhir/application.yaml
+        target: /deployments/config/application.yaml
+    depends_on:
+      - "psql_fhir"
+    networks:
+      - default
+
+  psql_rhpam:
+    image: registry.redhat.io/rhel8/postgresql-12
+    restart: always
+    ports:
+      - "6432:6432"
+    environment:
+      PGPORT: 6432
+      POSTGRESQL_USER: rhpam
+      POSTGRESQL_PASSWORD: rhpam
+      POSTGRESQL_DATABASE: rhpam
+      POSTGRESQL_MAX_PREPARED_TRANSACTIONS: 10
+      SCRIPT_DIR: /opt/sql
+    volumes:
+      - type: bind
+        source: ./sepsisdetection-rhpam/db/rhpam-psql.conf
+        target: /opt/app-root/src/postgresql-cfg/rhpam-psql.conf
+      - type: bind
+        source: ./sepsisdetection-rhpam/db/ddl-scripts/postgresql/
+        target: /opt/sql
+      - type: bind
+        source: ./sepsisdetection-rhpam/db/create_rhpam_database.sh
+        target: /opt/app-root/src/postgresql-start/create_rhpam_database.sh
+    networks:
+      - default
+
 #  dashbuilder:
 #    image: quay.io/redhat_naps_da/dashbuilder-rhpam-db:0.0.1
 #    restart: always

@@ -26,13 +26,11 @@ import ca.uhn.fhir.context.FhirContext;
 
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.r4.model.RiskAssessment;
 
 import com.redhat.naps.process.util.FHIRUtil;
 
 import com.redhat.naps.process.model.PatientVitals;
 import com.redhat.naps.process.model.SepsisResponse;
-
 
 @Component
 public class DebeziumStreamListener {
@@ -50,9 +48,6 @@ public class DebeziumStreamListener {
 
     @Autowired
     SepsisDetectionML sepsisDetectionMLComponent;
-
-    @Autowired
-    RiskAssessmentComponent riskAssessmentComponent;
 
     @KafkaListener(topics = "${listener.destination.debezium-stream}", containerFactory = "debeziumListenerContainerFactory")
     public void processMessage(@Payload String cloudEvent, 
@@ -84,14 +79,9 @@ public class DebeziumStreamListener {
                     
                     // Invoke Machine Learning Model
                     SepsisResponse aiResponse =  sepsisDetectionMLComponent.invokeAIModel(vitals);
-                    
-                    // Create and Update RiskAssessment in FHIR Server
-                    String obsId = obsList.get(0).getId().split("/")[obsList.get(0).getId().split("/").length - 1];
-                    RiskAssessment assessment = riskAssessmentComponent.createRiskAssessment(patientObj, aiResponse.getIssepsis()+"",obsId);
-                    RiskAssessment updatedAssessment = riskAssessmentComponent.updateFhirServerwithRiskAssessment(assessment);
 
                     // Start Business Process
-                    fhirProcessMgmt.startProcess(patientObj, obsList, aiResponse.getIssepsis()+"", updatedAssessment );
+                    fhirProcessMgmt.startProcess(patientObj, obsList, aiResponse.getIssepsis()+"");
                 } else {
                     log.error("processMessage() no res_id for patient: "+fhirJson);
                 }

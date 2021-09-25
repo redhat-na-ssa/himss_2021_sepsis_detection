@@ -18,11 +18,15 @@ import io.cloudevents.core.builder.CloudEventBuilder;
 import io.cloudevents.jackson.JsonFormat;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.reactive.messaging.ce.DefaultCloudEventMetadataBuilder;
+import io.smallrye.reactive.messaging.ce.IncomingCloudEventMetadata;
 import io.smallrye.reactive.messaging.ce.OutgoingCloudEventMetadata;
+import io.smallrye.reactive.messaging.ce.impl.DefaultIncomingCloudEventMetadata;
 import io.smallrye.reactive.messaging.connectors.InMemoryConnector;
 import io.smallrye.reactive.messaging.connectors.InMemorySink;
 import io.smallrye.reactive.messaging.connectors.InMemorySource;
 import io.smallrye.reactive.messaging.kafka.KafkaRecord;
+import io.smallrye.reactive.messaging.kafka.impl.ce.DefaultIncomingKafkaCloudEventMetadata;
 
 import org.hl7.fhir.r4.model.Patient;
 import org.junit.jupiter.api.BeforeAll;
@@ -51,6 +55,7 @@ public class CloudEventTest {
     private static final Logger log = LoggerFactory.getLogger("CloudEventTest");
     private static ObjectMapper objectMapper = new ObjectMapper();
     private static FhirContext fhirCtx = FhirContext.forR4();
+    private static final DefaultCloudEventMetadataBuilder<String> builder = new DefaultCloudEventMetadataBuilder<>();
 
 
     @ConfigProperty(name="com.redhat.naps.test.work.dir")
@@ -78,6 +83,7 @@ public class CloudEventTest {
 
     }
 
+    // TO-DO:  Need to switch to Binary encoding
     @Test
     public void kafkaCloudEventTest() throws JsonProcessingException {
         
@@ -88,11 +94,24 @@ public class CloudEventTest {
         String cEventString = generateCloudEventJson(uid, patient, RiskAssessmentUtils.MESSAGE_TYPE_COMMAND);
 
         InMemorySource<Message<String>> generateRACommandSource = connector.source(RiskAssessmentUtils.COMMAND_CHANNEL);
-        OutgoingCloudEventMetadata<String> cloudEventMetadata = OutgoingCloudEventMetadata.<String>builder()
+
+        /*  By default, this test class will send message with the following metadata type:
+         *      io.smallrye.reactive.messaging.kafka.OutgoingKafkaRecordMetadata
+         * 
+         *  To be consistent with metadata types in production, need to switch to use of:
+         *      io.smallrye.reactive.messaging.kafka.impl.ce.DefaultIncomingKafkaCloudEventMetadata
+         * 
+         *  TO-DO:  The following is being coded because during testing it doesn't appear that "cloud-event=true" on the channels has any affect.
+         */
+        IncomingCloudEventMetadata<String> cloudEventMetadata = new DefaultIncomingCloudEventMetadata<>(builder
+        .withId("id")
+        .withSource(URI.create("test://cloud.event"))
         .withType(RiskAssessmentUtils.MESSAGE_TYPE_COMMAND)
         .withTimestamp(OffsetDateTime.now().toZonedDateTime())
-        .build();
-        Message<String> record = KafkaRecord.of(uid, cEventString).addMetadata(cloudEventMetadata);
+        .build());
+        DefaultIncomingKafkaCloudEventMetadata kafkaCloudEventMetadata = new DefaultIncomingKafkaCloudEventMetadata<>(cloudEventMetadata);
+
+        Message<String> record = KafkaRecord.of(uid, cEventString).addMetadata(kafkaCloudEventMetadata);
         generateRACommandSource.send(record);
 
         // Consume CloudEvent with RiskAssessment
@@ -132,7 +151,7 @@ public class CloudEventTest {
 
         ObjectNode rootNode = objectMapper.createObjectNode();
         rootNode.put(RiskAssessmentUtils.PATIENT, patientPayload);
-        rootNode.put(RiskAssessmentUtils.SEPSIS_RESULT, "1");
+        rootNode.put(RiskAssessmentUtils.SEPSIS_RESPONSE, "1");
         rootNode.put(RiskAssessmentUtils.OBSERVATION_ID,"Observation/obs12345");
         rootNode.put(RiskAssessmentUtils.CORRELATION_KEY, RiskAssessmentUtils.CORRELATION_KEY+"/ckey12345");
         String cloudEventPayload = objectMapper.writeValueAsString(rootNode);
