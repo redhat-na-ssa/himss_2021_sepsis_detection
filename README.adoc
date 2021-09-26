@@ -25,7 +25,7 @@ image::sepsisdetection-kjar/src/main/resources/com/demo/sepsis/sepsisdetection-s
 image::sepsisdetection-kjar/src/main/resources/com/demo/sepsis/highmediummitigation-svg.svg[]
 
 
-=== Reference Architecture
+=== Deployment Architecture
 
 image::docs/images/reference_architecture_actual.png[]
 
@@ -35,10 +35,13 @@ image::docs/images/reference_architecture_actual.png[]
 . Messages in the _fhir.public.hfj_res_ver_ topic can now be viewed via monitoring tools such as _KafDrop_.  The _sepsisdetection_rhpam_ application is also a consumer on that topic.  During consumption of a Patient resource, the following occurs: 
 .. Given a patiend ID, the RESTful API of the HAPI FHIR server is queried for a list of all _Observation_ resources for the Patient in a given time period.  This list of Observation resources is used as the payload of an HTTP POST request to the _sepsisdetection-ml_ function.  The function responds with an indication of whether sepsis is likely or not.
 
-.. A FHIR R4 _RiskAssessment_ resource (which includes the data indicating likelyhood of sepsis) is posted to the FHIR Server via its RESTful APIs.
 .. The RH-PAM _process-engine_ embedded in the _sepsisdetection-RHPAM_ application is invoked and a _sepsis-detection_ business process is started.  These business process and corresponding human tasks can be monitored via tools such as RH-PAMs _dashbuilder_ component.
 
-. The _sepsisdetection-ui_ application interacts with the RESTful _KIE-Server_ APIs of _sepsisdetection-rhpam_ and renders a user interface that allows for management of the _sepsis-detection_ business process and corresponding human tasks.
+.. As part of the _sepsis-detection_ business process, a _generateRiskAssessmentCommand_ message is sent to RHT AMQ Streams.
+
+. The _SepsisDetection-Risk_ service consumes the _generateRiskAssessmentCommand_ message.  A FHIR R4 _RiskAssessment_ resource (which includes the data indicating likelyhood of sepsis) is posted to the FHIR Server via its RESTful APIs.
+
+. A user with a set of roles (defined in RH-SSO) authenticates into the _SepsisDetection-UI_.  The _sepsisdetection-ui_ interacts with RH-SSO (as per the _Authorization Code Flow_ protocol of OIDC) to generate an _Access Token_.  The _sepsisdetection-ui_ interacts with the RESTful _KIE-Server_ APIs (and includes the _access token_ in the request) of _sepsisdetection-rhpam_ and renders a user interface that allows for management of the _sepsis-detection_ business process and corresponding human tasks.  Depending on the role of the authenticated user, that user is presented with _user tasks_ with which to work through their lifecycle.
 
 . The _sepsisdetection-ui_ pulls in an IFrame from HealthFlow.
 
@@ -336,7 +339,7 @@ Using the credentials listed above, log into the _master_ realm of the RH-SSO se
 $ echo -en "\n$RHSSO_URL\n"
 -----
 
-==== Demo Realm
+==== Sepsis Detection SSO Realm
 
 . You can also login directly to the custom SSO realm used in the demo.  Details as follows: 
 

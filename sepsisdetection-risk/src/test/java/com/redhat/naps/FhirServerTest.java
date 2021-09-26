@@ -48,7 +48,7 @@ public class FhirServerTest {
     @RestClient
     FhirServerClient fhirClient;
 
-    //@Disabled
+    @Disabled
     @Test
     public void riskAssessmentTest() throws IOException {
 
@@ -71,11 +71,6 @@ public class FhirServerTest {
         }
         Response response = null;
         try {
-            //Retrieve Observation from Bundle
-            //Bundle bObj = fhirCtx.newJsonParser().parseResource(Bundle.class, oJson);
-            //Observation obs = (Observation)bObj.getEntryFirstRep().getResource();
-
-            //String obsJson = fhirCtx.newJsonParser().encodeResourceToString(obs);
             response = fhirClient.postRiskAssessment(oJson);
             log.info("Posted RiskAssessment response code = "+response.getStatus());
             

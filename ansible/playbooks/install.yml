@@ -17,7 +17,8 @@
   - include: tasks/amq-streams.yml
   - include: tasks/knative.yml
   - include: tasks/hapi-fhirserver.yml
-  - include: tasks/sepsisdetection-rhpam.yml
-  - include: tasks/sepsisdetection-ui.yml
-  - include: tasks/dashbuilder.yml
+  - include: tasks/sepsisdetection-risk.yml
   - include: tasks/sepsisdetection-ml.yml
+  - include: tasks/sepsisdetection-rhpam.yml
+  - include: tasks/dashbuilder.yml
+  - include: tasks/sepsisdetection-ui.yml

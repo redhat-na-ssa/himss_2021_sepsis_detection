@@ -15,20 +15,12 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.redhat.naps.utils.RiskAssessmentUtils;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.kafka.common.header.Headers;
-import org.apache.kafka.common.header.internals.RecordHeader;
 import org.eclipse.microprofile.reactive.messaging.Acknowledgment;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
-import org.eclipse.microprofile.reactive.messaging.Metadata;
 import org.hl7.fhir.r4.model.Patient;
 
 import io.smallrye.reactive.messaging.ce.CloudEventMetadata;
-import io.smallrye.reactive.messaging.ce.IncomingCloudEventMetadata;
-import io.smallrye.reactive.messaging.ce.OutgoingCloudEventMetadata;
-import io.smallrye.reactive.messaging.kafka.IncomingKafkaRecordMetadata;
-import io.smallrye.reactive.messaging.kafka.impl.ce.DefaultIncomingKafkaCloudEventMetadata;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
