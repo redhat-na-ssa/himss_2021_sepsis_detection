@@ -10,7 +10,38 @@
 
 == Purpose
 
-TO-DO
+=== Technical Discussion Vectors
+
+. Operations
+.. Ansible for automated and repeatable deployment of Application Services to OpenShift
+.. Deployment of Red Hat Application Services products via Operator Lifecycle Manager
+
+. Events in Motion
+.. Use of Red Hat AMQ Streams
+.. Use of Debezium for _Change Data Capture_ on HAPI FHIR database
+.. Use of both Binary and Structured _Cloud Events_
+.. Visibility of events via KafDrop
+
+. Process Automation
+.. RH-PAM embedded in SpringBoot as process automation engine
+.. BPMN models with process variables of FHIR R4
+.. KIE-Server APIs extended with custom endpoints that allow for (un)marshalling of HAPI FHIR resources
+.. Dashbuilder for process and task related monitoring and KPIs
+
+. Security
+.. Use of OIDC _Authorization Code Flow_ protocol between RH-SSO and Angular web app to obtain JWT based access token
+.. Access token includes users roles so as to facilitate UserGroupCallback functionality in RH-PAM
+.. KIE-Server APIs of RH-PAM secured via RH-SSO  as Bearer-Token endpoints
+
+. Polyglot Programming Models
+.. Quarkus
+.. SpringBoot
+.. JBoss EAP
+.. Python
+.. KNative functions
+
+. Machine Learning
+.. Machine Learning algorithm to determine probability of Sepsis
 
 == Architecture
 
@@ -37,9 +68,13 @@ image::docs/images/reference_architecture_actual.png[]
 
 .. The RH-PAM _process-engine_ embedded in the _sepsisdetection-RHPAM_ application is invoked and a _sepsis-detection_ business process is started.  These business process and corresponding human tasks can be monitored via tools such as RH-PAMs _dashbuilder_ component.
 
-.. As part of the _sepsis-detection_ business process, a _generateRiskAssessmentCommand_ message is sent to RHT AMQ Streams.
+.. As part of the _sepsis-detection_ business process, a _generateRiskAssessmentCommand_ message is sent (as a _Cloud Event) to RHT AMQ Streams.
 
-. The _SepsisDetection-Risk_ service consumes the _generateRiskAssessmentCommand_ message.  A FHIR R4 _RiskAssessment_ resource (which includes the data indicating likelyhood of sepsis) is posted to the FHIR Server via its RESTful APIs.
+. The _SepsisDetection-Risk_ service consumes the _generateRiskAssessmentCommand_ Cloud Event.  A FHIR R4 _RiskAssessment_ resource (which includes the data indicating likelyhood of sepsis) is posted to the FHIR Server via its RESTful APIs.
++
+Debezium detects the addition of the _Risk Assessment_ resource in the HAPI FHIR database and forwards this event as message to Red Hat AMQ Streams.
++
+RH-PAM picks up this change event with the Risk Assessment resource and advances the business process to the next task.
 
 . A user with a set of roles (defined in RH-SSO) authenticates into the _SepsisDetection-UI_.  The _sepsisdetection-ui_ interacts with RH-SSO (as per the _Authorization Code Flow_ protocol of OIDC) to generate an _Access Token_.  The _sepsisdetection-ui_ interacts with the RESTful _KIE-Server_ APIs (and includes the _access token_ in the request) of _sepsisdetection-rhpam_ and renders a user interface that allows for management of the _sepsis-detection_ business process and corresponding human tasks.  Depending on the role of the authenticated user, that user is presented with _user tasks_ with which to work through their lifecycle.
 
