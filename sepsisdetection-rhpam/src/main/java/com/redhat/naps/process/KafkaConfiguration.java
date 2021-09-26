@@ -97,7 +97,7 @@ public class KafkaConfiguration {
         factory.setConsumerFactory(debeziumConsumerFactory());
         factory.setConcurrency(concurrency);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
-        factory.setAutoStartup(true);
+        factory.setAutoStartup(false);
         log.info("debeziumListenerContainerFactory()  started .... ");
         return factory;
     }
@@ -121,7 +121,7 @@ public class KafkaConfiguration {
         factory.setConsumerFactory(consumerFactory());
         factory.setConcurrency(concurrency);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
-        factory.setAutoStartup(true);
+        factory.setAutoStartup(false);
         log.info("kafkaListenerContainerFactory()  started .... ");
         return factory;
     }

@@ -15,8 +15,6 @@ import io.cloudevents.CloudEvent;
 import io.cloudevents.core.builder.CloudEventBuilder;
 import io.cloudevents.jackson.JsonFormat;
 
-import org.hl7.fhir.r4.model.Patient;
-import org.jbpm.services.api.ProcessService;
 import org.jbpm.services.api.RuntimeDataService;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
@@ -26,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import ca.uhn.fhir.context.FhirContext;
+import org.hl7.fhir.r4.model.Patient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,8 +94,6 @@ public class RiskAssessmentWIH implements WorkItemHandler {
                 .withTime(OffsetDateTime.now())
                 .withData(cloudEventPayload.getBytes())
                 .build();
-
-            
 
             producer.send(this.generateRiskAssessmentCommandDestination, cloudEvent);
 

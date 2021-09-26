@@ -33,7 +33,10 @@ import io.cloudevents.CloudEvent;
 import io.cloudevents.core.builder.CloudEventBuilder;
 import io.cloudevents.jackson.JsonFormat;
 import io.quarkus.vertx.ConsumeEvent;
+import io.smallrye.common.annotation.Blocking;
+import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.kafka.KafkaRecord;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.EventBus;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -52,7 +55,7 @@ public class RiskAssessmentService {
 
     @Inject
     @Channel(RiskAssessmentUtils.EVENT_CHANNEL)
-    Emitter eventChannel;
+    Emitter<String> eventChannel;
 
     @Inject
     @RestClient
@@ -84,7 +87,8 @@ public class RiskAssessmentService {
 
         eventChannel.send(record);
 
-        eventBus.sendAndForget(RiskAssessmentUtils.POST_TO_FHIR_SERVER, assessment);
+        eventBus.send(RiskAssessmentUtils.POST_TO_FHIR_SERVER, assessment);
+        //postRiskAssessmentToFhirServer(assessment);
     }
 
     private String generateCloudEventJson(String uid, RiskAssessment assessment, String messageType ) throws JsonProcessingException {
@@ -111,7 +115,7 @@ public class RiskAssessmentService {
         RiskAssessment assessment = new RiskAssessment();
 
         Reference ref = new Reference();
-        ref.setReference("Patient/"+patient.getId());
+        ref.setReference(patient.getId());
         assessment.setSubject(ref);
 
         assessment.addIdentifier().setValue(correlationKey);
@@ -133,6 +137,7 @@ public class RiskAssessmentService {
     }
 
     @ConsumeEvent(RiskAssessmentUtils.POST_TO_FHIR_SERVER)
+    @Blocking
     public void postRiskAssessmentToFhirServer(RiskAssessment assessment) {
 
         if(!this.postToFhirServer){
@@ -141,15 +146,27 @@ public class RiskAssessmentService {
         }
     
         String riskAssessmentRequest = fhirCtx.newJsonParser().encodeResourceToString(assessment);
+        log.info("\n\n"+riskAssessmentRequest+"\n\n");
         Response response = fhirServerClient.postRiskAssessment(riskAssessmentRequest);
-        if(response.getStatus() != 201)
-          throw new RuntimeException("postRiskAssessment() fhir server response code = "+response.getStatus());
+        /*s
+        Uni<Response> response = fhirServerClient.postRiskAssessmentAsync(riskAssessmentRequest);
+        response
+          .onItem().invoke(r -> {
+            log.info("response status = "+r.getStatus());
+            if(r.getStatus() != 201)
+              throw new RuntimeException("postRiskAssessment() fhir server response code = "+r.getStatus());
 
-        String rAssessmentResponse = response.getEntity().toString();
+              String rAssessmentResponse = r.getEntity().toString();
+              r.close();
+              
+              log.info("postRiskAssessmentToFhirServer() rAssessmentResponse = \n"+rAssessmentResponse+"\n");
+              RiskAssessment rAssessmentResponseObj =  fhirCtx.newJsonParser().parseResource(RiskAssessment.class,rAssessmentResponse);
+          })
+          .onFailure().invoke(x -> {
+                x.printStackTrace();
+          });
+          */
 
-        
-        log.info("postRiskAssessmentToFhirServer() rAssessmentResponse = \n"+rAssessmentResponse+"\n");
-        RiskAssessment rAssessmentResponseObj =  fhirCtx.newJsonParser().parseResource(RiskAssessment.class,rAssessmentResponse);
         
     }
 

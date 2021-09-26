@@ -26,6 +26,7 @@ import ca.uhn.fhir.context.FhirContext;
 
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.RiskAssessment;
 
 import com.redhat.naps.process.util.FHIRUtil;
 
@@ -54,6 +55,7 @@ public class DebeziumStreamListener {
                                @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                @Header(KafkaHeaders.RECEIVED_PARTITION_ID) int partition, 
                                Acknowledgment ack) throws IOException {
+
 
         GZIPInputStream is = null;
         try {
@@ -86,6 +88,15 @@ public class DebeziumStreamListener {
                     log.error("processMessage() no res_id for patient: "+fhirJson);
                 }
 
+            } else if (FHIRUtil.RISK_ASSESSMENT.equals(resType.asText())) {
+                JsonNode resId = after.get("res_id");
+                JsonNode resText = after.get("res_text");
+                byte[] bytes = resText.binaryValue();
+                is = new GZIPInputStream(new ByteArrayInputStream(bytes));
+                String fhirJson = IOUtils.toString(is, "UTF-8");
+                RiskAssessment raObj = fhirCtx.newJsonParser().parseResource(RiskAssessment.class, fhirJson);
+
+                fhirProcessMgmt.signalProcess(raObj);
             } else {
                 log.warn("Will not process message with FHIR type: "+resType.asText());
             }
@@ -93,9 +104,10 @@ public class DebeziumStreamListener {
             log.error("Unable to process the following debezium stream event: \n"+cloudEvent);
             x.printStackTrace();
         }finally {
+            ack.acknowledge();
             if(is != null)
                 is.close();
-            ack.acknowledge();
+
         }
 
     }

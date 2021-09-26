@@ -383,13 +383,13 @@ $ curl -X POST \
        -d "@sepsisdetection-rhpam/src/test/resources/fhir/DemoBundle.json"
 -----
 
-. POST Test Observation to FHIR server
+. POST Demo RiskAssessment to FHIR server
 +
 -----
 $ curl -X POST \
        -H "Content-Type:application/fhir+json" \
-       $FHIR_SERVER_URL/fhir \
-       -d "@sepsisdetection-rhpam/src/test/resources/fhir/ObservationPatientBundle.json"
+       $FHIR_SERVER_URL/fhir/RiskAssessment \
+       -d "@sepsisdetection-risk/src/test/resources/fhir/RiskAssessment.json"
 -----
 
 
@@ -462,6 +462,23 @@ $ curl -H "Authorization: Bearer $TKN" \
 $ curl -H "Authorization: Bearer $TKN" \
        -X GET -H 'Accept:application/json' \
        $SEPSISDETECTION_RHPAM_URL/rest/server/containers/sepsisdetection-kjar/processes/
+-----
+
+. List process instances for a deployment in JSON representation:
++
+-----
+$ curl -H "Authorization: Bearer $TKN" \
+       -X GET -H 'Accept:application/json' \
+       $SEPSISDETECTION_RHPAM_URL/rest/server/queries/containers/sepsisdetection-kjar-1.0.0/process/instances
+-----
+
+
+. List tasks as a Business Admin:
++
+-----
+$ curl -H "Authorization: Bearer $TKN" \
+       -X GET -H 'Accept:application/json' \
+       $SEPSISDETECTION_RHPAM_URL/rest/server/queries/tasks/instances/admins
 -----
 
 . List cases in JSON representation:

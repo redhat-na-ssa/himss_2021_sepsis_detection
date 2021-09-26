@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.redhat.naps.process.util.FHIRUtil;
+
 import org.jbpm.services.api.ProcessService;
 import org.kie.internal.KieInternalServices;
 import org.kie.internal.process.CorrelationKey;
@@ -59,12 +61,25 @@ public class FhirProcessMgmt {
         //parameters.put("observationList", obsList);
     
         TransactionTemplate template = new TransactionTemplate(transactionManager);
-        return template.execute((TransactionStatus s) -> {
+        return template.execute((TransactionStatus tStatus) -> {
             Long pi = processService.startProcess(deploymentId, processId, correlationKey, parameters);
             log.info("Started process for patient " + patientObj.toString() + ". ProcessInstanceId = " + pi+" : correlationKey = "+correlationKey.getName());
             return pi;
         });
         
+    }
+
+    public void signalProcess(RiskAssessment raObj) throws InterruptedException{
+        String cKey = raObj.getIdentifierFirstRep().getValue();
+        CorrelationKey correlationKey = correlationKeyFactory.newCorrelationKey(cKey);
+        
+        TransactionTemplate template = new TransactionTemplate(transactionManager);
+        template.execute((TransactionStatus s) -> {
+            
+            log.info("signalProcess() about to signal "+FHIRUtil.RISK_ASSESSMENT_UPDATED+" for correlationKey = "+cKey);
+            processService.signalProcessInstanceByCorrelationKey(correlationKey, FHIRUtil.RISK_ASSESSMENT_UPDATED, raObj);
+            return "ok";
+        });
     }
     
 }

@@ -3,6 +3,7 @@ package com.redhat.naps.process.util;
 public class FHIRUtil {
 
     public static final String PATIENT = "Patient";
+    public static final String RISK_ASSESSMENT = "RiskAssessment";
     public static final String SEPSIS_RESPONSE = "SepsisResponse";
     public static final String OBSERVATION_ID = "ObservationId";
     public static final String CORRELATION_KEY = "CorrelationKey";
@@ -23,5 +24,4 @@ public class FHIRUtil {
 
     public static final String GENERATE_RISK_ASSESSMENT="generateRiskAssessment";
     public static final String RISK_ASSESSMENT_UPDATED = "riskAssessmentUpdated";
-    
 }
