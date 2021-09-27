@@ -64,11 +64,11 @@ image::docs/images/reference_architecture_actual.png[]
 . An external client POSTs a FHIR R4 _bundle_ (with a Patient, Location and multiple Observation resources ) to the RESTful API of the HAPI FHIR JPA server.
 . HAPI FHIR JPA Server persists (using Hiberate) to its PostgreSQL database.  FHIR resources are stored as gzip blobs in the following table of the HAPI FHIR database schema:  _public.hfj_res_ver_ .
 . Debezium detects the additional records to the _public.hfj_res_ver_ table and puts them in motion by sending the raw GZIP blobs to a kafka topic:  _fhir.public.hfj_res_ver_
-. Messages in the _fhir.public.hfj_res_ver_ topic can now be viewed via monitoring tools such as _KafDrop_.  The _sepsisdetection_rhpam_ application is also a consumer on that topic.  During consumption of a Patient resource, the following occurs: 
+. Messages in the _fhir.public.hfj_res_ver_ topic can now be viewed via monitoring tools such as _KafDrop_.  The _sepsisdetection_rhpam_ application is also a consumer on that topic.  With consumption of a Patient resource, the RH-PAM _process-engine_ embedded in the _sepsisdetection-RHPAM_ application is invoked and a _sepsis-detection_ business process is started.
++
+These business process and corresponding human tasks can be monitored via tools such as RH-PAMs _dashbuilder_ component.
 
-.. Given a patiend ID, the RESTful API of the HAPI FHIR server is queried for a list of all _Observation_ resources for the Patient in a given time period and a _PatientVitals_ resource is created.
-
-.. The RH-PAM _process-engine_ embedded in the _sepsisdetection-RHPAM_ application is invoked and a _sepsis-detection_ business process is started.  These business process and corresponding human tasks can be monitored via tools such as RH-PAMs _dashbuilder_ component.
+.. As part of the _sepsis-detection_ business process, the RESTful API of the HAPI FHIR server is queried for a list of all _Observation_ resources for the Patient in a given time period and a _PatientVitals_ resource is created.
 
 .. As part of the _sepsis-detection_ business process, the _PatientVitals_ resource is used as the payload of an HTTP POST request to the _sepsisdetection-ml_ function.  The function responds with an indication of whether sepsis is likely or not.
 
