@@ -24,8 +24,9 @@
 
 . Process Automation
 .. RH-PAM embedded in SpringBoot as process automation engine
-.. BPMN models with process variables of FHIR R4
-.. KIE-Server APIs extended with custom endpoints that allow for (un)marshalling of HAPI FHIR resources
+.. BPMN models with process variables of type FHIR R4
+.. KIE-Server APIs extended with custom endpoints that allow for (un)marshalling of HAPI FHIR R4 resources
+.. jBPM _Executor Service_ for _asyncroneous_ tasks
 .. Dashbuilder for process and task related monitoring and KPIs
 
 . Security

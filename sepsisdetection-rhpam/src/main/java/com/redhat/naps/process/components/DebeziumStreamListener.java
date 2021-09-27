@@ -45,9 +45,6 @@ public class DebeziumStreamListener {
     FhirProcessMgmt fhirProcessMgmt;
 
     @Autowired
-    PatientVitalsComponent patientVitalsComponent;
-
-    @Autowired
     SepsisDetectionWIH sepsisDetectionMLComponent;
 
     @KafkaListener(topics = "${listener.destination.debezium-stream}", containerFactory = "debeziumListenerContainerFactory")
@@ -75,12 +72,8 @@ public class DebeziumStreamListener {
 
                 if(patientObj.getId() != null) {
 
-                    // FHIR Server interactions to build PatientVitals
-                    List<Observation> obsList = patientVitalsComponent.getTimeBoxedObservation(patientObj);
-                    PatientVitals vitals = patientVitalsComponent.buildPatientVitals(patientObj, obsList);
-
                     // Start Business Process
-                    fhirProcessMgmt.startProcess(patientObj, obsList, vitals);
+                    fhirProcessMgmt.startProcess(patientObj);
                 } else {
                     log.error("processMessage() no res_id for patient: "+fhirJson);
                 }

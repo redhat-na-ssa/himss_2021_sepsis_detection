@@ -95,7 +95,7 @@
     "name" : "RiskAssessmentWIH",
     "parameters" : [
         "Patient" : new ObjectDataType()
-        "ObservationId" : new StringDataType()
+        "PatientVitals" : new ObjectDataType()
         "SepsisResponse" : new StringDataType()
     ],
     "results" : [
@@ -107,12 +107,24 @@
     "name" : "SepsisDetectionWIH",
     "parameters" : [
         "PatientVitals" : new ObjectDataType()
-
     ],
     "results" : [
         "SepsisResponse" : new StringDataType()
     ],
     "displayName" : "RiskAssessmentWIH",
     "icon" : "defaultservicenodeicon.png"
+  ],
+  [
+    "name" : "ExecutorWIH",
+    "parameters" : [
+        "signal" : new StringDataType()
+        "deploymentId" : new StringDataType()
+        "Event" : new ObjectDataType()
+    ],
+    "results" : [
+    ],
+    "displayName" : "ExecutorWIH",
+    "icon" : "defaultservicenodeicon.png"
   ]
+  
 ]

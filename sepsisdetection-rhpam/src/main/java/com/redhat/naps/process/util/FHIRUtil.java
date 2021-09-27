@@ -25,4 +25,11 @@ public class FHIRUtil {
 
     public static final String GENERATE_RISK_ASSESSMENT="generateRiskAssessment";
     public static final String RISK_ASSESSMENT_UPDATED = "riskAssessmentUpdated";
+
+    public static final String SIGNAL = "signal";
+    public static final String DEPLOYMENT_ID = "deploymentId";
+
+    public static final String OBSERVATIONS_ACQUIRED="obsAcquired";
+    public static final String EVENT = "Event";
+    public static final String FHIR_SERVER_URL = "fhir.server.url";
 }

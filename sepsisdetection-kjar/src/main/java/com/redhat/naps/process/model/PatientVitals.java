@@ -3,6 +3,7 @@ package com.redhat.naps.process.model;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -115,6 +116,16 @@ public class PatientVitals implements Serializable{
     private Double fibrinogen;
     @JsonProperty("Platelets")
     private Double platelets;
+
+    @JsonIgnore
+    private String observationId;
+
+    public String getObservationId() {
+        return observationId;
+    }
+    public void setObservationId(String x){
+        observationId = x;
+    }
 
     @JsonProperty("HR")
     public Double getHr() {

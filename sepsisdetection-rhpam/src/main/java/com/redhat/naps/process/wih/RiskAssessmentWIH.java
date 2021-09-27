@@ -9,6 +9,7 @@ import javax.annotation.PostConstruct;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.redhat.naps.process.message.producer.CloudEventProducer;
+import com.redhat.naps.process.model.PatientVitals;
 import com.redhat.naps.process.util.FHIRUtil;
 
 import io.cloudevents.CloudEvent;
@@ -24,6 +25,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import ca.uhn.fhir.context.FhirContext;
+
+import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Patient;
 
 import org.slf4j.Logger;
@@ -66,16 +69,16 @@ public class RiskAssessmentWIH implements WorkItemHandler {
             throw new RuntimeException("executeWorkItem() must pass value for "+FHIRUtil.PATIENT);
         }
         
-        String obsId = (String)parameters.get(FHIRUtil.OBSERVATION_ID);
-        if(obsId == null)
-            throw new RuntimeException("executeWorkItem() must pass value for "+FHIRUtil.OBSERVATION_ID);
+        PatientVitals vitals = (PatientVitals)parameters.get(FHIRUtil.PATIENT_VITALS);
+        if(vitals == null)
+            throw new RuntimeException("executeWorkItem() must pass value for "+FHIRUtil.PATIENT_VITALS);
         String sepsisResponse = (String)parameters.get(FHIRUtil.SEPSIS_RESPONSE);
         if(sepsisResponse == null)
             throw new RuntimeException("executeWorkItem() must pass value for "+FHIRUtil.SEPSIS_RESPONSE);
 
         String correlationKey = runtimeService.getProcessInstanceById(workItem.getProcessInstanceId()).getCorrelationKey();
         
-        log.info("executeWorkItem() will send generate RiskAssessment command regarding patientId = "+patient.getId()+" : correlationKey = "+correlationKey+" : sepsisResponse = "+sepsisResponse);
+        log.info("executeWorkItem() will send generate RiskAssessment command regarding patientId = "+patient.getId()+" : correlationKey = "+correlationKey+" : sepsisResponse = "+sepsisResponse+" : obsId = "+vitals.getObservationId());
         
         try {
             String patientPayload =  fhirCtx.newJsonParser().setPrettyPrint(false).encodeResourceToString(patient);
@@ -83,7 +86,7 @@ public class RiskAssessmentWIH implements WorkItemHandler {
             ObjectNode rootNode = objectMapper.createObjectNode();
             rootNode.put(FHIRUtil.PATIENT, patientPayload);
             rootNode.put(FHIRUtil.SEPSIS_RESPONSE, sepsisResponse);
-            rootNode.put(FHIRUtil.OBSERVATION_ID, obsId);
+            rootNode.put(FHIRUtil.OBSERVATION_ID, vitals.getObservationId());
             rootNode.put(FHIRUtil.CORRELATION_KEY, correlationKey);
    
             String cloudEventPayload = objectMapper.writeValueAsString(rootNode);

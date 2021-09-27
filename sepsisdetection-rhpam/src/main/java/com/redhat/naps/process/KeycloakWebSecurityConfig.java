@@ -2,6 +2,7 @@ package com.redhat.naps.process;
 
 import javax.annotation.PostConstruct;
 
+import com.redhat.naps.process.commands.GetObservationsSignalEventCommand;
 import com.redhat.naps.process.util.FHIRUtil;
 
 import org.keycloak.adapters.KeycloakConfigResolver;
@@ -63,12 +64,17 @@ public class KeycloakWebSecurityConfig extends KeycloakWebSecurityConfigurerAdap
     @Value("${com.redhat.naps.sso.available.groups}")
     private String availableGroups;
 
+    @Value("${fhir.server.url}")
+    private String fhirUrl;
+
     @PostConstruct
     public void init() {
         // System property gets picked up by this project's KeycloakUserGroupCallback
         System.setProperty(FHIRUtil.AVAILABLE_SSO_GROUPS, availableGroups);
-    }
 
+        // System property gets picked up by this project's GetObservationsSignalEventCommand
+        System.setProperty(FHIRUtil.FHIR_SERVER_URL, fhirUrl);
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
