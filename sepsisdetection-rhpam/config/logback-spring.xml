@@ -17,7 +17,7 @@
   <logger name="org.springframework.transaction" level="info" additivity="false">
     <appender-ref ref="stdout" />
   </logger>
-  <logger name="com.redhat.naps" level="debug" additivity="false">
+  <logger name="com.redhat.naps.process.wih" level="debug" additivity="false">
     <appender-ref ref="stdout" />
   </logger>
 </configuration>

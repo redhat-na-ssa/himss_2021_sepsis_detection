@@ -11,6 +11,7 @@ public class FHIRUtil {
     public static final String ORGANIZATION = "Organization";
     public static final String ENCOUNTER = "Encounter";
     public static final String WORK_ITEM_NAME = "workItemName";
+    public static final String PATIENT_VITALS = "PatientVitals";
 
     public static final String TEMP_CODE_STRING = "Body temperature";
     public static final String BLOOD_PRESSURE_STRING = "Blood pressure panel with all children optional";

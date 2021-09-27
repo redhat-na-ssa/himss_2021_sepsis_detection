@@ -29,7 +29,7 @@ import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.RiskAssessment;
 
 import com.redhat.naps.process.util.FHIRUtil;
-
+import com.redhat.naps.process.wih.SepsisDetectionWIH;
 import com.redhat.naps.process.model.PatientVitals;
 import com.redhat.naps.process.model.SepsisResponse;
 
@@ -48,7 +48,7 @@ public class DebeziumStreamListener {
     PatientVitalsComponent patientVitalsComponent;
 
     @Autowired
-    SepsisDetectionML sepsisDetectionMLComponent;
+    SepsisDetectionWIH sepsisDetectionMLComponent;
 
     @KafkaListener(topics = "${listener.destination.debezium-stream}", containerFactory = "debeziumListenerContainerFactory")
     public void processMessage(@Payload String cloudEvent, 
@@ -78,12 +78,9 @@ public class DebeziumStreamListener {
                     // FHIR Server interactions to build PatientVitals
                     List<Observation> obsList = patientVitalsComponent.getTimeBoxedObservation(patientObj);
                     PatientVitals vitals = patientVitalsComponent.buildPatientVitals(patientObj, obsList);
-                    
-                    // Invoke Machine Learning Model
-                    SepsisResponse aiResponse =  sepsisDetectionMLComponent.invokeAIModel(vitals);
 
                     // Start Business Process
-                    fhirProcessMgmt.startProcess(patientObj, obsList, aiResponse.getIssepsis()+"");
+                    fhirProcessMgmt.startProcess(patientObj, obsList, vitals);
                 } else {
                     log.error("processMessage() no res_id for patient: "+fhirJson);
                 }

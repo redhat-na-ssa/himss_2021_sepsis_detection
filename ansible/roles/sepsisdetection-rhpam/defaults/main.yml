@@ -26,7 +26,7 @@ application_configmap: "{{ application_name }}"
 application_configmap_key: "{{ application_properties }}"
 binary_imagestream_template: binary-imagestream.yml 
 service_image: quay.io/redhat_naps_da/sepsisdetection-rhpam
-service_image_tag: 0.0.8
+service_image_tag: 0.0.9
 application_template: sepsisdetection-rhpam.yml
 sepsisdetection_rhpam_java_max_mem_ratio: 60
 sepsisdetection_rhpam_java_initial_mem_ratio: 0

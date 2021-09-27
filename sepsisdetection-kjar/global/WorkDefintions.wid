@@ -102,5 +102,17 @@
     ],
     "displayName" : "RiskAssessmentWIH",
     "icon" : "defaultservicenodeicon.png"
+  ],
+  [
+    "name" : "SepsisDetectionWIH",
+    "parameters" : [
+        "PatientVitals" : new ObjectDataType()
+
+    ],
+    "results" : [
+        "SepsisResponse" : new StringDataType()
+    ],
+    "displayName" : "RiskAssessmentWIH",
+    "icon" : "defaultservicenodeicon.png"
   ]
 ]

@@ -75,7 +75,7 @@ public class RiskAssessmentWIH implements WorkItemHandler {
 
         String correlationKey = runtimeService.getProcessInstanceById(workItem.getProcessInstanceId()).getCorrelationKey();
         
-        log.info("executeWorkItem() will send generate RiskAssessment command regarding patientId = "+patient.getId()+" : correlationKey = "+correlationKey);
+        log.info("executeWorkItem() will send generate RiskAssessment command regarding patientId = "+patient.getId()+" : correlationKey = "+correlationKey+" : sepsisResponse = "+sepsisResponse);
         
         try {
             String patientPayload =  fhirCtx.newJsonParser().setPrettyPrint(false).encodeResourceToString(patient);

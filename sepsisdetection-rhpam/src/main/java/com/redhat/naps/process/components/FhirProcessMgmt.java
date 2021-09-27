@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.redhat.naps.process.model.PatientVitals;
 import com.redhat.naps.process.util.FHIRUtil;
 
 import org.jbpm.services.api.ProcessService;
@@ -16,6 +17,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.stereotype.Component;
+import org.drools.core.util.StringUtils;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.RiskAssessment;
@@ -40,7 +42,7 @@ public class FhirProcessMgmt {
     @Value("${sepsisdetection.process.id}")
     private String processId;
 
-    public Long startProcess(Patient patientObj, List<Observation> obsList, String sepsisResponse ) {
+    public Long startProcess(Patient patientObj, List<Observation> obsList, PatientVitals vitals ) {
         /* NOTE:  
             FHIR data object uses id convention of:   <FHIR data type>/id
             Will use just the latter substring (after the "/") as the process instance correlation key
@@ -54,8 +56,8 @@ public class FhirProcessMgmt {
     
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("patient", patientObj);
-        parameters.put("sepsisResponse",sepsisResponse);
         parameters.put("observationId", obsId);
+        parameters.put("patientVitals", vitals);
 
         //TO-DO:  When persisting this list of Observations as part of process instance, upon retrieval of pInstanceVariables ..... the server thread is placed in an infinite loop of JSON processing
         //parameters.put("observationList", obsList);
@@ -70,7 +72,13 @@ public class FhirProcessMgmt {
     }
 
     public void signalProcess(RiskAssessment raObj) throws InterruptedException{
+        if(raObj == null)
+          throw new RuntimeException("Can not pass null Risk Assessment");
+
         String cKey = raObj.getIdentifierFirstRep().getValue();
+        if(StringUtils.isEmpty(cKey))
+          throw new RuntimeException("No correlation key for RiskAssessment");
+
         CorrelationKey correlationKey = correlationKeyFactory.newCorrelationKey(cKey);
         
         TransactionTemplate template = new TransactionTemplate(transactionManager);

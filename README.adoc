@@ -64,9 +64,12 @@ image::docs/images/reference_architecture_actual.png[]
 . HAPI FHIR JPA Server persists (using Hiberate) to its PostgreSQL database.  FHIR resources are stored as gzip blobs in the following table of the HAPI FHIR database schema:  _public.hfj_res_ver_ .
 . Debezium detects the additional records to the _public.hfj_res_ver_ table and puts them in motion by sending the raw GZIP blobs to a kafka topic:  _fhir.public.hfj_res_ver_
 . Messages in the _fhir.public.hfj_res_ver_ topic can now be viewed via monitoring tools such as _KafDrop_.  The _sepsisdetection_rhpam_ application is also a consumer on that topic.  During consumption of a Patient resource, the following occurs: 
-.. Given a patiend ID, the RESTful API of the HAPI FHIR server is queried for a list of all _Observation_ resources for the Patient in a given time period.  This list of Observation resources is used as the payload of an HTTP POST request to the _sepsisdetection-ml_ function.  The function responds with an indication of whether sepsis is likely or not.
+
+.. Given a patiend ID, the RESTful API of the HAPI FHIR server is queried for a list of all _Observation_ resources for the Patient in a given time period and a _PatientVitals_ resource is created.
 
 .. The RH-PAM _process-engine_ embedded in the _sepsisdetection-RHPAM_ application is invoked and a _sepsis-detection_ business process is started.  These business process and corresponding human tasks can be monitored via tools such as RH-PAMs _dashbuilder_ component.
+
+.. As part of the _sepsis-detection_ business process, the _PatientVitals_ resource is used as the payload of an HTTP POST request to the _sepsisdetection-ml_ function.  The function responds with an indication of whether sepsis is likely or not.
 
 .. As part of the _sepsis-detection_ business process, a _generateRiskAssessmentCommand_ message is sent (as a _Cloud Event) to RHT AMQ Streams.
 
@@ -334,7 +337,7 @@ Set the following environment variables with values similar to the following:
 SEPSISDETECTION_RHPAM_URL=http://localhost:9080
 RHSSO_URL=http://localhost:4080
 REALM_ID=kieRealm
-retrieve_token_url="$RHSSO_URL/auth/realms/REALM_ID/protocol/openid-connect/token"
+retrieve_token_url="$RHSSO_URL/auth/realms/$REALM_ID/protocol/openid-connect/token"
 FHIR_SERVER_URL=http://localhost:8080
 -----
 
@@ -510,8 +513,16 @@ $ curl -H "Authorization: Bearer $TKN" \
        $SEPSISDETECTION_RHPAM_URL/rest/server/queries/containers/sepsisdetection-kjar-1.0.0/process/instances
 -----
 
+. Identify active node of process instance:
++
+-----
+$ curl -H "Authorization: Bearer $TKN" \
+       -X GET -H 'Accept:application/json' \
+       $SEPSISDETECTION_RHPAM_URL/rest/server/containers/sepsisdetection-kjar-1.0.0/processesses/instances/${pInstanceId}/nodes/instances | jq .[][0]
+-----
 
-. List tasks as a Business Admin:
+
+. List user tasks as a Business Admin:
 +
 -----
 $ curl -H "Authorization: Bearer $TKN" \
