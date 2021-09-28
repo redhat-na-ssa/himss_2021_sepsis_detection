@@ -155,3 +155,7 @@
   - r_knativekafka.ansible_module_results | json_query(jmesquery) == ['True']
   vars:
     jmesquery: "status.conditions[?type == 'Ready'].status"
+
+- name: "test knative"
+  shell:  "{{ openshift_cli }} get kservice"
+  ignore_errors: true
