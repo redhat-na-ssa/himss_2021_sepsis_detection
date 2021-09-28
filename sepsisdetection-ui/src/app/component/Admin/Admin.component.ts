@@ -112,12 +112,11 @@ export class AdminComponent implements OnInit {
     caseList.forEach((currentInstance: ProcessInstanceList) => {
       this.service.getProcessInstanceVariables(currentInstance.processInstanceId).subscribe((res: any) => {
          this.mapVariableNameValue(res,currentInstance);
-         this.onGetActiveTask();
-      }, err => {
-
+        }, err => {
+          
+        });
       });
-    });
-
+      this.onGetActiveTask();
   }
 
   private mapVariableNameValue(res : any,caseInstance : ProcessInstanceList)
@@ -164,7 +163,6 @@ export class AdminComponent implements OnInit {
   }
 
   onGetActiveTask() {
-      
       if(this.isAdminUser) {
         this.service.getActiveTaskInstancesForBusinessAdmin().subscribe((res:any)=>{
           if(res["task-summary"] && res["task-summary"] instanceof Array)
@@ -181,6 +179,7 @@ export class AdminComponent implements OnInit {
                 }
                 this.activeManagerTasks.instanceList.push(taskInstance);
             });
+            console.log("onGetActiveTask() # of tasks for biz admin = "+this.activeManagerTasks.instanceList.length );
           }
         },err=>{});
       }else {
@@ -200,6 +199,7 @@ export class AdminComponent implements OnInit {
                   }
                   this.activeManagerTasks.instanceList.push(taskInstance);
               });
+              console.log("onGetActiveTask() # of tasks for pot-owner = "+this.activeManagerTasks.instanceList.length );
             }
         },err=>{});
         
