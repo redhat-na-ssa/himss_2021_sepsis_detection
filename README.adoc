@@ -12,36 +12,39 @@
 
 === Technical Discussion Vectors
 
-. Operations
+. *Operations*
 .. Ansible for automated and repeatable deployment of Application Services to OpenShift
 .. Deployment of Red Hat Application Services products via Operator Lifecycle Manager
 
-. Events in Motion
+. *Events in Motion*
 .. Use of Red Hat AMQ Streams
 .. Use of Debezium for _Change Data Capture_ on HAPI FHIR database
 .. Use of both Binary and Structured _Cloud Events_
 .. Visibility of events via KafDrop
 
-. Process Automation
+. *Process Automation*
 .. RH-PAM embedded in SpringBoot as process automation engine
 .. BPMN models with process variables of type FHIR R4
 .. KIE-Server APIs extended with custom endpoints that allow for (un)marshalling of HAPI FHIR R4 resources
 .. jBPM _Executor Service_ for _asyncroneous_ tasks
 .. Dashbuilder for process and task related monitoring and KPIs
 
-. Security
+. *Web Security*
++
+Please see link:docs/OIDC_enabled_workflow_apps.adoc[OIDC Enabled Workflow Apps] for details.
+
 .. Use of OIDC _Authorization Code Flow_ protocol between RH-SSO and Angular web app to obtain JWT based access token
 .. Access token includes users roles so as to facilitate UserGroupCallback functionality in RH-PAM
 .. KIE-Server APIs of RH-PAM secured via RH-SSO  as Bearer-Token endpoints
 
-. Polyglot Programming Models
+. *Polyglot Programming Models*
 .. Quarkus
 .. SpringBoot
 .. JBoss EAP
 .. Python
-.. KNative functions
+.. KNative Serverless functions
 
-. Machine Learning
+. *Machine Learning*
 .. Machine Learning algorithm to determine probability of Sepsis
 
 == Architecture
@@ -522,13 +525,21 @@ $ curl -H "Authorization: Bearer $TKN" \
        $SEPSISDETECTION_RHPAM_URL/rest/server/containers/sepsisdetection-kjar-1.0.0/processesses/instances/${pInstanceId}/nodes/instances | jq .[][0]
 -----
 
+. List user tasks given a list of roles in access token:
++
+-----
+$ curl -H "Authorization: Bearer $TKN" \
+       -X GET -H 'Accept:application/json' \
+       $SEPSISDETECTION_RHPAM_URL/rest/server/queries/tasks/instances/pot-owners | jq .
+-----
+
 
 . List user tasks as a Business Admin:
 +
 -----
 $ curl -H "Authorization: Bearer $TKN" \
        -X GET -H 'Accept:application/json' \
-       $SEPSISDETECTION_RHPAM_URL/rest/server/queries/tasks/instances/admins
+       $SEPSISDETECTION_RHPAM_URL/rest/server/queries/tasks/instances/admins | jq .
 -----
 
 . List cases in JSON representation:

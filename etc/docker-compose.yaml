@@ -34,7 +34,7 @@ services:
     networks:
       - default
 
-  kafka_connect:
+  kafka-connect:
     image: docker.io/debezium/connect:1.5
     depends_on:
       - zookeeper
@@ -64,7 +64,7 @@ services:
 #      - default
 
 
-  psql_sso:
+  psql-sso:
     image: registry.redhat.io/rhel8/postgresql-12:1-72.1626836556
     restart: always
     ports:
@@ -90,7 +90,7 @@ services:
       - "4443:8443"
       - "4080:8080"
     environment:
-      SSO_POSTGRESQL_SERVICE_HOST: psql_sso
+      SSO_POSTGRESQL_SERVICE_HOST: psql-sso
       SSO_POSTGRESQL_SERVICE_PORT: 4432
       DB_SERVICE_PREFIX_MAPPING: "sso-postgresql=DB"
       DB_JNDI: "java:jboss/datasources/KeycloakDS"
@@ -108,31 +108,20 @@ services:
         source: ./sso/kie-realm.json
         target: /opt/kie-realm.json
     depends_on:
-      - psql_sso
+      - psql-sso
     networks:
       - sso
 
-  sepsisdetection-ml:
+  sepsis-ml:
     image: quay.io/redhat_naps_da/sepsis-detection:1.3
     restart: always
     ports:
       - "5080:8080"
     networks:
-      - sepsisdetection-ml
+      - sepsis-ml
 
 
-#  sepsisdetection-risk:
-#    image: quay.io/redhat_naps_da/sepsisdetection-risk:0.0.1
-#    restart: always
-#    ports:
-#      - "3080:3080"
-#    environment:
-#      JAVA_OPTIONS: -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dquarkus.http.port=3080 -Dkafka.bootstrap.servers=kafka:9092
-#    networks:
-#      - default
-
-
-  psql_fhir:
+  psql-fhir:
     image: registry.redhat.io/rhel8/postgresql-12
     restart: always
     ports:
@@ -153,7 +142,7 @@ services:
     networks:
       - default
 
-  hapi_fhir:
+  hapi-fhir:
     # https://github.com/redhat-naps-da/hapi-fhir-jpaserver-starter
     image: quay.io/redhat_naps_da/hapi-fhir-jpaserver-starter-ocp:v5.3.0-psql-bytea-1
 
@@ -170,11 +159,26 @@ services:
         source: ./hapi-fhir/application.yaml
         target: /deployments/config/application.yaml
     depends_on:
-      - "psql_fhir"
+      - "psql-fhir"
     networks:
       - default
 
-  psql_rhpam:
+  sepsis-risk:
+    image: quay.io/redhat_naps_da/sepsisdetection-risk:0.0.3
+    restart: always
+    ports:
+      - "3080:3080"
+    volumes:
+      - type: bind
+        source: ./sepsisdetection-risk/application.properties
+        target: /deployments/config/application.properties
+    depends_on:
+      - "hapi-fhir"
+    networks:
+      - default
+
+
+  psql-rhpam:
     image: registry.redhat.io/rhel8/postgresql-12
     restart: always
     ports:
@@ -205,9 +209,9 @@ services:
 #    ports:
 #      - "6080:6080"
 #    environment:
-#      JAVA_OPTIONS: "-Dquarkus.http.host=0.0.0.0 -Dquarkus.http.port=6080 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Ddashbuilder.runtime.multi=true -Ddashbuilder.datasources=jbpmdb -Ddashbuilder.datasource.jbpmdb.jdbcUrl=jdbc:postgresql://psql_rhpam:6432/rhpam -Ddashbuilder.datasource.jbpmdb.providerClassName=org.postgresql.Driver -Ddashbuilder.datasource.jbpmdb.maxSize=10 -Ddashbuilder.datasource.jbpmdb.principal=rhpam -Ddashbuilder.datasource.jbpmdb.credential=rhpam -Dquarkus.http.enable-compression=false -Ddashbuilder.import.base.dir=/opt/dashbuilder"
+#      JAVA_OPTIONS: "-Dquarkus.http.host=0.0.0.0 -Dquarkus.http.port=6080 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Ddashbuilder.runtime.multi=true -Ddashbuilder.datasources=jbpmdb -Ddashbuilder.datasource.jbpmdb.jdbcUrl=jdbc:postgresql://psql-rhpam:6432/rhpam -Ddashbuilder.datasource.jbpmdb.providerClassName=org.postgresql.Driver -Ddashbuilder.datasource.jbpmdb.maxSize=10 -Ddashbuilder.datasource.jbpmdb.principal=rhpam -Ddashbuilder.datasource.jbpmdb.credential=rhpam -Dquarkus.http.enable-compression=false -Ddashbuilder.import.base.dir=/opt/dashbuilder"
 #    depends_on:
-#      - psql_rhpam
+#      - psql-rhpam
 #    networks:
 #      - default
 
@@ -234,7 +238,7 @@ services:
 #        source: ./sepsisdetection-rhpam/runtime_configs
 #        target: /deployments/config/
 #    depends_on:
-#      - psql_rhpam
+#      - psql-rhpam
 
 #  sepsis_ui:
 #    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.10
@@ -247,7 +251,7 @@ services:
 networks:
   default:
     driver: bridge
-  sepsisdetection-ml:
+  sepsis-ml:
     driver: bridge
   sso:
     driver: bridge

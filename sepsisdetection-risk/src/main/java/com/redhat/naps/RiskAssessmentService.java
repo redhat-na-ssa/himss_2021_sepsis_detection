@@ -1,5 +1,7 @@
 package com.redhat.naps;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -9,6 +11,8 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -33,11 +37,13 @@ import io.cloudevents.CloudEvent;
 import io.cloudevents.core.builder.CloudEventBuilder;
 import io.cloudevents.jackson.JsonFormat;
 import io.quarkus.vertx.ConsumeEvent;
+import io.quarkus.vertx.core.runtime.VertxCoreRecorder;
 import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.kafka.KafkaRecord;
 import io.vertx.mutiny.core.eventbus.EventBus;
 
+import org.apache.commons.io.IOUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import org.slf4j.Logger;
@@ -59,6 +65,9 @@ public class RiskAssessmentService {
     @Inject
     @RestClient
     FhirServerClient fhirServerClient;
+
+    @ConfigProperty(name="com.redhat.naps.rest.FhirServerClient/mp-rest/url")
+    String fhirServerClientUrl;
 
     @ConfigProperty(name=RiskAssessmentUtils.POST_TO_FHIR_SERVER, defaultValue = "true")
     boolean postToFhirServer;
@@ -137,7 +146,7 @@ public class RiskAssessmentService {
 
     @ConsumeEvent(RiskAssessmentUtils.POST_TO_FHIR_SERVER)
     @Blocking
-    public void postRiskAssessmentToFhirServer(RiskAssessment assessment) {
+    public void postRiskAssessmentToFhirServer(RiskAssessment assessment) throws IOException {
 
         if(!this.postToFhirServer){
             log.warn("postRiskAssessment() will not post");
@@ -146,7 +155,25 @@ public class RiskAssessmentService {
     
         String riskAssessmentRequest = fhirCtx.newJsonParser().encodeResourceToString(assessment);
         log.info("\n\n"+riskAssessmentRequest+"\n\n");
-        Response response = fhirServerClient.postRiskAssessment(riskAssessmentRequest);
+        Response responseObj = null;
+        try {
+            responseObj = fhirServerClient.postRiskAssessment(riskAssessmentRequest);
+        }catch(WebApplicationException x){
+            responseObj = x.getResponse();
+            log.error("postRiskAssessmentToFhirServer() Error with following status when posting to fhir server: "+responseObj.getStatus() );
+            Object rEntity = responseObj.getEntity();
+            if(rEntity != null) {
+                log.error("postRiskAssessmentToFhirServer() error message = "+IOUtils.toString((InputStream)rEntity, "UTF-8"));
+            }
+            x.printStackTrace();
+
+        }catch(ProcessingException x){
+            log.error("postRiskAssessmentToFhirServer() The following error thrown: "+x.getMessage());
+            x.printStackTrace();
+        }finally {
+            if(responseObj != null)
+              responseObj.close();
+        }
         /*s
         Uni<Response> response = fhirServerClient.postRiskAssessmentAsync(riskAssessmentRequest);
         response
