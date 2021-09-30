@@ -47,124 +47,53 @@ Please see link:docs/OIDC_enabled_workflow_apps.adoc[OIDC Enabled Workflow Apps]
 . *Machine Learning*
 .. Machine Learning algorithm to determine probability of Sepsis
 
-== Architecture
 
-===  Sepsis Detection Runtime processes:
+== Order from RHPDS
 
-. _sepsisdetection_ parent process
+. Log into link:https://rhpds.redhat.com[RHPDS]
+. In the left panel, navigate to: _Catalog -> All Services -> Multi-Product Demo -> HIMSS 2021 Sepsis Detection Demo_ 
 +
-image::sepsisdetection-kjar/src/main/resources/com/demo/sepsis/sepsisdetection-svg.svg[]
-
-. _highmediummitigation_ Subprocess: 
+image::docs/images/rhpds_demo_home.png[]
+. Read through the overview and click _Order_ at the bottom of the page.
+. Fill in the details in the _Lab Information_ tab
 +
-image::sepsisdetection-kjar/src/main/resources/com/demo/sepsis/highmediummitigation-svg.svg[]
+NOTE:  A Size of _Training_ is sufficient to support the demo.
+. Click: _Submit_.
 
-
-=== Deployment Architecture
-
-image::docs/images/reference_architecture_actual.png[]
-
-. An external client POSTs a FHIR R4 _bundle_ (with a Patient, Location and multiple Observation resources ) to the RESTful API of the HAPI FHIR JPA server.
-. HAPI FHIR JPA Server persists (using Hiberate) to its PostgreSQL database.  FHIR resources are stored as gzip blobs in the following table of the HAPI FHIR database schema:  _public.hfj_res_ver_ .
-. Debezium detects the additional records to the _public.hfj_res_ver_ table and puts them in motion by sending the raw GZIP blobs to a kafka topic:  _fhir.public.hfj_res_ver_
-. Messages in the _fhir.public.hfj_res_ver_ topic can now be viewed via monitoring tools such as _KafDrop_.  The _sepsisdetection_rhpam_ application is also a consumer on that topic.  With consumption of a Patient resource, the RH-PAM _process-engine_ embedded in the _sepsisdetection-RHPAM_ application is invoked and a _sepsis-detection_ business process is started.
+. Expect to receive an intial two emails providing process within the first 20 minutes of ordering.
+. Expect a third email about another 20 minutes after the second email.
 +
-These business process and corresponding human tasks can be monitored via tools such as RH-PAMs _dashbuilder_ component.
-
-.. As part of the _sepsis-detection_ business process, the RESTful API of the HAPI FHIR server is queried for a list of all _Observation_ resources for the Patient in a given time period and a _PatientVitals_ resource is created.
-
-.. As part of the _sepsis-detection_ business process, the _PatientVitals_ resource is used as the payload of an HTTP POST request to the _sepsisdetection-ml_ function.  The function responds with an indication of whether sepsis is likely or not.
-
-.. As part of the _sepsis-detection_ business process, a _generateRiskAssessmentCommand_ message is sent (as a _Cloud Event) to RHT AMQ Streams.
-
-. The _SepsisDetection-Risk_ service consumes the _generateRiskAssessmentCommand_ Cloud Event.  A FHIR R4 _RiskAssessment_ resource (which includes the data indicating likelyhood of sepsis) is posted to the FHIR Server via its RESTful APIs.
+This third email will provide details regarding the OpenShift environment that the demo will run on.
 +
-Debezium detects the addition of the _Risk Assessment_ resource in the HAPI FHIR database and forwards this event as message to Red Hat AMQ Streams.
-+
-RH-PAM picks up this change event with the Risk Assessment resource and advances the business process to the next task.
+Log into the OpenShift Console using the details provided in the email.
 
-. A user with a set of roles (defined in RH-SSO) authenticates into the _SepsisDetection-UI_.  The _sepsisdetection-ui_ interacts with RH-SSO (as per the _Authorization Code Flow_ protocol of OIDC) to generate an _Access Token_.  The _sepsisdetection-ui_ interacts with the RESTful _KIE-Server_ APIs (and includes the _access token_ in the request) of _sepsisdetection-rhpam_ and renders a user interface that allows for management of the _sepsis-detection_ business process and corresponding human tasks.  Depending on the role of the authenticated user, that user is presented with _user tasks_ with which to work through their lifecycle.
+. After the third email arrives, wait about another 20 minutes for the demo to fully provision.
 
-. The _sepsisdetection-ui_ pulls in an IFrame from HealthFlow.
-
-
-
-== Deploy to OpenShift
-Ansible is included to deploy this application to OpenShift in a repeatable manner.
-
-=== Pre-reqs:
-
-. OpenShift Container Platform version 4.7.* or more recent.  Resource requirements needed by the app (doesn't include resource requirements of Openshift to support itself) is as follows:
-.. RAM: 6 GB
-.. CPU: 8
-.. Storage: 10 PVCs of type RWO (no RWX requirement) and each of size 5 GiB
-. cluster-admin credentials to this OpenShift cluster are needed
-. Corresponding `oc` utility installed locally
-+
-All versions of this utility are available at either of the following:
-
-.. https://access.redhat.com/downloads/content/290
-+
-RHN subscription required
-.. https://mirror.openshift.com/pub/openshift-v4/clients/ocp/?C=M;O=D
-+
-Accessible without a RHN subscription
-
-. ansible installed locally
-+
-ie: `dnf install ansible`
-
-. git installed locally
-
-=== Procedure:
-
-. Using the `oc` utility that corresponds to the version of OpenShift that you will deploy to, log into the cluster: 
+.. If you've logged into the new OpenShift environment, you can monitor demo installation progress by executing the following:
 +
 -----
-$ oc login <OCP API Server url> -u <cluster-admin userId> -p <passwd>
------
+$ oc logs -f -c manager $( oc get pod -n ansible-system | grep "^ansible" | awk '{print $1}' ) -n ansible-system
+----- 
 
-. Clone the source code of this project:
+.. Upon successful completion, a log statement should appear similar to the following: 
 +
 -----
-$ git clone https://github.com/redhat-naps-da/himss_interoperability_showcase_2021
------
-
-. Change to the _ansible_ directory of this project: 
-+
------
-$ cd ansible
------
-
-. Deploy to OpenShift:
-+
------
-NOTE: If you are running the install from a Mac, it will be necessary to manually create the
-user1-sepsisdetection namespace prior to the step below.
------
------
-$ ansible-playbook playbooks/install.yml
------
-
-.. Deployment should complete in about 15 minutes.
-
-.. Notice the creation of a new OCP namespace where the application resides:  user1-sepsisdetection
-
-.. At the completion of the installation, expect to see messages similar to the following:
-+
------
-...
+----- Ansible Task Status Event StdOut (cache.redhat.com/v1alpha1, Kind=HIMSS2021, himss2021-sample/ansible-system) -----
 
 
-PLAY RECAP *******************************************************************************************************************************************************************************************************
-localhost                  :  ok=137  changed=77   unreachable=0    failed=0    skipped=14   rescued=0    ignored=0
+PLAY RECAP *********************************************************************
+localhost                  : ok=233  changed=74   unreachable=0    failed=0    skipped=42   rescued=0    ignored=0   
+
+
+----------
+
+
 -----
 
-. Optional:  Uninstall from OpenShift:
-+
------
-$ ansible-playbook playbooks/uninstall.yml
------
+
+
+
+
 
 == Demo Components
 
@@ -234,15 +163,16 @@ A _provider_ then administers any tasks assigned to she/he .
 
 === Reset Demo
 
-. Point your browser to the output of the following command: 
+. In the Openshift console, navigate to the _routes_ in the _user1-sepsisdetection_ namespace
 +
------
-$ echo -en "\nhttps://$(oc get route sepsisdetection-ui -n user1-sepsisdetection --template='{{ .spec.host }}' )\n"
------
+image::docs/images/ocp_console_ui_route.png[]
+
+.. Click the URL of the _sepsisdetection-ui_ route.
 +
 image::docs/images/sepsisui-login.png[]
-+
-Use credentials of:   _pamAdmin / pam_
+
+
+. Authenticate in using credentials of:   _pamAdmin / pam_
 
 . Click the _Reset Demo_ button: 
 +
@@ -290,6 +220,128 @@ image::docs/images/sepsisui_risk_evaluation.png[]
 Use credentials of:   _bob / pam_.
 
 . Similar to what you already did as a simualated _doctor_, manage the lifecycle of any tasks assigned to a _provider_.
+
+== Architecture
+
+===  Sepsis Detection Runtime processes:
+
+. _sepsisdetection_ parent process
++
+image::sepsisdetection-kjar/src/main/resources/com/demo/sepsis/sepsisdetection-svg.svg[]
+
+. _highmediummitigation_ Subprocess: 
++
+image::sepsisdetection-kjar/src/main/resources/com/demo/sepsis/highmediummitigation-svg.svg[]
+
+
+=== Deployment Architecture
+
+image::docs/images/reference_architecture_actual.png[]
+
+. An external client POSTs a FHIR R4 _bundle_ (with a Patient, Location and multiple Observation resources ) to the RESTful API of the HAPI FHIR JPA server.
+. HAPI FHIR JPA Server persists (using Hiberate) to its PostgreSQL database.  FHIR resources are stored as gzip blobs in the following table of the HAPI FHIR database schema:  _public.hfj_res_ver_ .
+. Debezium detects the additional records to the _public.hfj_res_ver_ table and puts them in motion by sending the raw GZIP blobs to a kafka topic:  _fhir.public.hfj_res_ver_
+. Messages in the _fhir.public.hfj_res_ver_ topic can now be viewed via monitoring tools such as _KafDrop_.  The _sepsisdetection_rhpam_ application is also a consumer on that topic.  With consumption of a Patient resource, the RH-PAM _process-engine_ embedded in the _sepsisdetection-RHPAM_ application is invoked and a _sepsis-detection_ business process is started.
++
+These business process and corresponding human tasks can be monitored via tools such as RH-PAMs _dashbuilder_ component.
+
+.. As part of the _sepsis-detection_ business process, the RESTful API of the HAPI FHIR server is queried for a list of all _Observation_ resources for the Patient in a given time period and a _PatientVitals_ resource is created.
+
+.. As part of the _sepsis-detection_ business process, the _PatientVitals_ resource is used as the payload of an HTTP POST request to the _sepsisdetection-ml_ function.  The function responds with an indication of whether sepsis is likely or not.
+
+.. As part of the _sepsis-detection_ business process, a _generateRiskAssessmentCommand_ message is sent (as a _Cloud Event) to RHT AMQ Streams.
+
+. The _SepsisDetection-Risk_ service consumes the _generateRiskAssessmentCommand_ Cloud Event.  A FHIR R4 _RiskAssessment_ resource (which includes the data indicating likelyhood of sepsis) is posted to the FHIR Server via its RESTful APIs.
++
+Debezium detects the addition of the _Risk Assessment_ resource in the HAPI FHIR database and forwards this event as message to Red Hat AMQ Streams.
++
+RH-PAM picks up this change event with the Risk Assessment resource and advances the business process to the next task.
+
+. A user with a set of roles (defined in RH-SSO) authenticates into the _SepsisDetection-UI_.  The _sepsisdetection-ui_ interacts with RH-SSO (as per the _Authorization Code Flow_ protocol of OIDC) to generate an _Access Token_.  The _sepsisdetection-ui_ interacts with the RESTful _KIE-Server_ APIs (and includes the _access token_ in the request) of _sepsisdetection-rhpam_ and renders a user interface that allows for management of the _sepsis-detection_ business process and corresponding human tasks.  Depending on the role of the authenticated user, that user is presented with _user tasks_ with which to work through their lifecycle.
+
+. The _sepsisdetection-ui_ pulls in an IFrame from HealthFlow.
+
+
+== Deploy to OpenShift using Ansible
+
+Ansible is included to deploy this application to OpenShift in a repeatable manner.
+
+=== Pre-reqs:
+
+. OpenShift Container Platform version 4.7.* or more recent. Resource requirements needed by the app (doesn’t include resource requirements of Openshift to support itself) is as follows:
+
+..       RAM: 6 GB
+
+..     CPU: 8
+
+..    Storage: 10 PVCs of type RWO (no RWX requirement) and each of size 5 GiB
+
+.    cluster-admin credentials to this OpenShift cluster are needed
+
+.    Corresponding oc utility installed locally
++
+    All versions of this utility are available at either of the following:
+
+..        https://access.redhat.com/downloads/content/290
++
+        RHN subscription required
+
+..        https://mirror.openshift.com/pub/openshift-v4/clients/ocp/?C=M;O=D
++
+        Accessible without a RHN subscription
+
+.    ansible installed locally
++
+    ie: dnf install ansible
+
+.    git installed locally
+
+=== Procedure:
+
+. Using the oc utility that corresponds to the version of OpenShift that you will deploy to, log into the cluster:
++
+-----
+    $ oc login <OCP API Server url> -u <cluster-admin userId> -p <passwd>
+-----
+
+.    Clone the source code of this project:
++
+-----
+    $ git clone https://github.com/redhat-naps-da/himss_interoperability_showcase_2021
+-----
+
+.    Change to the ansible directory of this project:
++
+-----
+    $ cd ansible
+-----
+
+.    Deploy to OpenShift:
++
+    NOTE: If you are running the install from a Mac, it will be necessary to manually create the
+    user1-sepsisdetection namespace prior to the step below.
++
+-----
+$ ansible-playbook playbooks/install.yml
+-----
+
+..    Deployment should complete in about 15 minutes.
+
+..    Notice the creation of a new OCP namespace where the application resides: user1-sepsisdetection
+
+..    At the completion of the installation, expect to see messages similar to the following:
++
+-----
+PLAY RECAP *******************************************************************************************************************************************************************************************************
+    localhost                  :  ok=137  changed=77   unreachable=0    failed=0    skipped=14   rescued=0    ignored=0
+
+-----
+
+.        Optional: Uninstall from OpenShift:
++
+-----
+        $ ansible-playbook playbooks/uninstall.yml
+-----
 
 
 
@@ -665,6 +717,14 @@ https://my.healthflow.io/patient-chart?patientId=610f11c05b041e00082c54c2
 . link:https://sdk.operatorframework.io/docs/building-operators/ansible/tutorial/[ansible operator tutorial]
 
 . link:https://quay.io/repository/redhat_naps_da/sepsisdetection-operator?tab=tags[HIMSS 2021 Sepsis Detection Operator Image Tags]
+
+=== Monitoring
+
+The HIMSS Demo operator can be monitored by tailing its log file as follows:
+
+-----
+$ oc logs -f -c manager $( oc get pod -n ansible-system | grep "^ansible" | awk '{print $1}' ) -n ansible-system
+-----
 
 === Development
 
