@@ -6,9 +6,25 @@
 = Sepsis Detection Demo
 :numbered:
 
+== Overview
+
+The purpose of this project is to provide a reproducible demo of a patient (with a probability of link:https://en.wikipedia.org/wiki/Sepsis[sepsis]) _encounter_ at a hospital.
+This demo uses many Red Hat technologies.
+
+Sepsis is a costly and life threatening condition resulting in multi-organ failure. Beating conditions like sepsis requires rapid detection and mitigation of risks. Recovery at home is often preferred, yet Medical teams often lack the capability to perform constant surveillance for emerging risks across their patient cohorts, especially in rural settings. We will demonstrate an early warning system driven by Clinical AI at the Edge, fed by at-home post-operative monitoring and automated Clinical care escalation and coordination processes.
 
 
-== Purpose
+
+=== Reference
+
+
+. link:https://source.redhat.com/groups/public/ai_automation_at_the_edge[Demo HomePage: AI Automation at the Edge]
+
+. link:https://docs.google.com/presentation/d/1pyKctkvtpjuav52P-qg6SBKDmbaCP_GO/edit#slide=id.p1[Use case presentation]
+
+. link:https://videos.learning.redhat.com/media/AI+Automation+at+the+Edge/1_08i6wegl/182016811[Live Demo Example]
+
+
 
 === Technical Discussion Vectors
 
@@ -52,19 +68,34 @@ Please see link:docs/OIDC_enabled_workflow_apps.adoc[OIDC Enabled Workflow Apps]
 
 == Order from RHPDS
 
+The _Red Hat Product Demo System_ (RHPDS) provides a wide variety of cloud-based labs and demos showcasing Red Hat software.
+One of the offerings from RHPDS is the _HIMSS 2021 Sepsis Detection Demo_.
+
 [red]#NOTE:  Expect the ordering process to take about 1.5 hours total.#
 
 . Log into link:https://rhpds.redhat.com[RHPDS]
++
+To utilize RHPDS, you will need the following:
+
+.. link:https://account.opentlc.com/account/[OPENTLC credentials].
++
+OPENTLC credentials are available only to Red Hat associates and Red Hat partners.
+.. SFDC Opportunity, Campaign ID or Partner Registration
+
 . In the left panel, navigate to: _Catalog -> All Services -> Multi-Product Demo -> HIMSS 2021 Sepsis Detection Demo_ 
 +
 image::docs/images/rhpds_demo_home.png[]
+
 . Read through the overview and click _Order_ at the bottom of the page.
 . Fill in the details in the _Lab Information_ tab
 +
-NOTE:  A Size of _Training_ is sufficient to support the demo.
+NOTE:  Among the ordering options, there are several OpenShift cluster sizes to choose from.  A size of _Training_ is sufficient to support the demo.
+
 . Click: _Submit_.
 
 . Expect to receive an intial two emails providing process within the first 20 minutes of ordering.
++
+[blue]#While waiting, one suggestion might be to skim through the following 3 sections of this doc: _Demo Components_, _Demo Scenario_ and _Architecture_# ,
 . Expect a third email about another 40 minutes after the second email.
 +
 The base OpenShift environment is now provisioned.
@@ -101,45 +132,77 @@ localhost                  : ok=233  changed=74   unreachable=0    failed=0    s
 
 == Demo Components
 
+The purpose of this section is to highlight the major components of the demo.
 
-==== Red Hat SSO
+
+=== Red Hat SSO
 
 image::docs/images/rh-sso.png[]
 
+Red Hat SSO is used as the OpenID Connect provider of access tokens needed by other demo components for authentication and authorization.
 
-==== Dashbuilder
+For the purpose of the demo, the RH-SSO consists a single SSO _realm_ configured with an SSO client and multiple users and roles to facilitate the use case.
 
-image::docs/images/dashbuilder_tasks.png[]
 
-==== Hapi FHIR Server
+=== Hapi FHIR Server
 
 image::docs/images/hapi_fhir_home.png[]
 
-==== Kafdrop
+The demo consists of a link:https://hapifhir.io/hapi-fhir/docs/server_jpa/[HAPI FHIR JPA server] .
+
+This server maintains the state of all link:https://www.hl7.org/fhir/resourcelist.html[FHIR resources] involved in the _sepsis detection_ use case.
+
+The HAPI FHIR server is backed by a PostgreSQL database.
+
+=== AMQ Streams / Debezium / Kafdrop
+
+The architecture of the demo is primarily _event driven_.
+
+As such, the demo makes use of Red Hat's AMQ Streams and Debezium technologies.
+
+For monitoring of kafka topcs in AMQ Streams, the demo provides an instance of link:https://github.com/obsidiandynamics/kafdrop[Kafdrop]
 
 image::docs/images/kafdrop_home.png[]
 
+Kafdrop allows for instrospection of messages in the kafka topics.
+
 image::docs/images/kafdrop_message.png[]
 
-==== Sepsisdetection-rhpam
+
+=== Sepsisdetection-rhpam
 
 This service consists of the RH-PAM _process_engine_ embedded in SpringBoot.
 
 .. This service consumes messages from Red Hat AMQ Streams
 +
-In particular, it consumes change events from the PostgreSQL database of the HAPI FHIR server.
+In particular, it consumes _change events_ from the PostgreSQL database of the HAPI FHIR server.
 +
-ie: When a new FHIR _Patient_ resource is posted to the HAPI FHIR server, a record is added to the PostgreSQL database of the HAPI FHIR server and a change event is sent to a AMQ Streams/Kafka topic.
+ie: When a new FHIR _Patient_ resource is posted to the HAPI FHIR REST API, a record is added to the HAPI FHIR PostgreSQL database.
+Subsequently, a _change event_ that captures this database record is sent to an AMQ Streams/Kafka topic.
 
 .. This service also exposes the following RESTful APIs:
-... KIE-Server REST APIs
+... Standard RH-PAM KIE-Server REST APIs
++
+image::docs/images/swagger-ui.png[]
+
 ... FHIR Enabled REST APIs:
 +
 Augments the RH-PAM KIE-Server with additional APIs that allow for handling FHIR related process and task variables
 
-==== Sepsisdetection-UI
+=== Dashbuilder
+
+For monitoring of business processes and user tasks the demo provides an instance of RH-PAM's _dashbuilder_ technology.
+
+image::docs/images/dashbuilder_tasks.png[]
+
+
+=== Sepsisdetection-UI
+
+The demo provides a user interface written in AngularJS .
 
 image::docs/images/sepsisui-home.png[]
+
+This UI allows _role-based-access-control_ to various features based on the roles in the SSO _access token_ of an authenticated user.
 
 
 == Demo Scenario
@@ -255,6 +318,8 @@ RH-PAM picks up this change event with the Risk Assessment resource and advances
 
 Ansible is included to deploy this application to OpenShift in a repeatable manner.
 
+[red]#This section is only relevant if the desire is to provision the demo on your own OpenShift environemnt and not order the demo from RHPDS# .
+
 === Pre-reqs:
 
 . OpenShift Container Platform version 4.7.* or more recent. Resource requirements needed by the app (doesn’t include resource requirements of Openshift to support itself) is as follows:
@@ -338,6 +403,8 @@ PLAY RECAP *********************************************************************
 
 This project includes a _docker-compose_ config file that allows for deployment of the application as containers in your local environment.
 
+[red]#This section is only relevant to developers of the demo#
+
 . Start application pod with all linux containers:
 +
 -----
@@ -370,6 +437,10 @@ $ docker-compose -f etc/docker-compose.yaml down
 
 
 == Test
+
+[red]#This section is only relevant to developers of the demo#
+
+
 
 
 === Environment Variables
@@ -593,7 +664,7 @@ $ curl -H "Authorization: Bearer $TKN" \
 
 
 
-== Development
+== Additional Development Notes
 
 === HAPI FHIR Server Development & Customizations
 
@@ -669,14 +740,14 @@ $ sed "s/{KIE_SERVER_CONTAINER_NAME}/$KIE_SERVER_CONTAINER_NAME/g" etc/rhpam/kie
 -----
 
 
-== Reference
+== Additional References
 
 . link:https://www.redhat.com/en/resources/earlier-sepsis-detection[Sepsis Detection Brief]
 . link:https://docs.google.com/presentation/d/1pyKctkvtpjuav52P-qg6SBKDmbaCP_GO/edit#slide=id.p1[AI Automation at the Edge, HIMSS 2021]
 . link:https://trello.com/c/fbnRjpZu/22-detection-of-pneumonia-from-chest-x-rays[Trello Card]
 . link:https://docs.google.com/presentation/d/1nLNPzu93bhOW_QNZDiBxERgYVMJ9RBV1ZhtMJECr5s0/edit#slide=id.g775d9c5cf4_0_717[Technical Presentation]
 . link:https://lucid.app/lucidchart/44b1e8b0-2a68-45ac-82b5-9428178071ae/edit?shared=true&page=0_0#[Lucid Chart:  HIMSS Demo Logical Architecture]
-. linkhttps://access.redhat.com/documentation/en-us/red_hat_decision_manager/7.11/html-single/integrating_red_hat_decision_manager_with_other_products_and_components/index#assembly-springboot-business-apps[RH-PAM apps with SpringBoot]
+. link:https://access.redhat.com/documentation/en-us/red_hat_decision_manager/7.11/html-single/integrating_red_hat_decision_manager_with_other_products_and_components/index#assembly-springboot-business-apps[RH-PAM apps with SpringBoot]
 
 === Original Repos
 . https://github.com/redhat-naps-da/sepsis-detection
