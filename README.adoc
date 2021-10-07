@@ -25,6 +25,8 @@
 . *Process Automation*
 .. RH-PAM embedded in SpringBoot as process automation engine
 .. BPMN models with process variables of type FHIR R4
+.. User Task centric process model with Task lifecycle driven by clients via KIE-Server API
+.. Angular based simple Task Inbox web app 
 .. KIE-Server APIs extended with custom endpoints that allow for (un)marshalling of HAPI FHIR R4 resources
 .. jBPM _Executor Service_ for _asyncroneous_ tasks
 .. Dashbuilder for process and task related monitoring and KPIs
@@ -50,6 +52,8 @@ Please see link:docs/OIDC_enabled_workflow_apps.adoc[OIDC Enabled Workflow Apps]
 
 == Order from RHPDS
 
+[red]#NOTE:  Expect the ordering process to take about 1.5 hours total.#
+
 . Log into link:https://rhpds.redhat.com[RHPDS]
 . In the left panel, navigate to: _Catalog -> All Services -> Multi-Product Demo -> HIMSS 2021 Sepsis Detection Demo_ 
 +
@@ -61,21 +65,24 @@ NOTE:  A Size of _Training_ is sufficient to support the demo.
 . Click: _Submit_.
 
 . Expect to receive an intial two emails providing process within the first 20 minutes of ordering.
-. Expect a third email about another 20 minutes after the second email.
+. Expect a third email about another 40 minutes after the second email.
 +
-This third email will provide details regarding the OpenShift environment that the demo will run on.
+The base OpenShift environment is now provisioned.
++
+
+This third email will provide details regarding this OpenShift environment that the demo will run on.
 +
 Log into the OpenShift Console using the details provided in the email.
 
-. After the third email arrives, wait about another 20 minutes for the demo to fully provision.
+. After the third email arrives, wait about another 30 minutes for the HIMSS demo itself to fully provision on the base OpenShift.
 
-.. If you've logged into the new OpenShift environment, you can monitor demo installation progress by executing the following:
+.. If you've logged into the new OpenShift environment at the command line, you can monitor demo installation progress by executing the following:
 +
 -----
 $ oc logs -f -c manager $( oc get pod -n ansible-system | grep "^ansible" | awk '{print $1}' ) -n ansible-system
 ----- 
 
-.. Upon successful completion, a log statement should appear similar to the following: 
+.. Upon successful completion of the HIMSS demo, a log statement should appear similar to the following: 
 +
 -----
 ----- Ansible Task Status Event StdOut (cache.redhat.com/v1alpha1, Kind=HIMSS2021, himss2021-sample/ansible-system) -----
@@ -92,16 +99,12 @@ localhost                  : ok=233  changed=74   unreachable=0    failed=0    s
 
 
 
-
-
-
 == Demo Components
 
 
 ==== Red Hat SSO
 
 image::docs/images/rh-sso.png[]
-
 
 
 ==== Dashbuilder
@@ -123,27 +126,13 @@ image::docs/images/kafdrop_message.png[]
 This service consists of the RH-PAM _process_engine_ embedded in SpringBoot.
 
 .. This service consumes messages from Red Hat AMQ Streams
++
+In particular, it consumes change events from the PostgreSQL database of the HAPI FHIR server.
++
+ie: When a new FHIR _Patient_ resource is posted to the HAPI FHIR server, a record is added to the PostgreSQL database of the HAPI FHIR server and a change event is sent to a AMQ Streams/Kafka topic.
+
 .. This service also exposes the following RESTful APIs:
-... KIE-Server REST APIs:
-
-.... Swagger documentation is available in json format as per the following:
-+
------
-$ curl -v -u "kieserver:kieserver" https://$(oc get route sepsisdetection-rhpam -n user1-sepsisdetection --template='{{ .spec.host }}')/rest/swagger.json | jq .
------
-
-..... swagger-ui:
-+
-Point your browser to the output of the following:
-+
------
-$ SEPSISDETECTION_RHPAM_URL=https://$(oc get route sepsisdetection-rhpam -n user1-sepsisdetection --template='{{ .spec.host }}')
-
-$ echo -en "\n$SEPSISDETECTION_RHPAM_URL/rest/api-docs/?url=$SEPSISDETECTION_RHPAM_URL/rest/swagger.json\n"
------
-+
-image::docs/images/swagger-ui.png[]
-
+... KIE-Server REST APIs
 ... FHIR Enabled REST APIs:
 +
 Augments the RH-PAM KIE-Server with additional APIs that allow for handling FHIR related process and task variables
@@ -387,13 +376,13 @@ $ docker-compose -f etc/docker-compose.yaml down
 
 Set the following environment variables with values similar to the following:
 
-. If testing environment deployed locally:
+. If testing locally deployed application (via docker-compose):
 +
 -----
-SEPSISDETECTION_RHPAM_URL=http://localhost:9080
 RHSSO_URL=http://localhost:4080
 REALM_ID=kieRealm
 retrieve_token_url="$RHSSO_URL/auth/realms/$REALM_ID/protocol/openid-connect/token"
+SEPSISDETECTION_RHPAM_URL=http://localhost:9080
 FHIR_SERVER_URL=http://localhost:8080
 -----
 
@@ -404,7 +393,7 @@ SEPSISDETECTION_RHPAM_URL=https://$(oc get route sepsisdetection-rhpam -n user1-
 RHSSO_URL=https://$(oc get route sso -n sepsisdetection-sso --template='{{ .spec.host }}')
 REALM_ID=user1-sepsis
 retrieve_token_url="$RHSSO_URL/auth/realms/$REALM_ID/protocol/openid-connect/token"
-FHIR_SERVER_URL=http://$(oc get route fhir-server -n user1-sepsisdetection --template='{{ .spec.host }}')
+FHIR_SERVER_URL=https://$(oc get route fhir-server -n user1-sepsisdetection --template='{{ .spec.host }}')
 -----
 
 === RH-SSO
