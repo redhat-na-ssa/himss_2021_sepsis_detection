@@ -1,4 +1,4 @@
-<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:bpsim="http://www.bpsim.org/schemas/1.0" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:drools="http://www.jboss.org/drools" id="_gh2UkAH1EDqcVNoCIXWOSw" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.jboss.org/drools drools.xsd http://www.bpsim.org/schemas/1.0 bpsim.xsd http://www.omg.org/spec/DD/20100524/DC DC.xsd http://www.omg.org/spec/DD/20100524/DI DI.xsd " exporter="jBPM Process Modeler" exporterVersion="2.0" targetNamespace="http://www.omg.org/bpmn20">
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:bpsim="http://www.bpsim.org/schemas/1.0" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:drools="http://www.jboss.org/drools" id="_rge8YAn4EDqzKMJcnE8rCQ" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.jboss.org/drools drools.xsd http://www.bpsim.org/schemas/1.0 bpsim.xsd http://www.omg.org/spec/DD/20100524/DC DC.xsd http://www.omg.org/spec/DD/20100524/DI DI.xsd " exporter="jBPM Process Modeler" exporterVersion="2.0" targetNamespace="http://www.omg.org/bpmn20">
   <bpmn2:itemDefinition id="_observationListItem" structureRef="java.util.List"/>
   <bpmn2:itemDefinition id="_patientItem" structureRef="org.hl7.fhir.r4.model.Patient"/>
   <bpmn2:itemDefinition id="_riskAssessmentItem" structureRef="org.hl7.fhir.r4.model.RiskAssessment"/>
@@ -51,6 +51,10 @@
   <bpmn2:signal id="_-261263222" name="riskAssessmentUpdated"/>
   <bpmn2:signal id="_1253034862" name="obsAcquired"/>
   <bpmn2:process id="sepsisdetection" drools:packageName="com.demo.sepsis" drools:version="1.0" drools:adHoc="true" name="Sepsis Detection" isExecutable="true" processType="Public">
+    <bpmn2:extensionElements>
+      <drools:import name="org.hl7.fhir.r4.model.RiskAssessment"/>
+      <drools:import name="com.redhat.naps.process.util.RiskAssessmentUtil"/>
+    </bpmn2:extensionElements>
     <bpmn2:property id="observationList" itemSubjectRef="_observationListItem" name="observationList"/>
     <bpmn2:property id="patient" itemSubjectRef="_patientItem" name="patient"/>
     <bpmn2:property id="riskAssessment" itemSubjectRef="_riskAssessmentItem" name="riskAssessment"/>
@@ -58,9 +62,18 @@
     <bpmn2:property id="riskEvaluvationResult" itemSubjectRef="_riskEvaluvationResultItem" name="riskEvaluvationResult"/>
     <bpmn2:property id="observationId" itemSubjectRef="_observationIdItem" name="observationId"/>
     <bpmn2:property id="patientVitals" itemSubjectRef="_patientVitalsItem" name="patientVitals"/>
+    <bpmn2:sequenceFlow id="_5148CAD5-CF58-40BB-A383-EA099FE7B345" name="Not Detected" sourceRef="_EFB91830-B063-4293-A5B0-2B2AE5066A7B" targetRef="_BFC94BFD-E685-41F3-886E-0C278B357B22">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[Not Detected]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" language="http://www.java.com/java"><![CDATA[return false;]]></bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
     <bpmn2:sequenceFlow id="_B0EB9A40-0467-4EF7-83D9-1AC439D9E9E4" sourceRef="_F66CD976-0E42-4503-A7BE-E7B9AA9A19C8" targetRef="_F07FD026-6FA4-4644-8603-9C59BEEF8B0C"/>
     <bpmn2:sequenceFlow id="_6B7FADDB-7ED3-4CBC-AA4D-3725FBEBDE18" sourceRef="_F07FD026-6FA4-4644-8603-9C59BEEF8B0C" targetRef="_434969F1-60C5-4681-A4EB-1BDB3595061D"/>
     <bpmn2:sequenceFlow id="_8478689A-5B49-4DEB-BD6C-36BEA47E591F" sourceRef="_434969F1-60C5-4681-A4EB-1BDB3595061D" targetRef="_6B8C7923-B014-43D0-B4E0-E8C62AB32A96"/>
+    <bpmn2:sequenceFlow id="_5E7530EB-5AF9-4515-8ABC-1B6014AA8515" sourceRef="_90660C0D-1763-4E04-AFA9-C7633096CBA1" targetRef="_EFB91830-B063-4293-A5B0-2B2AE5066A7B"/>
     <bpmn2:sequenceFlow id="_33069D0E-E802-45ED-BD59-EF7B4B69B4A8" sourceRef="_6B8C7923-B014-43D0-B4E0-E8C62AB32A96" targetRef="_90660C0D-1763-4E04-AFA9-C7633096CBA1"/>
     <bpmn2:sequenceFlow id="_644DFFFA-A619-41F4-B102-26F336C8719A" sourceRef="_41EF3B28-158D-4B0C-8E51-F22540D002A6" targetRef="_9E8617C4-AAA9-473E-A3E8-252E917779E3">
       <bpmn2:extensionElements>
@@ -94,18 +107,6 @@ else
         </drools:metaData>
       </bpmn2:extensionElements>
     </bpmn2:sequenceFlow>
-    <bpmn2:sequenceFlow id="_0592BDA6-33AC-4821-990E-384C23489D8E" name="Probable/Possible Diagnosis" sourceRef="_DE587AE8-0B9F-4379-BC7F-5766D1F6627F" targetRef="_B7DB4C82-0D60-436C-A5B5-D7D69B5709B7">
-      <bpmn2:extensionElements>
-        <drools:metaData name="elementname">
-          <drools:metaValue><![CDATA[Probable/Possible Diagnosis]]></drools:metaValue>
-        </drools:metaData>
-      </bpmn2:extensionElements>
-      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" language="http://www.java.com/java"><![CDATA[String result = (String) kcontext.getVariable("riskEvaluvationResult");
-if(result.equals("Possible") || result.equals("Probable"))
-  return true;
-else
-  return false;  ]]></bpmn2:conditionExpression>
-    </bpmn2:sequenceFlow>
     <bpmn2:sequenceFlow id="_B6F5E785-2329-4612-84A2-A2F4D3182702" name="Unlikely" sourceRef="_DE587AE8-0B9F-4379-BC7F-5766D1F6627F" targetRef="_681788A7-6E06-4B53-85F5-E8B03AF7B39B">
       <bpmn2:extensionElements>
         <drools:metaData name="isAutoConnection.target">
@@ -117,6 +118,18 @@ else
       </bpmn2:extensionElements>
       <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" language="http://www.java.com/java"><![CDATA[String result = (String) kcontext.getVariable("riskEvaluvationResult");
 if(result.equals("Unlikely"))
+  return true;
+else
+  return false;  ]]></bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
+    <bpmn2:sequenceFlow id="_0592BDA6-33AC-4821-990E-384C23489D8E" name="Probable/Possible Diagnosis" sourceRef="_DE587AE8-0B9F-4379-BC7F-5766D1F6627F" targetRef="_B7DB4C82-0D60-436C-A5B5-D7D69B5709B7">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[Probable/Possible Diagnosis]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" language="http://www.java.com/java"><![CDATA[String result = (String) kcontext.getVariable("riskEvaluvationResult");
+if(result.equals("Possible") || result.equals("Probable"))
   return true;
 else
   return false;  ]]></bpmn2:conditionExpression>
@@ -143,10 +156,28 @@ else
       </bpmn2:extensionElements>
     </bpmn2:sequenceFlow>
     <bpmn2:sequenceFlow id="_400B557F-4BDE-43B0-9301-11ECECE76B7D" sourceRef="_CECBB2DC-2C04-4706-ACBB-54470257F2BE" targetRef="_4A4BEDB6-3532-46E9-872C-DD84345D8AD7"/>
-    <bpmn2:sequenceFlow id="_3F3FC527-0E7A-4547-9A26-F072C1E506D4" sourceRef="_90660C0D-1763-4E04-AFA9-C7633096CBA1" targetRef="_CECBB2DC-2C04-4706-ACBB-54470257F2BE"/>
+    <bpmn2:sequenceFlow id="_D9BAF8BF-E13D-4FD7-ACF7-762513207BE9" name="Detected" sourceRef="_EFB91830-B063-4293-A5B0-2B2AE5066A7B" targetRef="_CECBB2DC-2C04-4706-ACBB-54470257F2BE">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[Detected]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" language="http://www.java.com/java"><![CDATA[RiskAssessment rAssessment = (RiskAssessment)kcontext.getVariable("riskAssessment");
+String code = RiskAssessmentUtil.getCode(rAssessment);
+return "1".equals(code);]]></bpmn2:conditionExpression>
+    </bpmn2:sequenceFlow>
     <bpmn2:sequenceFlow id="_546B9392-B339-4AA5-9663-086E5F8B9F8D" sourceRef="_B7DB4C82-0D60-436C-A5B5-D7D69B5709B7" targetRef="_90E0B486-3A39-4D9F-808E-13678EB4F282"/>
     <bpmn2:sequenceFlow id="_81A9715D-84C0-4D65-937D-727DD8299ACE" sourceRef="_3CB35E89-6276-49FF-8F0B-114A7FC4F50E" targetRef="_F66CD976-0E42-4503-A7BE-E7B9AA9A19C8"/>
     <bpmn2:sequenceFlow id="_C991875B-8719-48AC-B9A5-317941D3FE0B" sourceRef="_4E00E1CE-2DC7-4E6F-B9A4-353EA9324403" targetRef="_ADE8EAB0-DCE7-4954-B8EA-E83622697040"/>
+    <bpmn2:endEvent id="_BFC94BFD-E685-41F3-886E-0C278B357B22">
+      <bpmn2:incoming>_5148CAD5-CF58-40BB-A383-EA099FE7B345</bpmn2:incoming>
+      <bpmn2:terminateEventDefinition/>
+    </bpmn2:endEvent>
+    <bpmn2:exclusiveGateway id="_EFB91830-B063-4293-A5B0-2B2AE5066A7B" gatewayDirection="Diverging">
+      <bpmn2:incoming>_5E7530EB-5AF9-4515-8ABC-1B6014AA8515</bpmn2:incoming>
+      <bpmn2:outgoing>_D9BAF8BF-E13D-4FD7-ACF7-762513207BE9</bpmn2:outgoing>
+      <bpmn2:outgoing>_5148CAD5-CF58-40BB-A383-EA099FE7B345</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
     <bpmn2:intermediateCatchEvent id="_F07FD026-6FA4-4644-8603-9C59BEEF8B0C" name="Observations&#10;Acquired">
       <bpmn2:extensionElements>
         <drools:metaData name="elementname">
@@ -292,7 +323,7 @@ Updated]]></drools:metaValue>
         </drools:metaData>
       </bpmn2:extensionElements>
       <bpmn2:incoming>_33069D0E-E802-45ED-BD59-EF7B4B69B4A8</bpmn2:incoming>
-      <bpmn2:outgoing>_3F3FC527-0E7A-4547-9A26-F072C1E506D4</bpmn2:outgoing>
+      <bpmn2:outgoing>_5E7530EB-5AF9-4515-8ABC-1B6014AA8515</bpmn2:outgoing>
       <bpmn2:dataOutput id="_90660C0D-1763-4E04-AFA9-C7633096CBA1_anythingOutputX" drools:dtype="Object" itemSubjectRef="__90660C0D-1763-4E04-AFA9-C7633096CBA1_anythingOutputXItem" name="anything"/>
       <bpmn2:dataOutputAssociation>
         <bpmn2:sourceRef>_90660C0D-1763-4E04-AFA9-C7633096CBA1_anythingOutputX</bpmn2:sourceRef>
@@ -383,8 +414,8 @@ Determination?]]></drools:metaValue>
         </drools:metaData>
       </bpmn2:extensionElements>
       <bpmn2:incoming>_8AFD57E1-6F3F-4C62-86FD-02062A02E209</bpmn2:incoming>
-      <bpmn2:outgoing>_B6F5E785-2329-4612-84A2-A2F4D3182702</bpmn2:outgoing>
       <bpmn2:outgoing>_0592BDA6-33AC-4821-990E-384C23489D8E</bpmn2:outgoing>
+      <bpmn2:outgoing>_B6F5E785-2329-4612-84A2-A2F4D3182702</bpmn2:outgoing>
     </bpmn2:exclusiveGateway>
     <bpmn2:exclusiveGateway id="_2D52BC13-D619-42CA-A33B-12000DC37C11" name="Join Primary or &#10;On-Call Risk Level" gatewayDirection="Converging">
       <bpmn2:extensionElements>
@@ -470,7 +501,7 @@ On-Call Risk Level]]></drools:metaValue>
           <drools:script><![CDATA[System.out.println("Entering: Primary Doctor Evaluates Risk");]]></drools:script>
         </drools:onEntry-script>
       </bpmn2:extensionElements>
-      <bpmn2:incoming>_3F3FC527-0E7A-4547-9A26-F072C1E506D4</bpmn2:incoming>
+      <bpmn2:incoming>_D9BAF8BF-E13D-4FD7-ACF7-762513207BE9</bpmn2:incoming>
       <bpmn2:outgoing>_400B557F-4BDE-43B0-9301-11ECECE76B7D</bpmn2:outgoing>
       <bpmn2:ioSpecification>
         <bpmn2:dataInput id="_CECBB2DC-2C04-4706-ACBB-54470257F2BE_TaskNameInputX" drools:dtype="Object" itemSubjectRef="__CECBB2DC-2C04-4706-ACBB-54470257F2BE_TaskNameInputXItem" name="TaskName"/>
@@ -586,13 +617,13 @@ On-Call  Provider]]></drools:metaValue>
         <dc:Bounds height="56" width="56" x="640" y="318"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="shape__41EF3B28-158D-4B0C-8E51-F22540D002A6" bpmnElement="_41EF3B28-158D-4B0C-8E51-F22540D002A6">
-        <dc:Bounds height="102" width="154" x="235" y="721"/>
+        <dc:Bounds height="102" width="154" x="1124" y="574"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="shape__9E8617C4-AAA9-473E-A3E8-252E917779E3" bpmnElement="_9E8617C4-AAA9-473E-A3E8-252E917779E3">
-        <dc:Bounds height="56" width="56" x="438" y="743"/>
+        <dc:Bounds height="56" width="56" x="1329" y="597"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="shape__90660C0D-1763-4E04-AFA9-C7633096CBA1" bpmnElement="_90660C0D-1763-4E04-AFA9-C7633096CBA1">
-        <dc:Bounds height="56" width="56" x="441" y="478"/>
+        <dc:Bounds height="56" width="56" x="281" y="614"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="shape__6B8C7923-B014-43D0-B4E0-E8C62AB32A96" bpmnElement="_6B8C7923-B014-43D0-B4E0-E8C62AB32A96">
         <dc:Bounds height="105" width="185" x="216.5" y="453"/>
@@ -606,6 +637,12 @@ On-Call  Provider]]></drools:metaValue>
       <bpmndi:BPMNShape id="shape__F07FD026-6FA4-4644-8603-9C59BEEF8B0C" bpmnElement="_F07FD026-6FA4-4644-8603-9C59BEEF8B0C">
         <dc:Bounds height="56" width="56" x="284" y="170"/>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape__EFB91830-B063-4293-A5B0-2B2AE5066A7B" bpmnElement="_EFB91830-B063-4293-A5B0-2B2AE5066A7B">
+        <dc:Bounds height="56" width="56" x="428" y="614"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape__BFC94BFD-E685-41F3-886E-0C278B357B22" bpmnElement="_BFC94BFD-E685-41F3-886E-0C278B357B22">
+        <dc:Bounds height="56" width="56" x="607" y="614"/>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="edge_shape__4E00E1CE-2DC7-4E6F-B9A4-353EA9324403_to_shape__ADE8EAB0-DCE7-4954-B8EA-E83622697040" bpmnElement="_C991875B-8719-48AC-B9A5-317941D3FE0B">
         <di:waypoint x="672" y="225"/>
         <di:waypoint x="668" y="346"/>
@@ -618,9 +655,9 @@ On-Call  Provider]]></drools:metaValue>
         <di:waypoint x="1512.5" y="72.5"/>
         <di:waypoint x="1689" y="73"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="edge_shape__90660C0D-1763-4E04-AFA9-C7633096CBA1_to_shape__CECBB2DC-2C04-4706-ACBB-54470257F2BE" bpmnElement="_3F3FC527-0E7A-4547-9A26-F072C1E506D4">
-        <di:waypoint x="469" y="506"/>
-        <di:waypoint x="469" y="174"/>
+      <bpmndi:BPMNEdge id="edge_shape__EFB91830-B063-4293-A5B0-2B2AE5066A7B_to_shape__CECBB2DC-2C04-4706-ACBB-54470257F2BE" bpmnElement="_D9BAF8BF-E13D-4FD7-ACF7-762513207BE9">
+        <di:waypoint x="456" y="642"/>
+        <di:waypoint x="456.00007687762593" y="174"/>
         <di:waypoint x="523" y="174"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="edge_shape__CECBB2DC-2C04-4706-ACBB-54470257F2BE_to_shape__4A4BEDB6-3532-46E9-872C-DD84345D8AD7" bpmnElement="_400B557F-4BDE-43B0-9301-11ECECE76B7D">
@@ -644,15 +681,15 @@ On-Call  Provider]]></drools:metaValue>
         <di:waypoint x="1079" y="171"/>
         <di:waypoint x="1254" y="171"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="edge_shape__DE587AE8-0B9F-4379-BC7F-5766D1F6627F_to_shape__681788A7-6E06-4B53-85F5-E8B03AF7B39B" bpmnElement="_B6F5E785-2329-4612-84A2-A2F4D3182702">
-        <di:waypoint x="1282" y="171"/>
-        <di:waypoint x="1284.000000093228" y="381"/>
-        <di:waypoint x="1512" y="330"/>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="edge_shape__DE587AE8-0B9F-4379-BC7F-5766D1F6627F_to_shape__B7DB4C82-0D60-436C-A5B5-D7D69B5709B7" bpmnElement="_0592BDA6-33AC-4821-990E-384C23489D8E">
         <di:waypoint x="1282" y="171"/>
         <di:waypoint x="1284.0000727201013" y="72.5"/>
         <di:waypoint x="1512.5" y="72.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_shape__DE587AE8-0B9F-4379-BC7F-5766D1F6627F_to_shape__681788A7-6E06-4B53-85F5-E8B03AF7B39B" bpmnElement="_B6F5E785-2329-4612-84A2-A2F4D3182702">
+        <di:waypoint x="1282" y="171"/>
+        <di:waypoint x="1284.000000093228" y="381"/>
+        <di:waypoint x="1512" y="330"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="edge_shape__681788A7-6E06-4B53-85F5-E8B03AF7B39B_to_shape__6740F361-80F0-47DF-B647-7618E732C970" bpmnElement="_D9263736-50C4-464C-A37E-23068944409F">
         <di:waypoint x="1589" y="381"/>
@@ -664,12 +701,16 @@ On-Call  Provider]]></drools:metaValue>
         <di:waypoint x="668" y="346"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="edge_shape__41EF3B28-158D-4B0C-8E51-F22540D002A6_to_shape__9E8617C4-AAA9-473E-A3E8-252E917779E3" bpmnElement="_644DFFFA-A619-41F4-B102-26F336C8719A">
-        <di:waypoint x="389" y="772"/>
-        <di:waypoint x="438" y="771"/>
+        <di:waypoint x="1278" y="625"/>
+        <di:waypoint x="1329" y="625"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="edge_shape__6B8C7923-B014-43D0-B4E0-E8C62AB32A96_to_shape__90660C0D-1763-4E04-AFA9-C7633096CBA1" bpmnElement="_33069D0E-E802-45ED-BD59-EF7B4B69B4A8">
         <di:waypoint x="309" y="505.5"/>
-        <di:waypoint x="441" y="506"/>
+        <di:waypoint x="309" y="614"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_shape__90660C0D-1763-4E04-AFA9-C7633096CBA1_to_shape__EFB91830-B063-4293-A5B0-2B2AE5066A7B" bpmnElement="_5E7530EB-5AF9-4515-8ABC-1B6014AA8515">
+        <di:waypoint x="309" y="642"/>
+        <di:waypoint x="428" y="642"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="edge_shape__434969F1-60C5-4681-A4EB-1BDB3595061D_to_shape__6B8C7923-B014-43D0-B4E0-E8C62AB32A96" bpmnElement="_8478689A-5B49-4DEB-BD6C-36BEA47E591F">
         <di:waypoint x="312" y="345.5"/>
@@ -682,6 +723,10 @@ On-Call  Provider]]></drools:metaValue>
       <bpmndi:BPMNEdge id="edge_shape__F66CD976-0E42-4503-A7BE-E7B9AA9A19C8_to_shape__F07FD026-6FA4-4644-8603-9C59BEEF8B0C" bpmnElement="_B0EB9A40-0467-4EF7-83D9-1AC439D9E9E4">
         <di:waypoint x="312" y="89"/>
         <di:waypoint x="312" y="170"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_shape__EFB91830-B063-4293-A5B0-2B2AE5066A7B_to_shape__BFC94BFD-E685-41F3-886E-0C278B357B22" bpmnElement="_5148CAD5-CF58-40BB-A383-EA099FE7B345">
+        <di:waypoint x="484" y="642"/>
+        <di:waypoint x="607" y="642"/>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
@@ -860,7 +905,7 @@ On-Call  Provider]]></drools:metaValue>
         </bpsim:Scenario>
       </bpsim:BPSimData>
     </bpmn2:extensionElements>
-    <bpmn2:source>_gh2UkAH1EDqcVNoCIXWOSw</bpmn2:source>
-    <bpmn2:target>_gh2UkAH1EDqcVNoCIXWOSw</bpmn2:target>
+    <bpmn2:source>_rge8YAn4EDqzKMJcnE8rCQ</bpmn2:source>
+    <bpmn2:target>_rge8YAn4EDqzKMJcnE8rCQ</bpmn2:target>
   </bpmn2:relationship>
 </bpmn2:definitions>

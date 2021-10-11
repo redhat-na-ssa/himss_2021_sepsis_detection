@@ -21,11 +21,17 @@ import org.slf4j.LoggerFactory;
 
 import com.redhat.naps.rest.FhirServerClient;
 import com.redhat.naps.utils.RiskAssessmentUtils;
+
+import org.hl7.fhir.r4.model.Property;
+import org.hl7.fhir.r4.model.Base;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.RiskAssessment;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.r4.model.RiskAssessment.RiskAssessmentPredictionComponent;
 
 // https://github.com/hapifhir/hapi-fhir/blob/master/hapi-fhir-base/src/main/java/ca/uhn/fhir/context/FhirContext.java
 import ca.uhn.fhir.context.FhirContext;
@@ -47,6 +53,33 @@ public class FhirServerTest {
     @Inject
     @RestClient
     FhirServerClient fhirClient;
+
+
+    @Test
+    public void riskAssessmentPredictionTest() throws IOException {
+
+        String filePath = "/fhir/RiskAssessment.json";
+        InputStream fStream = null;
+        String oJson = null;
+        try {
+            fStream = this.getClass().getResourceAsStream(filePath);
+            if(fStream != null){
+                oJson = IOUtils.toString(fStream, "UTF-8");
+                RiskAssessment rAssessment = (RiskAssessment) fhirCtx.newJsonParser().parseResource(oJson);
+                RiskAssessmentPredictionComponent raPredictionComponent = rAssessment.getPredictionFirstRep();
+                Property cProp = raPredictionComponent.getOutcome().getChildByName("coding");
+                Coding coding = (Coding) cProp.getValues().get(0);
+                String code = coding.getCode();
+                log.info("riskAssessmentPredictionTest() code = "+code);
+            }else {
+                log.error("riskAssessmentTest() resource not found: "+filePath);
+                return;
+            }
+        }finally {
+            if(fStream != null)
+                fStream.close();
+        }
+    }
 
     @Disabled
     @Test

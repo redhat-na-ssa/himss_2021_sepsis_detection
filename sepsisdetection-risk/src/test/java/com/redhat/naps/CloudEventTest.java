@@ -29,6 +29,7 @@ import io.smallrye.reactive.messaging.kafka.impl.ce.DefaultIncomingKafkaCloudEve
 
 import org.hl7.fhir.r4.model.Patient;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -83,6 +84,7 @@ public class CloudEventTest {
     }
 
     // TO-DO:  Need to switch to Binary encoding
+    @Disabled
     @Test
     public void kafkaCloudEventTest() throws JsonProcessingException {
         
@@ -123,6 +125,7 @@ public class CloudEventTest {
             );
     }
     
+    @Disabled
     @Test
     public void writeCloudEventToFileTest() throws IOException {
 
