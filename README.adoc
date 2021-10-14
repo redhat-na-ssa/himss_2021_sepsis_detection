@@ -55,12 +55,13 @@ Please see link:docs/OIDC_enabled_workflow_apps.adoc[OIDC Enabled Workflow Apps]
 .. Access token includes users roles so as to facilitate UserGroupCallback functionality in RH-PAM
 .. KIE-Server APIs of RH-PAM secured via RH-SSO  as Bearer-Token endpoints
 
-. *Polyglot Programming Models*
+. *Polyglot Frameworks*
 .. Quarkus
 .. SpringBoot
 .. JBoss EAP
 .. Python
 .. KNative Serverless functions
+.. Angular
 
 . *Machine Learning*
 .. Machine Learning algorithm to determine probability of Sepsis
@@ -324,66 +325,65 @@ Ansible is included to deploy this application to OpenShift in a repeatable mann
 
 . OpenShift Container Platform version 4.7.* or more recent. Resource requirements needed by the app (doesn’t include resource requirements of Openshift to support itself) is as follows:
 
-..       RAM: 6 GB
+.. RAM: 6 GB
 
-..     CPU: 8
+.. CPU: 8
 
-..    Storage: 10 PVCs of type RWO (no RWX requirement) and each of size 5 GiB
+.. Storage: 10 PVCs of type RWO (no RWX requirement) and each of size 5 GiB
 
-.    cluster-admin credentials to this OpenShift cluster are needed
+. cluster-admin credentials to this OpenShift cluster are needed
 
-.    Corresponding oc utility installed locally
+. Corresponding oc utility installed locally
 +
-    All versions of this utility are available at either of the following:
+All versions of this utility are available at either of the following:
 
-..        https://access.redhat.com/downloads/content/290
+.. https://access.redhat.com/downloads/content/290
 +
-        RHN subscription required
+RHN subscription required
 
-..        https://mirror.openshift.com/pub/openshift-v4/clients/ocp/?C=M;O=D
+.. https://mirror.openshift.com/pub/openshift-v4/clients/ocp/?C=M;O=D
 +
-        Accessible without a RHN subscription
+Accessible without a RHN subscription
 
-.    ansible installed locally
+. ansible installed locally
 +
-    ie: dnf install ansible
+ie: dnf install ansible
 
-.    git installed locally
+. git installed locally
 
 === Procedure:
 
 . Using the oc utility that corresponds to the version of OpenShift that you will deploy to, log into the cluster:
 +
 -----
-    $ oc login <OCP API Server url> -u <cluster-admin userId> -p <passwd>
+$ oc login <OCP API Server url> -u <cluster-admin userId> -p <passwd>
 -----
 
-.    Clone the source code of this project:
+. Clone the source code of this project:
 +
 -----
-    $ git clone https://github.com/redhat-naps-da/himss_interoperability_showcase_2021
+$ git clone https://github.com/redhat-naps-da/himss_interoperability_showcase_2021
 -----
 
-.    Change to the ansible directory of this project:
+. Change to the ansible directory of this project:
 +
 -----
-    $ cd ansible
+$ cd ansible
 -----
 
-.    Deploy to OpenShift:
+. Deploy to OpenShift:
 +
-    NOTE: If you are running the install from a Mac, it will be necessary to manually create the
-    user1-sepsisdetection namespace prior to the step below.
+NOTE: If you are running the install from a Mac, it will be necessary to manually create the user1-sepsisdetection namespace prior to the step below.
 +
 -----
 $ ansible-playbook playbooks/install.yml
 -----
 
-..    Deployment should complete in about 15 minutes.
+.. Deployment should complete in about 15 minutes.
 
-..    Notice the creation of a new OCP namespace where the application resides: user1-sepsisdetection
+.. Notice the creation of a new OCP namespace where the application resides: _user1-sepsisdetection_
 
-..    At the completion of the installation, expect to see messages similar to the following:
+.. At the completion of the installation, expect to see messages similar to the following:
 +
 -----
 PLAY RECAP *******************************************************************************************************************************************************************************************************
@@ -391,10 +391,10 @@ PLAY RECAP *********************************************************************
 
 -----
 
-.        Optional: Uninstall from OpenShift:
+. Optional: Uninstall from OpenShift:
 +
 -----
-        $ ansible-playbook playbooks/uninstall.yml
+$ ansible-playbook playbooks/uninstall.yml
 -----
 
 
