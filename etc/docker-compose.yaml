@@ -77,9 +77,7 @@ services:
       POSTGRESQL_MAX_PREPARED_TRANSACTIONS: 10
       SCRIPT_DIR: /opt/sql
     volumes:
-      - type: bind
-        source: ./sso/db/sso-psql.conf
-        target: /opt/app-root/src/postgresql-cfg/sso-psql.conf
+    - ./sso/db/sso-psql.conf:/opt/app-root/src/postgresql-cfg/sso-psql.conf:bind
     networks:
       - sso
 
@@ -104,9 +102,7 @@ services:
       SSO_ADMIN_PASSWORD: master
       JAVA_OPTS_APPEND: -Dkeycloak.migration.strategy=IGNORE_EXISTING -Dkeycloak.import=/opt/kie-realm.json
     volumes:
-      - type: bind
-        source: ./sso/kie-realm.json
-        target: /opt/kie-realm.json
+    - ./sso/kie-realm.json:/opt/kie-realm.json:bind
     depends_on:
       - psql-sso
     networks:
@@ -132,13 +128,9 @@ services:
       POSTGRESQL_DATABASE: fhir
       POSTGRESQL_MAX_PREPARED_TRANSACTIONS: 10
     volumes:
-      # https://github.com/sclorg/postgresql-container/tree/generated/12
-      - type: bind
-        source: ./hapi-fhir/hapi-psql-wal.conf
-        target: /opt/app-root/src/postgresql-cfg/hapi-psql-wal.conf
-      - type: bind
-        source: ./hapi-fhir/hapi-psql-wal.sh
-        target: /opt/app-root/src/postgresql-start/hapi-psql-wal.sh
+    # https://github.com/sclorg/postgresql-container/tree/generated/12
+    - ./hapi-fhir/hapi-psql-wal.conf:/opt/app-root/src/postgresql-cfg/hapi-psql-wal.conf:bind
+    - ./hapi-fhir/hapi-psql-wal.sh:/opt/app-root/src/postgresql-start/hapi-psql-wal.sh:bind
     networks:
       - default
 
@@ -155,9 +147,7 @@ services:
       GC_MAX_METASPACE_SIZE: '500'
       SPRING_CONFIG_LOCATION: "file:///deployments/config/application.yaml"
     volumes:
-      - type: bind
-        source: ./hapi-fhir/application.yaml
-        target: /deployments/config/application.yaml
+    - ./hapi-fhir/application.yaml:/deployments/config/application.yaml:bind
     depends_on:
       - "psql-fhir"
     networks:
@@ -169,9 +159,7 @@ services:
     ports:
       - "3080:3080"
     volumes:
-      - type: bind
-        source: ./sepsisdetection-risk/application.properties
-        target: /deployments/config/application.properties
+    - ./sepsisdetection-risk/application.properties:/deployments/config/application.properties:bind
     depends_on:
       - "hapi-fhir"
     networks:
@@ -191,15 +179,9 @@ services:
       POSTGRESQL_MAX_PREPARED_TRANSACTIONS: 10
       SCRIPT_DIR: /opt/sql
     volumes:
-      - type: bind
-        source: ./sepsisdetection-rhpam/db/rhpam-psql.conf
-        target: /opt/app-root/src/postgresql-cfg/rhpam-psql.conf
-      - type: bind
-        source: ./sepsisdetection-rhpam/db/ddl-scripts/postgresql/
-        target: /opt/sql
-      - type: bind
-        source: ./sepsisdetection-rhpam/db/create_rhpam_database.sh
-        target: /opt/app-root/src/postgresql-start/create_rhpam_database.sh
+    - ./sepsisdetection-rhpam/db/rhpam-psql.conf:/opt/app-root/src/postgresql-cfg/rhpam-psql.conf:bind
+    - ./sepsisdetection-rhpam/db/ddl-scripts/postgresql/:/opt/sql:bind
+    - ./sepsisdetection-rhpam/db/create_rhpam_database.sh:/opt/app-root/src/postgresql-start/create_rhpam_database.sh:bind
     networks:
       - default
 
@@ -234,9 +216,7 @@ services:
 #      MAVEN_MIRROR_URL: ''
 
 #    volumes:
-#      - type: bind
-#        source: ./sepsisdetection-rhpam/runtime_configs
-#        target: /deployments/config/
+#    - ./sepsisdetection-rhpam/runtime_configs:/deployments/config/:bind
 #    depends_on:
 #      - psql-rhpam
 
