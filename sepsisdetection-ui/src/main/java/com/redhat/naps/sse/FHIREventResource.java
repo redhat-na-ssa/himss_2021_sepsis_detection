@@ -25,6 +25,8 @@ public class FHIREventResource {
     @Inject
     @Channel("fhir-event-stream") Publisher<String> fhirEvents;
 
+
+    // Test:   curl -N http://localhost:4199/sse/event/fhir
     @GET
     @Path("/event/fhir")
     @Produces(MediaType.SERVER_SENT_EVENTS)

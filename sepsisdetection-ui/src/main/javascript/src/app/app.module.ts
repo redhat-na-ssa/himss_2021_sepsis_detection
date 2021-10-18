@@ -19,6 +19,13 @@ import { CompletedProcessInstanceComponent } from './component/Modals/completed-
 import { AdminComponent } from './component/Admin/Admin.component';
 import { RiskEvaluvationComponent } from './component/Modals/RiskEvaluvation/RiskEvaluvation.component';
 import { RiskMitigationComponent } from './component/Modals/RiskMitigation/RiskMitigation.component';
+import { FhirSSEComponent } from './component/FhirSSE/FhirSSE.component';
+
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 
 function initializeKeycloak(keycloak: KeycloakService) {
   
@@ -44,7 +51,8 @@ function initializeKeycloak(keycloak: KeycloakService) {
     CompletedProcessInstanceComponent,
     AdminComponent,
     RiskEvaluvationComponent,
-    RiskMitigationComponent
+    RiskMitigationComponent,
+    FhirSSEComponent
   ],
   imports: [
     KeycloakAngularModule,
@@ -58,7 +66,12 @@ function initializeKeycloak(keycloak: KeycloakService) {
     CommonModule,
     FormsModule,
     HttpClientModule,
-    CookieModule.forRoot()
+    CookieModule.forRoot(),
+    FlexLayoutModule,
+    MatFormFieldModule,
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule
   ],
   providers: [JsonPipe,{
     provide: HIGHLIGHT_OPTIONS,

@@ -10,10 +10,13 @@ import org.jboss.logging.Logger;
 
 import io.smallrye.reactive.messaging.annotations.Broadcast;
 
+import ca.uhn.fhir.context.FhirContext;
+
 @ApplicationScoped
 public class FHIREventConsumer {
 
     private static Logger log = Logger.getLogger(FHIREventConsumer.class);
+    private static FhirContext fhirCtx = FhirContext.forR4();
 
     @PostConstruct
     public void start() {

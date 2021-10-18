@@ -3,6 +3,7 @@ import { UserRole } from 'src/app/Models/UserRole';
 import { faUser,faCog,faDatabase } from '@fortawesome/free-solid-svg-icons';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { BackendSettingsComponent } from 'src/app/component/Modals/BackendSettings/BackendSettings.component';
+import { FhirSSEComponent } from 'src/app/component/FhirSSE/FhirSSE.component';
 import { CompletedProcessInstanceComponent } from 'src/app/component/Modals/completed-process-instance/completed-process-instance.component';
 import { KeycloakService } from 'keycloak-angular';
 import { KeycloakProfile } from 'keycloak-js';

@@ -3,8 +3,8 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.redhat.naps</groupId>
-  <artifactId>sepsisdetection-risk</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <artifactId>sepsisdetection-ui-sse</artifactId>
+  <version>0.0.1</version>
   <properties>
     <cloud.events.version>2.0.0.RC2</cloud.events.version>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
@@ -21,6 +21,7 @@
     <!-- quarkus.platform.version>1.11.7.Final-redhat-00009</quarkus.platform.version -->
     <quarkus.platform.version>2.2.3.Final</quarkus.platform.version>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+    <hapi.fhir.version>5.5.1</hapi.fhir.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -34,6 +35,14 @@
     </dependencies>
   </dependencyManagement>
   <dependencies>
+
+    <!-- FHIR -->
+    <dependency>
+      <groupId>ca.uhn.hapi.fhir</groupId>
+      <artifactId>hapi-fhir-structures-r4</artifactId>
+      <version>${hapi.fhir.version}</version>
+    </dependency>
+
 
     <!-- HTTP Reactive Routes:  https://quarkus.io/guides/reactive-routes
       In addition, quarkus-vertx-http  (as opposed to quarkus-vertx-web) enables hot-reload with: mvn quarkus:dev
