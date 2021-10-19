@@ -1,36 +1,24 @@
+---
+
 kind: List
 apiVersion: v1
 items:
-- apiVersion: route.openshift.io/v1
-  kind: Route
-  metadata:
-    labels:
-      app: {{ application_name }}
-    name: {{ application_name }}
-  spec:
-    port:
-      targetPort: http
-    tls:
-      termination: edge
-    to:
-      kind: Service
-      name: {{ application_name }}
-    wildcardPolicy: None
 - apiVersion: v1
   kind: Service
   metadata:
-    name: {{ application_name }}
     labels:
-      expose: "true"
       app: {{ application_name }}
+      monitoring: prometheus
+      expose: "true"
+    name: {{ application_name }}
   spec:
     ports:
       - name: http
         port: 8080
         protocol: TCP
-        targetPort: 7080
+        targetPort: 8080
     selector:
-      group: sepsisdetection
+      group: sepsis 
       app: {{ application_name }}
     sessionAffinity: None
     type: ClusterIP
@@ -42,8 +30,9 @@ items:
     name: {{ application_name }}
   spec:
     replicas: 1
+    revisionHistoryLimit: 2
     selector:
-      group: sepsisdetection
+      group: sepsis
       app: {{ application_name }}
     strategy:
       activeDeadlineSeconds: 21600
@@ -58,19 +47,36 @@ items:
     template:
       metadata:
         labels:
-          group: sepsisdetection
+          group: sepsis
           app: {{ application_name }}
       spec:
         containers:
-          - image: {{ image_name }}:{{ image_tag }}
+          - env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: JAVA_OPTIONS
+              value: >
+                -Dvertx.metrics.options.enabled=true -Dvertx.metrics.options.registryName=prometheus
+            - name: AB_JOLOKIA_OFF
+              value: 'true'
+            - name: APP_CONFIGMAP_NAME
+              value: {{ application_configmap }}
+            - name: APP_CONFIGMAP_KEY
+              value: {{ application_configmap_key }}
+            imagePullPolicy: IfNotPresent
             name: {{ application_name }}
             ports:
-            - containerPort: 7080
+              - containerPort: 9779
+                name: prometheus
+                protocol: TCP
             livenessProbe:
               failureThreshold: 3
               httpGet:
-                path: /
-                port: 7080
+                path: /q/health/live
+                port: 8080
                 scheme: HTTP
               initialDelaySeconds: 30
               periodSeconds: 30
@@ -78,20 +84,26 @@ items:
             readinessProbe:
               failureThreshold: 3
               httpGet:
-                path: /
-                port: 7080
+                path: /q/health/ready
+                port: 8080
                 scheme: HTTP
               initialDelaySeconds: 30
               periodSeconds: 30
               timeoutSeconds: 3
             resources:
               limits:
-                memory: "1Gi"
-                cpu: "500m"
+                cpu: '1500m'
+                memory: '1Gi'
+              requests:
+                cpu: '250m'
+                memory: '250Mi'
+            securityContext:
+              privileged: false
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
             volumeMounts:
-            - name: env
-              mountPath: /opt/app-root/src/assets/js/env.js
-              subPath: env.js
+            - mountPath: /deployments/config
+              name: config
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         schedulerName: default-scheduler
@@ -101,8 +113,12 @@ items:
         terminationGracePeriodSeconds: 30
         volumes:
         - configMap:
-            name: {{ application_name }}
-          name: env
+            defaultMode: 420
+            items:
+              - key: {{ application_configmap_key }}
+                path: {{ application_configmap_key }}
+            name: {{ application_configmap }}
+          name: config
     triggers:
       - type: ConfigChange
       - imageChangeParams:
@@ -111,5 +127,6 @@ items:
             - {{ application_name }}
           from:
             kind: ImageStreamTag
-            name: "{{ application_name }}:{{ image_tag }}"
+            name: "{{ application_name }}:{{ service_image_tag }}"
         type: ImageChange
+

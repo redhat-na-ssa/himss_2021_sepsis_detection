@@ -3,7 +3,11 @@
 application_name: "{{ sepsisdetection_ui_app_name }}"
 
 image_name: "quay.io/redhat_naps_da/sepsisdetection-ui"
-image_tag: 0.0.11
+image_tag: 0.0.12-sse
 
 application_template: sepsisdetection_ui.yml
 binary_imagestream_template: binary-imagestream.yml
+
+application_properties: application.properties
+application_configmap: "{{ application_name }}"
+application_configmap_key: "{{ application_properties }}"

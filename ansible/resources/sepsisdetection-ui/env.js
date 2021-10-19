@@ -15,6 +15,8 @@
   // CORS is enabled only on the fhir context-path
   window._env.FHIR_SERVER_URL = "https://{{ fhir_server_application_hostname }}/fhir";
 
+  window._env.FHIR_SSE_STREAMING_URL = 'https://{{ sepsisdetection_sse_hostname }}';
+
   window._env.PATIENT_VIEWER_URL = "{{ patient_viewer_url }}";
   window._env.IS_OPENSHIFT = "true";
 })(this);
