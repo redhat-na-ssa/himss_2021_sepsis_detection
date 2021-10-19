@@ -7,11 +7,11 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native-distroless -t quarkus/sepsisdetection-ui-sse .
+# docker build -f src/main/docker/Dockerfile.native-distroless -t quarkus/sepsisdetection-sse .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 quarkus/sepsisdetection-ui-sse
+# docker run -i --rm -p 8080:8080 quarkus/sepsisdetection-sse
 #
 ###
 FROM quay.io/quarkus/quarkus-distroless-image:1.0

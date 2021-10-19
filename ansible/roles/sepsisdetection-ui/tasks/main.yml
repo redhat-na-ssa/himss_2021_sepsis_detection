@@ -16,6 +16,36 @@
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
 
+- name: retrieve sso route
+  shell: "{{ openshift_cli }} get route sso -o jsonpath='{.spec.host}' -n {{ namespace_sso }}"
+  register: sso_route_cmd
+
+- name: set env var facts
+  set_fact:
+    sepsisdetection_rhpam_hostname: "{{ sepsisdetection_rhpam_app_name }}-{{ project_name }}.{{ ocp_domain }}"
+    fhir_server_application_hostname: "{{ fhir_server_application_name }}-{{ project_name }}.{{ ocp_domain }}"
+    sso_url: "https://{{ sso_route_cmd.stdout }}"
+    sepsisdetection_sse_hostname: "{{ sepsisdetection_sse_app_name }}-{{ project_name }}.{{ ocp_domain }}"
+
+- name: copy env.js file to work directory
+  template:
+    src: "{{ resources_dir }}/env.js"
+    dest: "{{ work_dir }}/env.js"
+
+- name: create {{ application_name }} configmap
+  oc_configmap:
+    oc_binary: "{{ openshift_cli }}"
+    state: present
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+    from_file:
+      dir: "{{ work_dir }}"
+
+- name: copy application template
+  template:
+    src: "{{ resources_dir }}/{{ application_template }}"
+    dest: "{{ work_dir }}/{{ application_template }}"
+
 - name: copy imagestream template
   template:
     src: "{{ resources_dir }}/{{ binary_imagestream_template }}"
@@ -30,35 +60,6 @@
     name: "{{ application_name }}"
     files:
       - "{{ work_dir }}/{{ binary_imagestream_template }}"
-
-- name: retrieve sso route
-  shell: "{{ openshift_cli }} get route sso -o jsonpath='{.spec.host}' -n {{ namespace_sso }}"
-  register: sso_route_cmd
-
-- name: set env var facts
-  set_fact:
-    sepsisdetection_rhpam_hostname: "{{ sepsisdetection_rhpam_app_name }}-{{ project_name }}.{{ ocp_domain }}"
-    fhir_server_application_hostname: "{{ fhir_server_application_name }}-{{ project_name }}.{{ ocp_domain }}"
-    sso_url: "https://{{ sso_route_cmd.stdout }}"
-
-- name: copy env.js file to work directory
-  template:
-    src: "{{ resources_dir }}/env.js"
-    dest: "{{ work_dir }}/env.js"
-
-- name: create {{ application_name }} configmap
-  oc_configmap:
-    oc_binary: "{{ openshift_cli }}"
-    state: present
-    name: "{{ application_name }}"
-    namespace: "{{ namespace }}"
-    from_file:
-      dir: "{{ work_dir }}/env.js"
-
-- name: copy application template
-  template:
-    src: "{{ resources_dir }}/{{ application_template }}"
-    dest: "{{ work_dir }}/{{ application_template }}"
 
 
 - name: deploy {{ application_name }} application

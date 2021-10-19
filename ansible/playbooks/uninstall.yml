@@ -20,6 +20,7 @@
   - include: tasks/sepsisdetection-rhpam.yml
   - include: tasks/sepsisdetection-ml.yml
   - include: tasks/sepsisdetection-risk.yml
+  - include: tasks/sepsisdetection-sse.yml
   - include: tasks/hapi-fhirserver.yml
   - include: tasks/knative.yml
   - include: tasks/amq-streams.yml

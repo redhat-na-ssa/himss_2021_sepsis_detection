@@ -1,0 +1,58 @@
+---
+
+########    Sepsis Detection SSE Service    #############
+
+- name: create {{ service_account }} service account for {{ application_name }} application
+  oc_serviceaccount:
+    oc_binary: "{{ openshift_cli }}"
+    state: present
+    name: "{{ service_account }}"
+    namespace: "{{ namespace }}"
+
+- name: give cluster admin privileges to {{ service_account }} service account
+  oc_adm_policy_user:
+    state: present
+    oc_binary: "{{ openshift_cli }}"
+    resource_kind: role
+    resource_name: admin
+    user: "system:serviceaccount:{{ namespace }}:{{ service_account }}"
+    namespace: "{{ namespace }}"
+    rolebinding_name: "{{ service_account }}-admin"
+
+- name: copy application properties template
+  template:
+    src: "{{ resources_dir }}/{{ application_properties }}"
+    dest: "{{ work_dir }}/{{ application_properties }}"
+
+- name: create {{ application_configmap }} application configmap
+  oc_configmap:
+    oc_binary: "{{ openshift_cli }}"
+    state: present
+    name: "{{ application_configmap }}"
+    namespace: "{{ namespace }}"
+    from_file:
+      dir: "{{ work_dir }}/{{ application_properties }}"
+
+- import_tasks: deploy_from_source.yml
+  when: deploy_from is defined and deploy_from == "source"
+
+- import_tasks: deploy_from_image.yml
+  when: deploy_from is defined and deploy_from == "image"
+
+- set_fact:
+    route_hostname: "{{ application_name }}-{{ namespace }}.{{ ocp_domain_host.stdout }}"
+- name: "copy route template"
+  template:
+    src: "{{ resources_dir }}/route.yml"
+    dest: "{{ work_dir }}/route.yml"
+- name: "deploy {{ application_name }} route {{ route_hostname }}"
+  oc_obj:
+    state: present
+    oc_binary: "{{ openshift_cli }}"
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+    kind: route
+    files:
+      - "{{ work_dir }}/route.yml"
+
+###########################################################

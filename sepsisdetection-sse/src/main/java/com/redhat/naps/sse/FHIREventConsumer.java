@@ -28,7 +28,7 @@ public class FHIREventConsumer {
     @Outgoing("fhir-event-stream")
     @Broadcast                                               // Events are dispatched to all streaming subscribers
     public String process(String event) {
-        log.infov("Received event: {0}", event);
+        log.debugv("Received event: {0}", event);
         return event;
     }
 
