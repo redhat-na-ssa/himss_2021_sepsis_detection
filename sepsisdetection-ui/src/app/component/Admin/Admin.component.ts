@@ -276,7 +276,9 @@ export class AdminComponent implements OnInit {
   refreshScreen()
   {
     window.alert("Reset Complete. Page will be refreshed");
-    location.reload();
+
+    // Don't reload entire page so as to not lose raw cloud events
+    //location.reload();
     
   }
 

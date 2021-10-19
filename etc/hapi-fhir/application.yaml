@@ -74,7 +74,7 @@ hapi:
       # These are allowed_origin patterns, see: https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/cors/CorsConfiguration.html#setAllowedOriginPatterns-java    .util.List-
       allowed_origin:
         - '*'
-        - "http://localhost:9080,http://localhost:7080,localhost:3080"
+        - "http://localhost:9080,http://localhost:7080,http://localhost:3080,http://localhost:4200"
 
 
 #    logger:

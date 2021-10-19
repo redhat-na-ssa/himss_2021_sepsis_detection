@@ -17,7 +17,7 @@ export class BackendServices {
 
 
   /*
-    The requests to various backends created in this class include a default Authorization header similar to the following:
+    The requests to various backends created in this class includes a default Authorization header similar to the following:
         'Authorization': 'Basic ' + btoa(this.backendSettings.username + ":" + this.backendSettings.password)
 
     When configured to use keycloak, this Authorization header is over-written with the Bearer token
@@ -25,6 +25,7 @@ export class BackendServices {
   constructor(private http: HttpClient, private cookieService: CookieService) {
     this.cookieService.putObject("test",{testcookie : "test"});
     this.backendSettings = <BackendSettings>this.cookieService.getObject("himms")
+    console.log("constructor() FHIR_SERVER_URL = "+window['_env'].FHIR_SERVER_URL);
     if (this.backendSettings === undefined) {
       this.backendSettings = {
         keycloakUrl: window['_env'].KEYCLOAK_URL,
@@ -58,6 +59,7 @@ export class BackendServices {
    }
 
    createBundle(data : any) {
+     console.log("createBundle() fhirserverURL = "+this.backendSettings.fhirserverURL);
      let url = this.backendSettings.fhirserverURL;
      let postData = data;
      const headers = { };
