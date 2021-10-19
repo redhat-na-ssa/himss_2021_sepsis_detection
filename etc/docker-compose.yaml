@@ -165,6 +165,16 @@ services:
     networks:
       - default
 
+  sepsis-sse:
+    image: quay.io/redhat_naps_da/sepsisdetection-sse:0.0.1
+    restart: always
+    ports:
+      - "4199:4199"
+    volumes:
+    - ./sepsisdetection-sse/application.properties:/deployments/config/application.properties:bind
+    networks:
+      - default
+
 
   psql-rhpam:
     image: registry.redhat.io/rhel8/postgresql-12
