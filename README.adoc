@@ -37,6 +37,7 @@ Sepsis is a costly and life threatening condition resulting in multi-organ failu
 .. Use of Debezium for _Change Data Capture_ on HAPI FHIR database
 .. Use of both Binary and Structured _Cloud Events_
 .. Visibility of events via KafDrop
+.. Raw FHIR related _Server Side Events_ streamed to Angular UI
 
 . *Process Automation*
 .. RH-PAM embedded in SpringBoot as process automation engine
