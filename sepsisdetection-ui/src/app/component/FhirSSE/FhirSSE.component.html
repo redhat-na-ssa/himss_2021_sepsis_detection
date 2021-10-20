@@ -1,8 +1,11 @@
-<h2>Raw Cloud Events</h2>
+<div>
+  <h2>Raw Debezium Events</h2>
+</div>
 <div class="fxLayout" fxFill fxLayout="column bottom">
   <div class="fxFlex" fxFlex>
-    <p *ngFor="let m of messages">
-      {{m}}
-    </p>
+        <pre *ngFor="let m of messages">
+          <code [highlight]="m"></code>
+        </pre>
+
   </div>
 </div>

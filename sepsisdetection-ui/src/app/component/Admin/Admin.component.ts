@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild ,Input} from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild ,Input, OnDestroy, NgZone} from '@angular/core';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { ProcessInstanceList,TaskInstanceList, TaskInstance } from 'src/app/Models/Requests/Request';
 import { BackendServices } from 'src/app/service/BackendServices';
@@ -10,13 +10,14 @@ import { faRecycle } from '@fortawesome/free-solid-svg-icons';
 import { forkJoin } from 'rxjs';
 import { KeycloakService } from 'keycloak-angular';
 import { KeycloakProfile } from 'keycloak-js';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-Admin',
   templateUrl: './Admin.component.html',
   styleUrls: ['./Admin.component.css']
 })
-export class AdminComponent implements OnInit {
+export class AdminComponent implements OnInit, OnDestroy {
 
   @ViewChild("svgContent") svgContentElement: ElementRef;
   @ViewChild("svgContentSubProcess") svgSubContentElement: ElementRef;
@@ -36,14 +37,14 @@ export class AdminComponent implements OnInit {
   allowSvgContent : boolean = false;
   service: BackendServices;
   keycloak: KeycloakService;
+  sub: Subscription;
+  riskAssesStreamingUrl = window['_env'].FHIR_SSE_STREAMING_URL+"/sse/event/fhir/riskAsses";
 
   public isLoggedIn = false;
   public isAdminUser = false;
   public userProfile: KeycloakProfile | null = null;
 
- 
-
-   constructor(private modalService: NgbModal, service : BackendServices, keycloak: KeycloakService) {
+   constructor(private zone: NgZone, private modalService: NgbModal, service : BackendServices, keycloak: KeycloakService) {
       this.service = service;
       this.keycloak = keycloak;
       this.bundle = new Bundle();
@@ -58,6 +59,40 @@ export class AdminComponent implements OnInit {
     if (this.isLoggedIn) {
       this.userProfile = await this.keycloak.loadUserProfile();
     }
+
+    console.log("ngOnIt() about to register for SSE at: "+this.riskAssesStreamingUrl);
+    this.sub = this.getMessages().subscribe({
+      next: data => {
+        this.getCaseList();
+      },
+      error: err => console.error(err)
+    });
+  }
+
+  ngOnDestroy(): void {
+    console.log("ngOnDestroy() ... unsubscribing from: "+this.riskAssesStreamingUrl);
+    this.sub && this.sub.unsubscribe();
+  }
+
+  getMessages(): Observable<any> {
+
+    return Observable.create(
+      observer => {
+
+        let source = new EventSource(this.riskAssesStreamingUrl);
+        source.onmessage = event => {
+          this.zone.run(() => {
+            observer.next(event.data)
+          })
+        }
+
+        source.onerror = event => {
+          this.zone.run(() => {
+            observer.error(event)
+          })
+        }
+      }
+    )
   }
 
   private getCaseList() {
@@ -67,6 +102,7 @@ export class AdminComponent implements OnInit {
     }
     this.service.getProcessInstances("Active").subscribe((res: any) => {
       this.buildCaseList(res, this.activeProcessInstances, "Active");
+      console.log("getCaseList # of Active pInstances = "+this.activeProcessInstances.length);
     }, err => { console.log(err) });
   }
 
@@ -273,8 +309,7 @@ export class AdminComponent implements OnInit {
      
   }
 
-  refreshScreen()
-  {
+  refreshScreen() {
     window.alert("Reset Complete. Page will be refreshed");
 
     // Don't reload entire page so as to not lose raw cloud events
@@ -285,9 +320,8 @@ export class AdminComponent implements OnInit {
   private createBundle() {
     var data = JSON.parse(this.service.getCurrentBundleData());
     this.service.createBundle(data).subscribe((bundleResp : any) => {
-      console.log(bundleResp);
-      this.getCaseList();
-      setTimeout(this.refreshScreen,5000)
+      console.log("createBundle() bundleResp = "+bundleResp);
+      setTimeout(this.getCaseList,5000)
     });
   }
 

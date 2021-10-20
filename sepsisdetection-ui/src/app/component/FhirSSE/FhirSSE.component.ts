@@ -13,7 +13,8 @@ export class FhirSSEComponent implements OnInit, OnDestroy {
   message = '';
   messages: any[];
   sub: Subscription;
-  fhirStreamingUrl = window['_env'].FHIR_SSE_STREAMING_URL+"/sse/event/fhir";
+  rawFhirStreamingUrl = window['_env'].FHIR_SSE_STREAMING_URL+"/sse/event/fhir/raw";
+
 
   constructor(private zone: NgZone, private http: HttpClient) {
   }
@@ -23,7 +24,7 @@ export class FhirSSEComponent implements OnInit, OnDestroy {
     return Observable.create(
       observer => {
 
-        let source = new EventSource(this.fhirStreamingUrl);
+        let source = new EventSource(this.rawFhirStreamingUrl);
         source.onmessage = event => {
           this.zone.run(() => {
             observer.next(event.data)
@@ -41,10 +42,9 @@ export class FhirSSEComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.messages = [];
-    console.log("ngOnIt() about to register for SSE at: "+this.fhirStreamingUrl);
+    console.log("ngOnIt() about to register for SSE at: "+this.rawFhirStreamingUrl);
     this.sub = this.getMessages().subscribe({
       next: data => {
-        //console.log(data);
         this.addMessage(data);
       },
       error: err => console.error(err)
@@ -56,7 +56,7 @@ export class FhirSSEComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log("ngOnDestroy() ... unsubscribing from: "+this.fhirStreamingUrl);
+    console.log("ngOnDestroy() ... unsubscribing from: "+this.rawFhirStreamingUrl);
     this.sub && this.sub.unsubscribe();
   }
 
