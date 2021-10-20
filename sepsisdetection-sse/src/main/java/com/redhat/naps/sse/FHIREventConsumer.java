@@ -55,7 +55,7 @@ public class FHIREventConsumer {
     }
 
     // Forces vert.x io thread to begin consumption on message channel
-    // Otherwise, initialization of message channel will not occur until ServerSideEvent class receives first request
+    // Otherwise, initialization of message channel will not occur until ServerSentEvent class receives first request
     // Expect to see a log statement similar to the following:
     //   INFO  [org.apache.kafka.clients.consumer.KafkaConsumer] (vert.x-kafka-consumer-thread-0) [Consumer clientId=consumer-e-console-react-group-1, groupId=e-console-react-group] Subscribed to topic(s): topic-incident-command
     @Incoming(Util.RAW_FHIR_EVENT_STREAM)
