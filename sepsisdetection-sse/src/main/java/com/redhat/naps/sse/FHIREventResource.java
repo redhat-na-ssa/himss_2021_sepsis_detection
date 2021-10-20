@@ -11,19 +11,15 @@ import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.jboss.resteasy.annotations.SseElementType;
 import org.reactivestreams.Publisher;
 
-import org.jboss.logging.Logger;
-
 @Path("sse")
 @ApplicationScoped
 public class FHIREventResource {
 
-    private static Logger log = Logger.getLogger(FHIREventResource.class);
+    @Inject
+    @Channel(Util.RAW_FHIR_EVENT_STREAM) Publisher<String> rawFhirEvents;
 
     @Inject
-    @Channel("raw-fhir-event-stream") Publisher<String> rawFhirEvents;
-
-    @Inject
-    @Channel("riskEval-event-stream") Publisher<String> riskEvalEvents;
+    @Channel(Util.RISK_ASSESSMENT_CHANNEL) Publisher<String> riskAssessEvents;
 
 
     // Test:   curl -N http://localhost:4199/sse/event/fhir/raw
@@ -35,13 +31,13 @@ public class FHIREventResource {
         return rawFhirEvents;
     }
 
-    // Test:   curl -N http://localhost:4199/sse/event/fhir/riskEval
+    // Test:   curl -N http://localhost:4199/sse/event/fhir/riskAsses
     @GET
-    @Path("/event/fhir/riskEval")
+    @Path("/event/fhir/riskAsses")
     @Produces(MediaType.SERVER_SENT_EVENTS)
     @SseElementType("text/plain")
-    public Publisher<String> riskEvalEventStream() {
-        return riskEvalEvents;
+    public Publisher<String> riskAssessEventStream() {
+        return riskAssessEvents;
     }
 
 }
