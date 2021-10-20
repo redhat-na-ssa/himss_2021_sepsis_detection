@@ -39,6 +39,9 @@ export class AdminComponent implements OnInit, OnDestroy {
   keycloak: KeycloakService;
   sub: Subscription;
   riskAssesStreamingUrl = window['_env'].FHIR_SSE_STREAMING_URL+"/sse/event/fhir/riskAsses";
+  eventSource = null;
+  reconnectFrequencySeconds = 10;
+
 
   public isLoggedIn = false;
   public isAdminUser = false;
@@ -60,43 +63,15 @@ export class AdminComponent implements OnInit, OnDestroy {
       this.userProfile = await this.keycloak.loadUserProfile();
     }
 
-    console.log("ngOnIt() about to register for SSE at: "+this.riskAssesStreamingUrl);
-    this.sub = this.getMessages().subscribe({
-      next: data => {
-        console.log("ngOnInit() received riskAssessment event");
-        this.getCaseList();
-      },
-      error: err => console.error(err)
-    });
+    this.sseConnect();
   }
-
+  
   ngOnDestroy(): void {
-    console.log("ngOnDestroy() ... unsubscribing from: "+this.riskAssesStreamingUrl);
-    this.sub && this.sub.unsubscribe();
   }
+  
 
-  getMessages(): Observable<any> {
 
-    return Observable.create(
-      observer => {
-
-        let source = new EventSource(this.riskAssesStreamingUrl);
-        source.onmessage = event => {
-          this.zone.run(() => {
-            observer.next(event.data)
-          })
-        }
-
-        source.onerror = event => {
-          this.zone.run(() => {
-            observer.error(event)
-          })
-        }
-      }
-    )
-  }
-
-  private getCaseList() {
+  getCaseList() {
     this.activeProcessInstances = new Array();
     this.activeManagerTasks = {
       instanceList : new Array()
@@ -107,6 +82,42 @@ export class AdminComponent implements OnInit, OnDestroy {
       console.log("getCaseList # of Active pInstances = "+this.activeProcessInstances.length);
     }, err => { console.log(err) });
   }
+
+  waitFunc = function() { return this.reconnectFrequencySeconds * 1000 };
+  tryToSetupFunc() {
+      this.sseConnect();
+      this.reconnectFrequencySeconds *= 2;
+      if (this.reconnectFrequencySeconds >= 64) {
+          this.reconnectFrequencySeconds = 64;
+      }
+  };
+  reconnectFunc = function() { setTimeout(this.tryToSetupFunc, this.waitFunc()) };
+
+  sseConnect() {
+    console.log("sseConnect() about to register for SSE at: "+this.riskAssesStreamingUrl);
+    this.eventSource = new EventSource(this.riskAssesStreamingUrl);
+    this.eventSource.onopen = event => {
+      this.zone.run(() => {
+        this.reconnectFrequencySeconds = 10;
+      })
+    };
+    this.eventSource.onmessage = event => {
+      this.zone.run(() => {
+        console.log("sseConnect() received riskAssessment event");
+        this.getCaseList();
+      })
+    };
+    
+    this.eventSource.onerror = event => {
+      this.zone.run(() => {
+        console.log("sseConnect() ... will close and attempt re-connect to : "+this.riskAssesStreamingUrl);
+        this.eventSource.close();
+        this.reconnectFunc();
+      })
+    };
+  }
+
+
 
   private buildCaseList(response: any, caseList: ProcessInstanceList[], type: string) {
     let currentStatus = "Active";
@@ -157,8 +168,7 @@ export class AdminComponent implements OnInit, OnDestroy {
       this.onGetActiveTask();
   }
 
-  private mapVariableNameValue(res : any,caseInstance : ProcessInstanceList)
-  {
+  private mapVariableNameValue(res : any,caseInstance : ProcessInstanceList) {
     if(res.observation)
     {
         let observationObj = JSON.parse(res.observation)
@@ -174,13 +184,12 @@ export class AdminComponent implements OnInit, OnDestroy {
     }
   }
 
-  onShowFlow(processInstanceId : number,type : string,processInstance : ProcessInstanceList)
-  {
+  onShowFlow(processInstanceId : number,type : string,processInstance : ProcessInstanceList) {
       if(this.allowSvgContent)
         {
           this.allowSvgContent = false;
           return;
-        }
+       }
       this.service.getSVGImage(processInstanceId).subscribe((res : any) => { 
         this.svgContent = res;
         if(type == "Active")
