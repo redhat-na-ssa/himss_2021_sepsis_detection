@@ -63,6 +63,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     console.log("ngOnIt() about to register for SSE at: "+this.riskAssesStreamingUrl);
     this.sub = this.getMessages().subscribe({
       next: data => {
+        console.log("ngOnInit() received riskAssessment event");
         this.getCaseList();
       },
       error: err => console.error(err)
@@ -100,6 +101,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.activeManagerTasks = {
       instanceList : new Array()
     }
+
     this.service.getProcessInstances("Active").subscribe((res: any) => {
       this.buildCaseList(res, this.activeProcessInstances, "Active");
       console.log("getCaseList # of Active pInstances = "+this.activeProcessInstances.length);
@@ -199,6 +201,10 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   onGetActiveTask() {
+      
+      this.activeManagerTasks = {
+        instanceList : new Array()
+      }
       if(this.isAdminUser) {
         this.service.getActiveTaskInstancesForBusinessAdmin().subscribe((res:any)=>{
           if(res["task-summary"] && res["task-summary"] instanceof Array)
@@ -310,7 +316,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   refreshScreen() {
-    window.alert("Reset Complete. Page will be refreshed");
+    window.alert("Reset Complete.");
 
     // Don't reload entire page so as to not lose raw cloud events
     //location.reload();
@@ -321,7 +327,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     var data = JSON.parse(this.service.getCurrentBundleData());
     this.service.createBundle(data).subscribe((bundleResp : any) => {
       console.log("createBundle() bundleResp = "+bundleResp);
-      setTimeout(this.getCaseList,5000)
+      setTimeout(this.refreshScreen,5000)
     });
   }
 
