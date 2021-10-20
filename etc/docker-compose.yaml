@@ -166,7 +166,7 @@ services:
       - default
 
   sepsis-sse:
-    image: quay.io/redhat_naps_da/sepsisdetection-sse:0.0.1
+    image: quay.io/redhat_naps_da/sepsisdetection-sse:0.0.2
     restart: always
     ports:
       - "4199:4199"

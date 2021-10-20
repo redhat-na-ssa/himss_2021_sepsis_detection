@@ -9,10 +9,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.jboss.resteasy.annotations.SseElementType;
-import org.jboss.resteasy.annotations.jaxrs.PathParam;
 import org.reactivestreams.Publisher;
-
-import io.smallrye.mutiny.Uni;
 
 import org.jboss.logging.Logger;
 
@@ -23,16 +20,28 @@ public class FHIREventResource {
     private static Logger log = Logger.getLogger(FHIREventResource.class);
 
     @Inject
-    @Channel("fhir-event-stream") Publisher<String> fhirEvents;
+    @Channel("raw-fhir-event-stream") Publisher<String> rawFhirEvents;
+
+    @Inject
+    @Channel("riskEval-event-stream") Publisher<String> riskEvalEvents;
 
 
-    // Test:   curl -N http://localhost:4199/sse/event/fhir
+    // Test:   curl -N http://localhost:4199/sse/event/fhir/raw
     @GET
-    @Path("/event/fhir")
+    @Path("/event/fhir/raw")
     @Produces(MediaType.SERVER_SENT_EVENTS)
     @SseElementType("text/plain")
-    public Publisher<String> eventStream() {
-        return fhirEvents;
+    public Publisher<String> rawEventStream() {
+        return rawFhirEvents;
+    }
+
+    // Test:   curl -N http://localhost:4199/sse/event/fhir/riskEval
+    @GET
+    @Path("/event/fhir/riskEval")
+    @Produces(MediaType.SERVER_SENT_EVENTS)
+    @SseElementType("text/plain")
+    public Publisher<String> riskEvalEventStream() {
+        return riskEvalEvents;
     }
 
 }
