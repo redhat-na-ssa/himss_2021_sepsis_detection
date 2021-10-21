@@ -37,7 +37,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   allowSvgContent : boolean = false;
   service: BackendServices;
   keycloak: KeycloakService;
-  sub: Subscription;
+
   riskAssesStreamingUrl = window['_env'].FHIR_SSE_STREAMING_URL+"/sse/event/fhir/riskAsses";
   eventSource = null;
   reconnectFrequencySeconds = 1;

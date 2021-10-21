@@ -1,3 +1,4 @@
+import { ObserversModule } from '@angular/cdk/observers';
 import { HttpClient } from '@angular/common/http';
 import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
@@ -12,43 +13,51 @@ export class FhirSSEComponent implements OnInit, OnDestroy {
   title = 'client';
   message = '';
   messages: any[];
-  sub: Subscription;
   rawFhirStreamingUrl = window['_env'].FHIR_SSE_STREAMING_URL+"/sse/event/fhir/raw";
-
+  eventSource = null;
+  reconnectFrequencySeconds = 1;
 
   constructor(private zone: NgZone, private http: HttpClient) {
   }
 
-  getMessages(): Observable<any> {
-
-    return Observable.create(
-      observer => {
-
-        let source = new EventSource(this.rawFhirStreamingUrl);
-        source.onmessage = event => {
-          this.zone.run(() => {
-            observer.next(event.data)
-          })
-        }
-
-        source.onerror = event => {
-          this.zone.run(() => {
-            observer.error(event)
-          })
-        }
+  waitFunc = function() { return this.reconnectFrequencySeconds * 1000 };
+  tryToSetupFunc = () => {
+      this.sseConnect();
+      this.reconnectFrequencySeconds *= 2;
+      if (this.reconnectFrequencySeconds >= 64) {
+          this.reconnectFrequencySeconds = 64;
       }
-    )
+  };
+  reconnectFunc = () => {
+    setTimeout(this.tryToSetupFunc, this.waitFunc());
+  }
+
+  sseConnect() {
+    console.log("sseConnect() about to register for SSE at: "+this.rawFhirStreamingUrl);
+    this.eventSource = new EventSource(this.rawFhirStreamingUrl);
+    this.eventSource.onopen = event => {
+      this.zone.run(() => {
+        this.reconnectFrequencySeconds = 1;
+      })
+    };
+    this.eventSource.onmessage = event => {
+      this.zone.run(() => {
+        this.addMessage(event.data);
+      })
+    };
+    
+    this.eventSource.onerror = event => {
+      this.zone.run(() => {
+        console.log("sseConnect() ... will close and attempt re-connect to : "+this.rawFhirStreamingUrl);
+        this.eventSource.close();
+        this.reconnectFunc();
+      })
+    };
   }
 
   ngOnInit(): void {
     this.messages = [];
-    console.log("ngOnIt() about to register for SSE at: "+this.rawFhirStreamingUrl);
-    this.sub = this.getMessages().subscribe({
-      next: data => {
-        this.addMessage(data);
-      },
-      error: err => console.error(err)
-    });
+    this.sseConnect();
   }
 
   addMessage(msg: any) {
@@ -56,8 +65,6 @@ export class FhirSSEComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log("ngOnDestroy() ... unsubscribing from: "+this.rawFhirStreamingUrl);
-    this.sub && this.sub.unsubscribe();
   }
 
 }
