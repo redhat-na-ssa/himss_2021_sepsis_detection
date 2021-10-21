@@ -40,7 +40,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   sub: Subscription;
   riskAssesStreamingUrl = window['_env'].FHIR_SSE_STREAMING_URL+"/sse/event/fhir/riskAsses";
   eventSource = null;
-  reconnectFrequencySeconds = 10;
+  reconnectFrequencySeconds = 1;
 
 
   public isLoggedIn = false;
@@ -84,21 +84,23 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   waitFunc = function() { return this.reconnectFrequencySeconds * 1000 };
-  tryToSetupFunc() {
+  tryToSetupFunc = () => {
       this.sseConnect();
       this.reconnectFrequencySeconds *= 2;
       if (this.reconnectFrequencySeconds >= 64) {
           this.reconnectFrequencySeconds = 64;
       }
   };
-  reconnectFunc = function() { setTimeout(this.tryToSetupFunc, this.waitFunc()) };
+  reconnectFunc = () => {
+    setTimeout(this.tryToSetupFunc, this.waitFunc());
+  }
 
   sseConnect() {
     console.log("sseConnect() about to register for SSE at: "+this.riskAssesStreamingUrl);
     this.eventSource = new EventSource(this.riskAssesStreamingUrl);
     this.eventSource.onopen = event => {
       this.zone.run(() => {
-        this.reconnectFrequencySeconds = 10;
+        this.reconnectFrequencySeconds = 1;
       })
     };
     this.eventSource.onmessage = event => {
