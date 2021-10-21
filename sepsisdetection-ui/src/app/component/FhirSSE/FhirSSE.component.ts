@@ -20,6 +20,7 @@ export class FhirSSEComponent implements OnInit, OnDestroy {
   constructor(private zone: NgZone, private http: HttpClient) {
   }
 
+  // https://stackoverflow.com/questions/36209784/variable-inside-settimeout-says-it-is-undefined-but-when-outside-it-is-defined
   waitFunc = function() { return this.reconnectFrequencySeconds * 1000 };
   tryToSetupFunc = () => {
       this.sseConnect();

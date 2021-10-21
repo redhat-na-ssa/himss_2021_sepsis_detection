@@ -83,6 +83,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     }, err => { console.log(err) });
   }
 
+  // https://stackoverflow.com/questions/36209784/variable-inside-settimeout-says-it-is-undefined-but-when-outside-it-is-defined
   waitFunc = function() { return this.reconnectFrequencySeconds * 1000 };
   tryToSetupFunc = () => {
       this.sseConnect();
