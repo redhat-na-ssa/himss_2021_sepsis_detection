@@ -19,7 +19,7 @@ import { CompletedProcessInstanceComponent } from './component/Modals/completed-
 import { AdminComponent } from './component/Admin/Admin.component';
 import { RiskEvaluvationComponent } from './component/Modals/RiskEvaluvation/RiskEvaluvation.component';
 import { RiskMitigationComponent } from './component/Modals/RiskMitigation/RiskMitigation.component';
-import { FhirSSEComponent } from './component/FhirSSE/FhirSSE.component';
+import { FhirSSEComponent } from './component/Modals/FhirSSE/FhirSSE.component';
 
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';

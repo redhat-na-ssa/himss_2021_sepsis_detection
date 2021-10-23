@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { UserRole } from 'src/app/Models/UserRole';
-import { faUser,faCog,faDatabase } from '@fortawesome/free-solid-svg-icons';
+import { faUser,faCog,faDatabase, faSignInAlt, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { BackendSettingsComponent } from 'src/app/component/Modals/BackendSettings/BackendSettings.component';
-import { FhirSSEComponent } from 'src/app/component/FhirSSE/FhirSSE.component';
 import { CompletedProcessInstanceComponent } from 'src/app/component/Modals/completed-process-instance/completed-process-instance.component';
 import { KeycloakService } from 'keycloak-angular';
 import { KeycloakProfile } from 'keycloak-js';
@@ -23,6 +22,8 @@ export class MainComponent implements OnInit {
   faUser = faUser;
   faCogs = faCog;
   faDatabase = faDatabase;
+  faSignIn = faSignInAlt;
+  faSignOut = faSignOutAlt;
 
   public isLoggedIn = false;
   public isAdminUser = false;

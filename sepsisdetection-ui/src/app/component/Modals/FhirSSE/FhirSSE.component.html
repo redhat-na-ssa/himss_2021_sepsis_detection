@@ -1,9 +1,7 @@
-<div>
-  <h2>Raw Debezium Events</h2>
-</div>
 <div class="fxLayout" fxFill fxLayout="column bottom">
+  <button class="close" mat-button (click)="modalClose();">X</button>
   <div class="fxFlex" fxFlex>
-        <pre *ngFor="let m of messages">
+        <pre *ngFor="let m of rawFhirMessages">
           <code [highlight]="m"></code>
         </pre>
 

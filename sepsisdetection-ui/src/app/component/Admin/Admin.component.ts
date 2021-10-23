@@ -5,12 +5,14 @@ import { BackendServices } from 'src/app/service/BackendServices';
 import { UserRole } from 'src/app/Models/UserRole';
 import { RiskEvaluvationComponent } from '../Modals/RiskEvaluvation/RiskEvaluvation.component';
 import { RiskMitigationComponent } from '../Modals/RiskMitigation/RiskMitigation.component';
+import { FhirSSEComponent } from '../Modals/FhirSSE/FhirSSE.component';
 import { Bundle } from './Bundle';
-import { faRecycle } from '@fortawesome/free-solid-svg-icons';
+import { faRecycle, faEnvelopeOpen } from '@fortawesome/free-solid-svg-icons';
 import { forkJoin } from 'rxjs';
 import { KeycloakService } from 'keycloak-angular';
 import { KeycloakProfile } from 'keycloak-js';
 import { Observable, Subscription } from 'rxjs';
+import { AutofillMonitor } from '@angular/cdk/text-field';
 
 @Component({
   selector: 'app-Admin',
@@ -25,6 +27,7 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   bundle : Bundle;
   faRecycle = faRecycle;
+  faEnvelopeOpen = faEnvelopeOpen;
 
   @Input() user : UserRole;
   closeResult: string = "";
@@ -35,12 +38,17 @@ export class AdminComponent implements OnInit, OnDestroy {
   };
   svgContent : string = "";
   allowSvgContent : boolean = false;
-  service: BackendServices;
+  backendService: BackendServices;
   keycloak: KeycloakService;
 
   riskAssesStreamingUrl = window['_env'].FHIR_SSE_STREAMING_URL+"/sse/event/fhir/riskAsses";
   eventSource = null;
   reconnectFrequencySeconds = 1;
+
+  rawFhirMessages: any[];
+  rawFhirStreamingUrl = window['_env'].FHIR_SSE_STREAMING_URL+"/sse/event/fhir/raw";
+  rawFhirEventSource = null;
+  rawFhirReconnectFrequencySeconds = 1;
 
 
   public isLoggedIn = false;
@@ -48,7 +56,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   public userProfile: KeycloakProfile | null = null;
 
    constructor(private zone: NgZone, private modalService: NgbModal, service : BackendServices, keycloak: KeycloakService) {
-      this.service = service;
+      this.backendService = service;
       this.keycloak = keycloak;
       this.bundle = new Bundle();
    }
@@ -64,6 +72,9 @@ export class AdminComponent implements OnInit, OnDestroy {
     }
 
     this.sseConnect();
+
+    this.rawFhirMessages = [];
+    this.rFsseConnect();
   }
   
   ngOnDestroy(): void {
@@ -77,7 +88,7 @@ export class AdminComponent implements OnInit, OnDestroy {
       instanceList : new Array()
     }
 
-    this.service.getProcessInstances("Active").subscribe((res: any) => {
+    this.backendService.getProcessInstances("Active").subscribe((res: any) => {
       this.buildCaseList(res, this.activeProcessInstances, "Active");
       console.log("getCaseList # of Active pInstances = "+this.activeProcessInstances.length);
     }, err => { console.log(err) });
@@ -162,7 +173,7 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   private buildVariablesList(caseList: ProcessInstanceList[]) {
     caseList.forEach((currentInstance: ProcessInstanceList) => {
-      this.service.getProcessInstanceVariables(currentInstance.processInstanceId).subscribe((res: any) => {
+      this.backendService.getProcessInstanceVariables(currentInstance.processInstanceId).subscribe((res: any) => {
          this.mapVariableNameValue(res,currentInstance);
         }, err => {
           
@@ -193,7 +204,7 @@ export class AdminComponent implements OnInit, OnDestroy {
           this.allowSvgContent = false;
           return;
        }
-      this.service.getSVGImage(processInstanceId).subscribe((res : any) => { 
+      this.backendService.getSVGImage(processInstanceId).subscribe((res : any) => { 
         this.svgContent = res;
         if(type == "Active")
             this.svgContentElement.nativeElement.innerHTML = this.svgContent;
@@ -203,7 +214,7 @@ export class AdminComponent implements OnInit, OnDestroy {
       },err=>{ console.error(err);});
       if(processInstance.subProcess)
       {
-        this.service.getSVGImage(processInstance.subProcess["process-instance-id"]).subscribe((res : any) => { 
+        this.backendService.getSVGImage(processInstance.subProcess["process-instance-id"]).subscribe((res : any) => { 
           this.svgSubContentElement.nativeElement.innerHTML = res;
         });
             
@@ -218,7 +229,7 @@ export class AdminComponent implements OnInit, OnDestroy {
         instanceList : new Array()
       }
       if(this.isAdminUser) {
-        this.service.getActiveTaskInstancesForBusinessAdmin().subscribe((res:any)=>{
+        this.backendService.getActiveTaskInstancesForBusinessAdmin().subscribe((res:any)=>{
           if(res["task-summary"] && res["task-summary"] instanceof Array)
           {
             res["task-summary"].forEach((task : any)=> {
@@ -238,7 +249,7 @@ export class AdminComponent implements OnInit, OnDestroy {
         },err=>{});
       }else {
 
-        this.service.getActiveTaskInstancesForPotentialOwner(this.keycloak.getUserRoles()).subscribe((res:any)=>{
+        this.backendService.getActiveTaskInstancesForPotentialOwner(this.keycloak.getUserRoles()).subscribe((res:any)=>{
             if(res["task-summary"] && res["task-summary"] instanceof Array)
             {
               res["task-summary"].forEach((task : any)=> {
@@ -261,7 +272,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   getTaskVaribles(taskid : number,taskInstance: TaskInstance) {
-      this.service.getTaskVariables(taskid).subscribe((res:any) => {
+      this.backendService.getTaskVariables(taskid).subscribe((res:any) => {
         console.log(res);
         if(taskInstance.taskName == "Primary Doctor Evaluates Risk" || taskInstance.taskName == "On Call Doctor Evaluates Risk") 
             this.openRiskEvaluvation(res,taskInstance);
@@ -269,6 +280,8 @@ export class AdminComponent implements OnInit, OnDestroy {
             this.openRiskMitigation(res,taskInstance);
       },err => {})
   }
+
+
 
 
    private openRiskEvaluvation(response : any,taskInstance: TaskInstance) {
@@ -302,7 +315,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   onAbort(instance : ProcessInstanceList) {
-    this.service.signalEvent(instance.processInstanceId,"Stop Process",{}).subscribe((res : any) => {
+    this.backendService.signalEvent(instance.processInstanceId,"Stop Process",{}).subscribe((res : any) => {
       console.log("Process Aborted : " + instance.processInstanceId);
     });
   }
@@ -312,7 +325,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   onReset() {
      let serviceArray = new Array();
      this.activeProcessInstances.forEach((instance : ProcessInstanceList) => {
-        serviceArray.push(this.service.signalEvent(instance.processInstanceId,"Stop Process",{}));
+        serviceArray.push(this.backendService.signalEvent(instance.processInstanceId,"Stop Process",{}));
      });
      
 
@@ -336,11 +349,56 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   private createBundle() {
-    var data = JSON.parse(this.service.getCurrentBundleData());
-    this.service.createBundle(data).subscribe((bundleResp : any) => {
+    var data = JSON.parse(this.backendService.getCurrentBundleData());
+    this.backendService.createBundle(data).subscribe((bundleResp : any) => {
       console.log("createBundle() bundleResp = "+bundleResp);
       setTimeout(this.refreshScreen,5000)
     });
+  }
+
+  // https://stackoverflow.com/questions/36209784/variable-inside-settimeout-says-it-is-undefined-but-when-outside-it-is-defined
+  rFwaitFunc = function() { return this.reconnectFrequencySeconds * 1000 };
+  rFtryToSetupFunc = () => {
+      this.rFsseConnect();
+      this.rawFhirReconnectFrequencySeconds *= 2;
+      if (this.rawFhirReconnectFrequencySeconds >= 64) {
+          this.rawFhirReconnectFrequencySeconds = 64;
+      }
+  };
+  rFreconnectFunc = () => {
+    setTimeout(this.rFtryToSetupFunc, this.rFwaitFunc());
+  }
+
+  rFsseConnect() {
+    console.log("sseConnect() about to register for SSE at: "+this.rawFhirStreamingUrl);
+    this.rawFhirEventSource = new EventSource(this.rawFhirStreamingUrl);
+    this.rawFhirEventSource.onopen = event => {
+      this.zone.run(() => {
+        this.rawFhirReconnectFrequencySeconds = 1;
+      })
+    };
+    this.rawFhirEventSource.onmessage = event => {
+      this.zone.run(() => {
+        this.addRawFhirEvent(event.data);
+      })
+    };
+    
+    this.rawFhirEventSource.onerror = event => {
+      this.zone.run(() => {
+        console.log("sseConnect() ... will close and attempt re-connect to : "+this.rawFhirStreamingUrl);
+        this.rawFhirEventSource.close();
+        this.rFreconnectFunc();
+      })
+    };
+  }
+  
+  addRawFhirEvent(msg: any) {
+    this.rawFhirMessages = [...this.rawFhirMessages, msg];
+  }
+
+  openFhirSSE() {
+    const modalRef = this.modalService.open(FhirSSEComponent, { ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: 'static',  });
+    modalRef.componentInstance.rawFhirMessages = this.rawFhirMessages;
   }
 
 }
