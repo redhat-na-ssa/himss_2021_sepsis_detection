@@ -20,6 +20,7 @@ export class MainComponent implements OnInit {
   user : UserRole;
   userList : UserRole[];
   selectedOption : string = "";
+  userName : string = "";
   faUser = faUser;
   faCogs = faCog;
   faDatabase = faDatabase;
@@ -29,36 +30,14 @@ export class MainComponent implements OnInit {
   public userProfile: KeycloakProfile | null = null;
 
   constructor(private modalService: NgbModal, public readonly keycloak: KeycloakService) {
-    
-    this.userList = [
-      {
-        id : 1,
-        name : "Andrew Smith",
-        role : "Admin",
-        userid : "AndrewSmith",
-        password : "test123"
-      },
-      {
-        id : 2,
-        name : "John Stark",
-        role : "Doctor",
-        userid : "JohnStark",
-        password : "test123"
-      },
-      /* {
-        id : 3,
-        name : "Stacie Dorsey",
-        role : "Approver",
-        userid : "StacieDorsey",
-        password : "test123"
-      }  */
-    ];
-
-    this.user = this.userList[0];
   }
 
  changeSelectedOption(option : UserRole)
   {
+     if (option.userid == "logout" ) {
+       this.logout();
+     }
+      
       this.user = option;
       this.selectedOption = option.name;
   }
@@ -70,6 +49,34 @@ export class MainComponent implements OnInit {
 
     if (this.isLoggedIn) {
       this.userProfile = await this.keycloak.loadUserProfile();
+      console.log("NAME: "+(await this.keycloak.getUsername())+" "+(await this.keycloak.loadUserProfile()).lastName)
+
+      if(!this.userProfile.firstName || !this.userProfile.lastName) {
+        this.userName = this.userProfile.username;
+      } else {
+        this.userName = this.userProfile.firstName+" "+this.userProfile.lastName;
+      }
+
+      this.userList = [
+        {
+          id : 1,
+          name : this.userName,
+          role : this.keycloak.getUserRoles()[0],
+          userid : this.keycloak.getUsername(),
+          password : "Test123"
+        },
+        {
+          id : 2,
+          name : "Log Out",
+          role : "",
+          userid : "logout",
+          password : ""
+        },
+      ];
+   
+      this.user = this.userList[0];
+    } else {
+      this.login();
     }
   }
 
