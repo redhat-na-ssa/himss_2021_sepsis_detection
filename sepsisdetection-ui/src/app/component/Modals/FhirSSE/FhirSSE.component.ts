@@ -9,7 +9,6 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 })
 export class FhirSSEComponent implements OnInit, OnDestroy {
   title = 'client';
-  //message = '';
   rawFhirMessages: any[];
 
 

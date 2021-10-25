@@ -340,19 +340,11 @@ export class AdminComponent implements OnInit, OnDestroy {
      
   }
 
-  refreshScreen() {
-    window.alert("Reset Complete.");
-
-    // Don't reload entire page so as to not lose raw cloud events
-    //location.reload();
-    
-  }
-
   private createBundle() {
     var data = JSON.parse(this.backendService.getCurrentBundleData());
     this.backendService.createBundle(data).subscribe((bundleResp : any) => {
       console.log("createBundle() bundleResp = "+bundleResp);
-      setTimeout(this.refreshScreen,5000)
+      setTimeout(this.openFhirSSE,5000)
     });
   }
 
@@ -396,7 +388,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.rawFhirMessages = [...this.rawFhirMessages, msg];
   }
 
-  openFhirSSE() {
+  openFhirSSE = () => {
     const modalRef = this.modalService.open(FhirSSEComponent, { ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: 'static',  });
     modalRef.componentInstance.rawFhirMessages = this.rawFhirMessages;
   }
