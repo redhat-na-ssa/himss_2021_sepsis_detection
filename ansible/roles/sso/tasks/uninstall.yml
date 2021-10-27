@@ -7,6 +7,7 @@
     kind: keycloaks.keycloak.org
     name: rhsso
     namespace: "{{ namespace }}"
+  when: undeploy_sso is defined and undeploy_sso == "true"
 
 - name: "delete sso operator in {{ namespace_sso }}"
   import_role:
@@ -17,6 +18,7 @@
     subscription_namespace: "{{ namespace_sso }}"
     subscription_name: "{{ sso_operator_subscription_name }}"
     csv_prefix: "{{ sso_operator_csv_prefix }}"
+  when: undeploy_sso is defined and undeploy_sso == "true"
 
 - name: "delete operatorgroup from {{ namespace_sso }} namespace"
   import_role:
@@ -25,9 +27,11 @@
   vars:
     operatorgroup_name: "{{ namespace_sso }}"
     operatorgroup_namespace: "{{ namespace_sso }}"
+  when: undeploy_sso is defined and undeploy_sso == "true"
 
 - name: "delete namespace {{ namespace_sso }}"
   oc_project:
     oc_binary: "{{ openshift_cli }}"
     state: absent
     name: "{{ namespace_sso }}"
+  when: undeploy_sso is defined and undeploy_sso == "true"

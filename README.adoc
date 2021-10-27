@@ -130,6 +130,18 @@ localhost                  : ok=233  changed=74   unreachable=0    failed=0    s
 
 -----
 
+. The following are OpenShift namespaces with functionality that supports the demo:
++
+-----
+$  oc get project | grep 'knative\|sepsis'
+
+knative-eventing
+knative-serving
+knative-serving-ingress
+sepsisdetection-sso
+user1-sepsisdetection
+-----
+
 
 
 == Demo Components

@@ -9,10 +9,12 @@
     service_name: testsvc
     port: 80
     namespace: "{{ namespace }}"
+  when: ACTION != "uninstall"
 
 - name: get domain url
   shell: echo $({{ openshift_cli }} get route testroute -o jsonpath='{.spec.host}' -n {{ namespace }} | sed "s/testroute-{{ namespace }}.//g")
   register: ocp_domain_host
+  when: ACTION != "uninstall"
 
 - name: delete test route
   oc_route:
@@ -20,7 +22,9 @@
     state: absent
     name: testroute
     namespace: "{{ namespace }}"
+  when: ACTION != "uninstall"
 
 - name: set ocp_domain fact
   set_fact: 
     ocp_domain: "{{ ocp_domain_host.stdout }}"
+  when: ACTION != "uninstall"

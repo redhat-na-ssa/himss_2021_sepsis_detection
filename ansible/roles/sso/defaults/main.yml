@@ -14,3 +14,5 @@ keycloak_cr_template: keycloak-cr.yml
 keycloak_route_template: keycloak-route.yml
 
 sepsisdetection_theme_extension: https://github.com/redhat-naps-da/himss_interoperability_showcase_2021/releases/download/0.0.1/sepsisdetection-theme-0.0.1.jar
+
+undeploy_sso: false

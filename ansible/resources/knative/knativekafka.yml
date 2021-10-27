@@ -3,7 +3,7 @@
 apiVersion: operator.serverless.openshift.io/v1alpha1
 kind: KnativeKafka
 metadata:
-  name: knative-kafka
+  name: {{ knative_kafka_name }}
 spec:
   channel:
     bootstrapServers: kafka-cluster-kafka-bootstrap.{{ project_name }}:9092

@@ -66,6 +66,6 @@
       query: >-
         [?starts_with(spec.clusterServiceVersionNames[0], '{{ csv_prefix }}')].metadata.name|[0]
 
-  - name: approve installplan
+  - name: "approve installplan {{ install_plan }}"
     shell: |
       {{ openshift_cli }} patch installplan {{ install_plan }} --type='merge' -p '{"spec":{"approved":true}}' -n {{ subscription_namespace }}

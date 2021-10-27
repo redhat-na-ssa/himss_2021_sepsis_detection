@@ -11,6 +11,8 @@
     - group_vars/kafka_cluster.yml
     - group_vars/hapi_fhirserver.yml
     - group_vars/sepsisdetection_rhpam.yml
+  vars:
+    ACTION: install
 
   tasks:
   - include: tasks/knative.yml

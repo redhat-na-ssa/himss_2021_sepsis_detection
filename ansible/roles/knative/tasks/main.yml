@@ -116,16 +116,16 @@
   vars:
     jmesquery: "status.conditions[?type == 'Ready'].status"
 
-- name: "copy template for knative-kafka"
+- name: "copy template for {{ knative_kafka_name }}"
   template:
     src:  "{{ resources_dir }}/{{ knative_kafka_template }}"
     dest: "{{ work_dir }}/{{ knative_kafka_template }}"
 
-- name: "check if knative-kafka exists"
+- name: "check if {{ knative_kafka_name }} exists"
   oc_obj:
     state: list
     oc_binary: "{{ openshift_cli }}"
-    name: "knative-kafka"
+    name: "{{ knative_kafka_name }}"
     namespace: "{{ namespace_knativeeventing }}"
     kind: KnativeKafka
   register: result
@@ -144,7 +144,7 @@
     state: present
     oc_binary: "{{ openshift_cli }}"    
     kind: KnativeKafka
-    name: "knative-kafka"
+    name: "{{ knative_kafka_name }}"
     namespace: "{{ namespace_knativeeventing }}"
   register: r_knativekafka
   retries: 60

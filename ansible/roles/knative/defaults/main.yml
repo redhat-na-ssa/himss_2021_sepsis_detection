@@ -1,5 +1,6 @@
 ---
 
+knative_kafka_name: "{{ project_name }}-knative-kafka"
 knative_serving_template: knativeserving.yml
 knative_eventing_template: knativeeventing.yml
 knative_kafka_template: knativekafka.yml
@@ -19,3 +20,5 @@ knative_kafka_subscription_starting_csv: ""
 knative_kafka_subscription_automatic_installplan_approval: false
 knative_kafka_subscription_name: knative-kafka-operator
 knative_kafka_operator_subscription_channel: alpha
+
+undeploy_knative: false
