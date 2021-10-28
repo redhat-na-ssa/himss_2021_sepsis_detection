@@ -8,10 +8,9 @@ import { RiskMitigationComponent } from '../Modals/RiskMitigation/RiskMitigation
 import { FhirSSEComponent } from '../Modals/FhirSSE/FhirSSE.component';
 import { Bundle } from './Bundle';
 import { faRecycle, faEnvelopeOpen } from '@fortawesome/free-solid-svg-icons';
-import { forkJoin } from 'rxjs';
+import { Observable, forkJoin, Subject, Subscriber } from 'rxjs';
 import { KeycloakService } from 'keycloak-angular';
 import { KeycloakProfile } from 'keycloak-js';
-import { Observable, Subscription } from 'rxjs';
 import { AutofillMonitor } from '@angular/cdk/text-field';
 
 @Component({
@@ -45,7 +44,8 @@ export class AdminComponent implements OnInit, OnDestroy {
   eventSource = null;
   reconnectFrequencySeconds = 1;
 
-  rawFhirMessages: any[];
+  rawFhirMessages: string[] = [];
+  rawFhirStreamSubject!: Observable<string[]>;
   rawFhirStreamingUrl = window['_env'].FHIR_SSE_STREAMING_URL+"/sse/event/fhir/raw";
   rawFhirEventSource = null;
   rawFhirReconnectFrequencySeconds = 1;
@@ -73,13 +73,12 @@ export class AdminComponent implements OnInit, OnDestroy {
 
     this.sseConnect();
 
-    this.rawFhirMessages = [];
     this.rFsseConnect();
   }
-  
-  ngOnDestroy(): void {
+
+  public ngOnDestroy() {
+
   }
-  
 
 
   getCaseList() {
@@ -320,8 +319,6 @@ export class AdminComponent implements OnInit, OnDestroy {
     });
   }
 
-  
-
   onReset() {
      let serviceArray = new Array();
      this.activeProcessInstances.forEach((instance : ProcessInstanceList) => {
@@ -341,10 +338,11 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   private createBundle() {
+    this.rawFhirMessages = [];
     var data = JSON.parse(this.backendService.getCurrentBundleData());
     this.backendService.createBundle(data).subscribe((bundleResp : any) => {
       console.log("createBundle() bundleResp = "+bundleResp);
-      setTimeout(this.openFhirSSE,5000)
+      setTimeout(this.openFhirSSE,0)
     });
   }
 
@@ -361,36 +359,40 @@ export class AdminComponent implements OnInit, OnDestroy {
     setTimeout(this.rFtryToSetupFunc, this.rFwaitFunc());
   }
 
-  rFsseConnect() {
-    console.log("sseConnect() about to register for SSE at: "+this.rawFhirStreamingUrl);
-    this.rawFhirEventSource = new EventSource(this.rawFhirStreamingUrl);
-    this.rawFhirEventSource.onopen = event => {
-      this.zone.run(() => {
-        this.rawFhirReconnectFrequencySeconds = 1;
-      })
-    };
-    this.rawFhirEventSource.onmessage = event => {
-      this.zone.run(() => {
-        this.addRawFhirEvent(event.data);
-      })
-    };
-    
-    this.rawFhirEventSource.onerror = event => {
-      this.zone.run(() => {
-        console.log("sseConnect() ... will close and attempt re-connect to : "+this.rawFhirStreamingUrl);
-        this.rawFhirEventSource.close();
-        this.rFreconnectFunc();
-      })
-    };
+  rFsseConnect = () => {
+    console.log("rFsseConnect() about to register for SSE at: "+this.rawFhirStreamingUrl);
+
+      this.rawFhirEventSource = new EventSource(this.rawFhirStreamingUrl);
+      this.rawFhirStreamSubject = new Observable<string[]>((observer) => {
+        this.rawFhirEventSource.onopen = event => {
+          this.zone.run(() => {
+            this.rawFhirReconnectFrequencySeconds = 1;
+          })
+        };
+        
+        this.rawFhirEventSource.onmessage = event => {
+          this.zone.run(() => {
+            this.rawFhirMessages.push(event.data);
+            observer.next(this.rawFhirMessages);
+            //console.log("event = "+event.data);
+          })
+        };
+        
+        this.rawFhirEventSource.onerror = event => {
+          this.zone.run(() => {
+            console.log("sseConnect() ... will close and attempt re-connect to : "+this.rawFhirStreamingUrl);
+            this.rawFhirEventSource.close();
+            this.rFreconnectFunc();
+          })
+        };
+
+      });
+      
   }
   
-  addRawFhirEvent(msg: any) {
-    this.rawFhirMessages = [...this.rawFhirMessages, msg];
-  }
-
   openFhirSSE = () => {
     const modalRef = this.modalService.open(FhirSSEComponent, { ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: 'static',  });
-    modalRef.componentInstance.rawFhirMessages = this.rawFhirMessages;
+    modalRef.componentInstance.rawFhirStreamSubject = this.rawFhirStreamSubject;
   }
 
 }

@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Observable, Subject } from 'rxjs';
 
 
 @Component({
@@ -9,8 +10,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 })
 export class FhirSSEComponent implements OnInit, OnDestroy {
   title = 'client';
-  rawFhirMessages: any[];
-
+  rawFhirStreamSubject: Observable<string[]>;
 
   constructor( private modalService: NgbModal) {
   }

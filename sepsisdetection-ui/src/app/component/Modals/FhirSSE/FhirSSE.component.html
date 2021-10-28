@@ -1,10 +1,10 @@
+<h2> Raw Debezium Events</h2>
+<button class="close" mat-button (click)="modalClose();">X</button>
 <div class="fxLayout" fxFill fxLayout="column bottom">
-  <h2> Raw Debezium Events</h2>
-  <button class="close" mat-button (click)="modalClose();">X</button>
   <div class="fxFlex" fxFlex>
-        <pre *ngFor="let m of rawFhirMessages">
+      <pre *ngFor="let m of rawFhirStreamSubject | async">
           <code [highlight]="m"></code>
-        </pre>
+      </pre>
 
   </div>
 </div>
