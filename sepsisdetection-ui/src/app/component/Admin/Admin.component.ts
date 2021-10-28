@@ -2,13 +2,14 @@ import { Component, OnInit, ElementRef, ViewChild ,Input, OnDestroy, NgZone} fro
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { ProcessInstanceList,TaskInstanceList, TaskInstance } from 'src/app/Models/Requests/Request';
 import { BackendServices } from 'src/app/service/BackendServices';
+import { FhirSseService } from 'src/app/service/fhir-sse.service';
 import { UserRole } from 'src/app/Models/UserRole';
 import { RiskEvaluvationComponent } from '../Modals/RiskEvaluvation/RiskEvaluvation.component';
 import { RiskMitigationComponent } from '../Modals/RiskMitigation/RiskMitigation.component';
 import { FhirSSEComponent } from '../Modals/FhirSSE/FhirSSE.component';
 import { Bundle } from './Bundle';
 import { faRecycle, faEnvelopeOpen } from '@fortawesome/free-solid-svg-icons';
-import { Observable, forkJoin, Subject, Subscriber } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import { KeycloakService } from 'keycloak-angular';
 import { KeycloakProfile } from 'keycloak-js';
 import { AutofillMonitor } from '@angular/cdk/text-field';
@@ -39,24 +40,19 @@ export class AdminComponent implements OnInit, OnDestroy {
   allowSvgContent : boolean = false;
   backendService: BackendServices;
   keycloak: KeycloakService;
+  fhirSSEService: FhirSseService;
 
   riskAssesStreamingUrl = window['_env'].FHIR_SSE_STREAMING_URL+"/sse/event/fhir/riskAsses";
   eventSource = null;
   reconnectFrequencySeconds = 1;
 
-  rawFhirMessages: string[] = [];
-  rawFhirStreamSubject!: Observable<string[]>;
-  rawFhirStreamingUrl = window['_env'].FHIR_SSE_STREAMING_URL+"/sse/event/fhir/raw";
-  rawFhirEventSource = null;
-  rawFhirReconnectFrequencySeconds = 1;
-
-
   public isLoggedIn = false;
   public isAdminUser = false;
   public userProfile: KeycloakProfile | null = null;
 
-   constructor(private zone: NgZone, private modalService: NgbModal, service : BackendServices, keycloak: KeycloakService) {
-      this.backendService = service;
+   constructor(private zone: NgZone, private modalService: NgbModal, backendservice : BackendServices, keycloak: KeycloakService, fhirSSEService : FhirSseService) {
+      this.backendService = backendservice;
+      this.fhirSSEService = fhirSSEService;
       this.keycloak = keycloak;
       this.bundle = new Bundle();
    }
@@ -73,13 +69,12 @@ export class AdminComponent implements OnInit, OnDestroy {
 
     this.sseConnect();
 
-    this.rFsseConnect();
+    this.fhirSSEService.rFsseConnect();
   }
 
   public ngOnDestroy() {
 
   }
-
 
   getCaseList() {
     this.activeProcessInstances = new Array();
@@ -129,8 +124,6 @@ export class AdminComponent implements OnInit, OnDestroy {
       })
     };
   }
-
-
 
   private buildCaseList(response: any, caseList: ProcessInstanceList[], type: string) {
     let currentStatus = "Active";
@@ -182,14 +175,12 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   private mapVariableNameValue(res : any,caseInstance : ProcessInstanceList) {
-    if(res.observation)
-    {
+    if(res.observation){
         let observationObj = JSON.parse(res.observation)
         caseInstance.resourceType = observationObj.resourceType;
         caseInstance.id = observationObj.id;
         caseInstance.eventStatus = observationObj.status;
-        if(observationObj.code && observationObj.code.coding && observationObj.code.coding instanceof Array)
-        {
+        if(observationObj.code && observationObj.code.coding && observationObj.code.coding instanceof Array){
             caseInstance.code = observationObj.code.text;
             caseInstance.value = observationObj.valueQuantity.value;
             caseInstance.unit = observationObj.valueQuantity.code;
@@ -222,8 +213,8 @@ export class AdminComponent implements OnInit, OnDestroy {
       this.allowSvgContent = true;
   }
 
+  
   onGetActiveTask() {
-      
       this.activeManagerTasks = {
         instanceList : new Array()
       }
@@ -280,9 +271,6 @@ export class AdminComponent implements OnInit, OnDestroy {
       },err => {})
   }
 
-
-
-
    private openRiskEvaluvation(response : any,taskInstance: TaskInstance) {
     const modalRef = this.modalService.open(RiskEvaluvationComponent, { ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: 'static' });
 
@@ -338,7 +326,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   private createBundle() {
-    this.rawFhirMessages = [];
+    this.fhirSSEService.flushFsseMessages();
     var data = JSON.parse(this.backendService.getCurrentBundleData());
     this.backendService.createBundle(data).subscribe((bundleResp : any) => {
       console.log("createBundle() bundleResp = "+bundleResp);
@@ -346,53 +334,9 @@ export class AdminComponent implements OnInit, OnDestroy {
     });
   }
 
-  // https://stackoverflow.com/questions/36209784/variable-inside-settimeout-says-it-is-undefined-but-when-outside-it-is-defined
-  rFwaitFunc = function() { return this.reconnectFrequencySeconds * 1000 };
-  rFtryToSetupFunc = () => {
-      this.rFsseConnect();
-      this.rawFhirReconnectFrequencySeconds *= 2;
-      if (this.rawFhirReconnectFrequencySeconds >= 64) {
-          this.rawFhirReconnectFrequencySeconds = 64;
-      }
-  };
-  rFreconnectFunc = () => {
-    setTimeout(this.rFtryToSetupFunc, this.rFwaitFunc());
-  }
-
-  rFsseConnect = () => {
-    console.log("rFsseConnect() about to register for SSE at: "+this.rawFhirStreamingUrl);
-
-      this.rawFhirEventSource = new EventSource(this.rawFhirStreamingUrl);
-      this.rawFhirStreamSubject = new Observable<string[]>((observer) => {
-        this.rawFhirEventSource.onopen = event => {
-          this.zone.run(() => {
-            this.rawFhirReconnectFrequencySeconds = 1;
-          })
-        };
-        
-        this.rawFhirEventSource.onmessage = event => {
-          this.zone.run(() => {
-            this.rawFhirMessages.push(event.data);
-            observer.next(this.rawFhirMessages);
-            //console.log("event = "+event.data);
-          })
-        };
-        
-        this.rawFhirEventSource.onerror = event => {
-          this.zone.run(() => {
-            console.log("sseConnect() ... will close and attempt re-connect to : "+this.rawFhirStreamingUrl);
-            this.rawFhirEventSource.close();
-            this.rFreconnectFunc();
-          })
-        };
-
-      });
-      
-  }
-  
   openFhirSSE = () => {
     const modalRef = this.modalService.open(FhirSSEComponent, { ariaLabelledBy: 'modal-basic-title', size: 'xl', backdrop: 'static',  });
-    modalRef.componentInstance.rawFhirStreamSubject = this.rawFhirStreamSubject;
+    modalRef.componentInstance.rawFhirStreamSubject = this.fhirSSEService.getRawFhirStreamObservable();
   }
 
 }
