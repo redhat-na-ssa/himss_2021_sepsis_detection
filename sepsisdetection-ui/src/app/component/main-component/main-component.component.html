@@ -22,32 +22,22 @@
 </style>
 
 <div class="card" style="margin-top:20px;">
-    <div>
-        <div class="float-right">
-            <button  class="btn btn-danger btn-sm float-right" *ngIf="isLoggedIn" type="button" (click)="logout()"><fa-icon [icon]="faSignOut" ></fa-icon> Logout</button>
-            <button  class="btn btn-danger btn-sm float-right" *ngIf="!isLoggedIn" type="button" (click)="login()"><fa-icon [icon]="faSignIn" ></fa-icon> Login</button>
-        </div>
-        <div class="float-right" style="padding: 10px;"></div>
-        <div class="float-right" *ngIf="userProfile">
-            <td>{{ userProfile.username }}</td>
-        </div>
-    </div>
     <div class="card-header panel-background" *ngIf="userProfile">
         Sepsis Demo
 
-        <div class="dropdown float-right" triggers="mouseenter:mouseleave" placement="left" *ngIf="isAdminUser">
+        <div class="dropdown float-right" triggers="mouseenter:mouseleave" placement="left">
             <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownMenuButton"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span style="font-size: 15px"></span>
-                <fa-icon [icon]="faUser" style="margin-right:10px;"> </fa-icon>{{user.name}} ( {{user.role}} )
+                <fa-icon [icon]="faUser" style="margin-right:10px;"> </fa-icon>{{user.name}} {{user.role}}
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 <a class="dropdown-item" *ngFor="let curuser of userList" (click)="changeSelectedOption(curuser)"
                     href="#">
                     <div>
                         <p>
-                            <fa-icon [icon]="faUser" style="margin-right:10px;"></fa-icon> {{curuser.name}} <span
-                                style="font-size:12px">({{curuser.role}})</span>
+                            <fa-icon [icon]="faArrowCircleLeft" style="margin-right:10px;"></fa-icon> {{curuser.name}} <span
+                                style="font-size:12px">{{curuser.role}}</span>
                         </p>
 
                     </div>
@@ -59,13 +49,13 @@
                 <fa-icon [icon]="faCogs"></fa-icon>
             </button>
         </div>
-        <div class="float-right" style="margin-right:10px;" *ngIf="isAdminUser" >
+        <div class="float-right" style="margin-right:10px;" >
             <button class="btn btn-sm btn-warning" (click)="openClosedCases()">
                 <fa-icon [icon]="faDatabase"></fa-icon> Show Closed Cases
             </button>
         </div>
     </div>
     <div class="card-body" *ngIf="userProfile">
-        <app-Admin *ngIf="user.userid == 'AndrewSmith'" [user]="user"></app-Admin>
+        <app-Admin [user]="user"></app-Admin>
     </div>
 </div>
