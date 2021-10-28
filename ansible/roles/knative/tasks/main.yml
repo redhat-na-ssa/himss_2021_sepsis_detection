@@ -116,10 +116,15 @@
   vars:
     jmesquery: "status.conditions[?type == 'Ready'].status"
 
+
+#######     KnativeKafka    ################
+# NOTE:  seems to be broken in shared cluster with multiple sepsisdetection apps running concurrently
+
 - name: "copy template for {{ knative_kafka_name }}"
   template:
     src:  "{{ resources_dir }}/{{ knative_kafka_template }}"
     dest: "{{ work_dir }}/{{ knative_kafka_template }}"
+  when: deploy_knativeakafka is defined and deploy_knativeakafka is true
 
 - name: "check if {{ knative_kafka_name }} exists"
   oc_obj:
@@ -129,6 +134,7 @@
     namespace: "{{ namespace_knativeeventing }}"
     kind: KnativeKafka
   register: result
+  when: deploy_knativeakafka is defined and deploy_knativeakafka is true
 
 - name: "deploy Knative Kafka"
   oc_list:
@@ -137,7 +143,7 @@
     namespace: "{{ namespace_knativeeventing }}"
     files:
       - "{{ work_dir }}/{{ knative_kafka_template }}"
-  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != ""
+  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != "" and deploy_knativeakafka is defined and deploy_knativeakafka is true
 
 - name: "wait until KnativeKafka has started in {{ namespace_knativeeventing }}"
   oc_obj:
@@ -155,7 +161,9 @@
   - r_knativekafka.ansible_module_results | json_query(jmesquery) == ['True']
   vars:
     jmesquery: "status.conditions[?type == 'Ready'].status"
+  when: deploy_knativeakafka is defined and deploy_knativeakafka is true
 
 - name: "test knative"
   shell:  "{{ openshift_cli }} get kservice"
   ignore_errors: true
+#####################################################################3

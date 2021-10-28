@@ -22,6 +22,6 @@
   - include: tasks/sepsisdetection-risk.yml
   - include: tasks/sepsisdetection-sse.yml
   - include: tasks/hapi-fhirserver.yml
+  - include: tasks/sso.yml
   - include: tasks/knative.yml
   - include: tasks/amq-streams.yml
-  - include: tasks/sso.yml

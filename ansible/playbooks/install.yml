@@ -15,9 +15,9 @@
     ACTION: install
 
   tasks:
+  - include: tasks/amq-streams.yml
   - include: tasks/knative.yml
   - include: tasks/sso.yml
-  - include: tasks/amq-streams.yml
   - include: tasks/hapi-fhirserver.yml
   - include: tasks/sepsisdetection-risk.yml
   - include: tasks/sepsisdetection-sse.yml

@@ -784,6 +784,11 @@ https://my.healthflow.io/patient-chart?patientId=610f11c05b041e00082c54c2
 
 . Persisting list of Observations as part of process instance variables caused problems when retrieving those pInstance variables and marshalling to json (so as to be rendered in sepsisdetection-ui ).
 
+. KnativeEventing
++
+Knative Eventing is not currently used.
+However, if it was used, there seems to be a problem with starting multiple KnativeKafka installs in the default knative-eventing namespace when deploying in a shared cluster.
+
 == Operator notes
 
 === Reference
