@@ -1,5 +1,5 @@
 import { Injectable, NgZone, OnDestroy } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 export class FhirSseService implements OnDestroy {
 
   rawFhirMessages: string[] = [];
-  rawFhirStreamObservable!: Observable<string[]>;
+  rawFhirStreamSubject!: Subject<string[]>;
   rawFhirStreamingUrl = window['_env'].FHIR_SSE_STREAMING_URL+"/sse/event/fhir/raw";
   rawFhirEventSource = null;
   rawFhirReconnectFrequencySeconds = 1;
@@ -35,40 +35,39 @@ export class FhirSseService implements OnDestroy {
    public rFsseConnect = () => {
      console.log("rFsseConnect() about to register for SSE at: "+this.rawFhirStreamingUrl);
  
-       this.rawFhirEventSource = new EventSource(this.rawFhirStreamingUrl);
-       this.rawFhirStreamObservable = new Observable<string[]>((observer) => {
-         this.rawFhirEventSource.onopen = event => {
-           this.zone.run(() => {
-             this.rawFhirReconnectFrequencySeconds = 1;
-           })
-         };
-         
-         this.rawFhirEventSource.onmessage = event => {
-           this.zone.run(() => {
-             this.rawFhirMessages.push(event.data);
-             observer.next(this.rawFhirMessages);
-             //console.log("event = "+event.data);
-           })
-         };
-         
-         this.rawFhirEventSource.onerror = event => {
-           this.zone.run(() => {
-             console.log("rawFhirEventSource.onerror() ... will close and attempt re-connect to : "+this.rawFhirStreamingUrl);
-             this.rawFhirEventSource.close();
-             this.rFreconnectFunc();
-           })
-         };
- 
-       });
-       
-   }
+
+     this.rawFhirStreamSubject = new Subject<string[]>();
+     this.rawFhirEventSource = new EventSource(this.rawFhirStreamingUrl);
+
+     this.rawFhirEventSource.onopen = event => {
+       this.zone.run(() => {
+         this.rawFhirReconnectFrequencySeconds = 1;
+       })
+     };
+     
+     this.rawFhirEventSource.onmessage = event => {
+       this.zone.run(() => {
+         this.rawFhirMessages.push(event.data);
+         this.rawFhirStreamSubject.next(this.rawFhirMessages);
+         //console.log("event = "+event.data);
+       })
+     };
+     
+     this.rawFhirEventSource.onerror = event => {
+       this.zone.run(() => {
+         console.log("rawFhirEventSource.onerror() ... will close and attempt re-connect to : "+this.rawFhirStreamingUrl);
+         this.rawFhirEventSource.close();
+         this.rFreconnectFunc();
+       })
+     };
+    }
 
    public flushFsseMessages = () => {
     this.rawFhirMessages = [];
    }
 
-   public getRawFhirStreamObservable = () : Observable<string[]> => {
-     return this.rawFhirStreamObservable;
+   public getRawFhirStreamSubject = () : Subject<string[]> => {
+     return this.rawFhirStreamSubject;
    }
    
 }
