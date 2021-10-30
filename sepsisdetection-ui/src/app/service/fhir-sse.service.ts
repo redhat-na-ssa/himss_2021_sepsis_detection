@@ -53,7 +53,7 @@ export class FhirSseService implements OnDestroy {
          
          this.rawFhirEventSource.onerror = event => {
            this.zone.run(() => {
-             console.log("sseConnect() ... will close and attempt re-connect to : "+this.rawFhirStreamingUrl);
+             console.log("rawFhirEventSource.onerror() ... will close and attempt re-connect to : "+this.rawFhirStreamingUrl);
              this.rawFhirEventSource.close();
              this.rFreconnectFunc();
            })
