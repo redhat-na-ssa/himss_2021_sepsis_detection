@@ -1,7 +1,7 @@
 
 .fxLayout{
-  overflow: auto;
-  overflow-y: auto;
+  overflow-x: scroll;
+  overflow-y: scroll;
   max-height: 800px;
 }
 
@@ -26,6 +26,19 @@
   min-width: auto;
 }
 
+pre {
+  display: block;
+  font-size: 87.5%;
+  color: #212529;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+}
 
+fhir-sse {
+  padding: 20px;
+}
 
 

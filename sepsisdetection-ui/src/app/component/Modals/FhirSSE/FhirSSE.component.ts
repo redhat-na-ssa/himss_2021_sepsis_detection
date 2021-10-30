@@ -1,6 +1,6 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 
 
 @Component({
@@ -10,12 +10,22 @@ import { Observable, Subject } from 'rxjs';
 })
 export class FhirSSEComponent implements OnInit, OnDestroy {
   title = 'client';
-  rawFhirStreamSubject: Observable<string[]>;
+  rawFhirStreamSubject: Subject<string[]>;
+
+  @ViewChild('fxLayout') fxLayout;
 
   constructor( private modalService: NgbModal) {
   }
   
   ngOnInit(): void {
+    this.rawFhirStreamSubject.subscribe({
+      next: (v) => {
+
+        // Automatically scroll to bottom of modal when new event is streamed
+        //console.log("FhirSSECompoent:  captured event; div scrollHeight = "+this.fxLayout.nativeElement.scrollHeight);
+        this.fxLayout.nativeElement.scrollTop = this.fxLayout.nativeElement.scrollHeight;
+      }
+    });
   }
   ngOnDestroy(): void {
   }
