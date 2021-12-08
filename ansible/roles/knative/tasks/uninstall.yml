@@ -1,6 +1,6 @@
 ---
 
-- name: "remove knativekafka"
+- name: "remove knativekafka {{ knative_kafka_name }} from {{ namespace_knativeeventing }}"
   oc_obj:
     state: absent
     oc_binary: "{{ openshift_cli }}"

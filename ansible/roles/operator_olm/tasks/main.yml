@@ -41,7 +41,7 @@
     files:
       - "{{ work_dir }}/{{ operator_name }}-subscription.yml"
 
-- name: wait until installplan is created
+- name: "wait until installplan is created in {{ subscription_namespace }}"
   oc_obj:
     state: list
     oc_binary: "{{ openshift_cli }}"
@@ -65,6 +65,16 @@
     vars:
       query: >-
         [?starts_with(spec.clusterServiceVersionNames[0], '{{ csv_prefix }}')].metadata.name|[0]
+
+  - name: "check existence of installplan"
+    fail:
+      msg: >
+        No installplan in {{ subscription_namespace }} with csv_prefix of {{ csv_prefix }} . 
+        Install plan query results:  {{ r_install_plan.ansible_module_results.results[0] | to_json | from_json | json_query( "items[*].spec.clusterServiceVersionNames[]" ) }}
+    when: >
+      csv_prefix is not defined or
+      csv_prefix is none or
+      csv_prefix|trim() != ""
 
   - name: "approve installplan {{ install_plan }}"
     shell: |
