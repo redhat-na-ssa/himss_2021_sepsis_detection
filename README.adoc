@@ -375,7 +375,7 @@ $ oc login <OCP API Server url> -u <cluster-admin userId> -p <passwd>
 . Clone the source code of this project:
 +
 -----
-$ git clone https://github.com/redhat-naps-da/himss_interoperability_showcase_2021
+$ git clone https://github.com/redhat-naps-da/himss_2021_sepsis_detection
 -----
 
 . Change to the ansible directory of this project:

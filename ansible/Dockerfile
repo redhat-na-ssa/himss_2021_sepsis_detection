@@ -6,7 +6,7 @@ RUN ansible-galaxy collection install -r ${HOME}/requirements.yml \
 
 # JA Bride
 USER root
-RUN dnf install -y openssl && curl http://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz -o /root/oc.tar.gz && \
+RUN dnf install -y openssl && curl https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz -o /root/oc.tar.gz && \
     tar xvzf /root/oc.tar.gz -C /usr/local/bin
 USER ansible
 
