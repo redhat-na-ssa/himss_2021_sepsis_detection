@@ -57,6 +57,6 @@ sepsis_detection_ml_app_name: sepsis-detection
 
 sepsisdetection_ui_app_name: sepsisdetection-ui
 
-patient_viewer_url: "https://healthflow-dev-fe.herokuapp.com/profile/5e3ad7fe-24fa-4dc2-8be5-25554a8efb2c"
+patient_viewer_url: "https://demo.healthflow.io/profile/5e3ad7fe-24fa-4dc2-8be5-25554a8efb2c"
 
 sepsisdetection_sse_app_name: sepsisdetection-sse
