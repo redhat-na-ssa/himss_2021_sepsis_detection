@@ -814,6 +814,19 @@ $ oc logs -f -c manager $( oc get pod -n ansible-system | grep "^ansible" | awk 
 $ make docker-build docker-push
 -----
 
+. Change _latest_ tag in quay:
++
+In order for the updated sepsisdetection-operator image to be picked up in RHPDS, you'll need to change the _latest_ tag in quay.io.
+
+.. In your browser, navigate to https://quay.io/repository/redhat_naps_da/sepsisdetection-operator?tab=tags
+.. Log into quay.io as admin of the `redhat_naps_da` organization.
+.. Modify the _latest_ tag such that it is linked with the latest image that was previously pushed.
++
+image::docs/images/quay_link.png[]
+
+
+==== Optional: Deploy operator to your own OCP cluster
+
 . Deploy operator in OpenShift cluster:
 +
 -----
@@ -836,6 +849,7 @@ configmap/ansible-manager-config created
 service/ansible-controller-manager-metrics-service created
 deployment.apps/ansible-controller-manager created
 -----
+
 
 . Install HIMSS2021 resource
 +
