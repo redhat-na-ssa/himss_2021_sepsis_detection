@@ -1141,7 +1141,7 @@
       {
          "clientId":"account",
          "name":"${client_account}",
-         "baseUrl":"/auth/realms/kie-realm/account",
+         "baseUrl":"/realms/kie-realm/account",
          "surrogateAuthRequired":false,
          "enabled":true,
          "clientAuthenticatorType":"client-secret",
@@ -1151,7 +1151,7 @@
             "manage-account"
          ],
          "redirectUris":[
-            "/auth/realms/kie-realm/account/*"
+            "/realms/kie-realm/account/*"
          ],
          "webOrigins":[
 

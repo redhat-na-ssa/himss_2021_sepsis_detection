@@ -3,6 +3,7 @@ version: '3.7'
 services:
 
   zookeeper:
+    container_name: zookeeper
     image: quay.io/strimzi/kafka:latest-kafka-2.6.0
     command: [
       "sh", "-c",
@@ -19,6 +20,7 @@ services:
 #   Allows for kafka client that is external to the container network (ie: on the host) to connect to this Kafka broker and consume messages
 #   NOTE: via this configuration, kafka is available to external clients on port: 9094
   kafka:
+    container_name: kafka
     image: quay.io/strimzi/kafka:latest-kafka-2.6.0
     command: [
       "sh", "-c",
@@ -35,6 +37,7 @@ services:
       - default
 
   kafka-connect:
+    container_name: kafka-connect
     image: docker.io/debezium/connect:1.5
     depends_on:
       - zookeeper
@@ -49,22 +52,24 @@ services:
     networks:
       - default
 
-#  kafdrop:
-#    image: docker.io/obsidiandynamics/kafdrop:3.27.0
-#    restart: always
-#    ports:
-#      - "9000:9000"
-#    environment:
-#      KAFKA_BROKERCONNECT: "kafka:9092"
-#      JVM_OPTS: "-Xms32M -Xmx64M"
-#      SERVER_SERVLET_CONTEXTPATH: "/"
-#    depends_on:
-#      - kafka
-#    networks:
-#      - default
+  kafdrop:
+    container_name: kafdrop
+    image: docker.io/obsidiandynamics/kafdrop:3.27.0
+    restart: always
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "kafka:9092"
+      JVM_OPTS: "-Xms32M -Xmx64M"
+      SERVER_SERVLET_CONTEXTPATH: "/"
+    depends_on:
+      - kafka
+    networks:
+      - default
 
 
-  psql-sso:
+  psql_sso:
+    container_name: psql_sso
     image: registry.redhat.io/rhel8/postgresql-12:1-72.1626836556
     restart: always
     ports:
@@ -82,42 +87,45 @@ services:
       - default
 
   sso:
-    image: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:7.4-36
+    container_name: sso
+    image: quay.io/jbride/keycloak:17.0.0-2-psql
     restart: always
     ports:
-      - "4443:8443"
-      - "4080:8080"
+      - "4443:4443"
+      - "4080:4080"
+    command: [start-dev]
     environment:
-      SSO_POSTGRESQL_SERVICE_HOST: psql-sso
-      SSO_POSTGRESQL_SERVICE_PORT: 4432
-      DB_SERVICE_PREFIX_MAPPING: "sso-postgresql=DB"
-      DB_JNDI: "java:jboss/datasources/KeycloakDS"
-      DB_USERNAME: sso
-      DB_PASSWORD: sso
-      DB_DATABASE: sso
-      TX_DATABASE_PREFIX_MAPPING: "sso-postgresql=DB"
-      DB_MIN_POOL_SIZE: 5
-      DB_MAX_POOL_SIZE: 10
-      SSO_ADMIN_USERNAME: master
-      SSO_ADMIN_PASSWORD: master
+
+      # Add the following entry in your /etc/hosts:  127.0.0.1  sso.local
+      KC_HOSTNAME: sso.local:4080
+
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB_URL: 'jdbc:postgresql://psql_sso:4432/sso'
+      KC_DB_USERNAME: sso
+      KC_DB_PASSWORD: sso
+      KC_HTTP_PORT: 4080
+      KC_HTTPS_PORT: 4443
       JAVA_OPTS_APPEND: -Dkeycloak.migration.strategy=IGNORE_EXISTING -Dkeycloak.import=/opt/kie-realm.json
     volumes:
     - ./sso/kie-realm.json:/opt/kie-realm.json:bind
     depends_on:
-      - psql-sso
+      - psql_sso
     networks:
       - default
 
   sepsis-ml:
+    container_name: sepsis-ml
     image: quay.io/redhat_naps_da/sepsis-detection:1.3
     restart: always
     ports:
       - "5080:8080"
     networks:
-      - sepsis-ml
+      - default
 
 
   psql-fhir:
+    container_name: psql-fhir
     image: registry.redhat.io/rhel8/postgresql-12
     restart: always
     ports:
@@ -135,6 +143,7 @@ services:
       - default
 
   hapi-fhir:
+    container_name: hapi-fhir
     # https://github.com/redhat-naps-da/hapi-fhir-jpaserver-starter
     image: quay.io/redhat_naps_da/hapi-fhir-jpaserver-starter-ocp:v5.3.0-psql-bytea-1
 
@@ -154,6 +163,7 @@ services:
       - default
 
   sepsis-risk:
+    container_name: sepsis-risk
     image: quay.io/redhat_naps_da/sepsisdetection-risk:0.0.4
     restart: always
     ports:
@@ -166,6 +176,7 @@ services:
       - default
 
   sepsis-sse:
+    container_name: sepsis-sse
     image: quay.io/redhat_naps_da/sepsisdetection-sse:0.0.3
     restart: always
     ports:
@@ -177,6 +188,7 @@ services:
 
 
   psql-rhpam:
+    container_name: psql-rhpam
     image: registry.redhat.io/rhel8/postgresql-12
     restart: always
     ports:
@@ -196,6 +208,7 @@ services:
       - default
 
 #  dashbuilder:
+#    container_name: dashbuilder
 #    image: quay.io/redhat_naps_da/dashbuilder-rhpam-db:0.0.1
 #    restart: always
 #    ports:
@@ -207,32 +220,34 @@ services:
 #    networks:
 #      - default
 
-#  sepsisdetection-rhpam:
-#    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.13
-#    restart: always
-#    ports:
-#      - "9080:9080"
-#    environment:
-#      JAVA_MAX_MEM_RATIO: '60'
-#      JAVA_INITIAL_MEM_RATIO: '0'
-#      GC_MAX_METASPACE_SIZE: '500'
-#      SPRING_CONFIG_LOCATION: "file:///deployments/config/application.properties"
+  sepsisdetection-rhpam:
+    container_name: sepsis-rhpam
+    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.13
+    restart: always
+    ports:
+      - "9080:9080"
+    environment:
+      JAVA_MAX_MEM_RATIO: '60'
+      JAVA_INITIAL_MEM_RATIO: '0'
+      GC_MAX_METASPACE_SIZE: '500'
+      SPRING_CONFIG_LOCATION: "file:///deployments/config/application.properties"
 
       # org.kie.server.repo        : dictates to kie-server where to find its KIE container configuration file
       # kie.maven.settings.custom  : dictates to kie-server where to fine its artifact repo of KJars
-#      JAVA_OPTS_APPEND: '-Dorg.kie.server.repo=/deployments/config -Dkie.maven.settings.custom=/m2/settings.xml'
+      JAVA_OPTS_APPEND: '-Dorg.kie.server.repo=/deployments/config -Dkie.maven.settings.custom=/m2/settings.xml'
 
       # Optional: Change to URL of Nexus (if in use)
-#      MAVEN_MIRROR_URL: ''
+      MAVEN_MIRROR_URL: ''
 
-#    volumes:
-#    - ./sepsisdetection-rhpam/runtime_configs:/deployments/config/:bind
-#    depends_on:
-#      - psql-rhpam
-#    networks:
-#      - default
+    volumes:
+    - ./sepsisdetection-rhpam/runtime_configs:/deployments/config/:bind
+    depends_on:
+      - psql-rhpam
+    networks:
+      - default
 
 #  sepsis_ui:
+#    container_name: sepsis-ui
 #    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.15-sse
 #    restart: always
 #    ports:
@@ -243,7 +258,5 @@ services:
 networks:
   default:
     driver: bridge
-  sepsis-ml:
-    driver: bridge
-  sso:
-    driver: bridge
+#  sepsis-ml:
+#    driver: bridge

@@ -463,20 +463,29 @@ Set the following environment variables with values similar to the following:
 . If testing locally deployed application (via docker-compose):
 +
 -----
-RHSSO_URL=http://localhost:4080
-REALM_ID=kieRealm
-retrieve_token_url="$RHSSO_URL/auth/realms/$REALM_ID/protocol/openid-connect/token"
-SEPSISDETECTION_RHPAM_URL=http://localhost:9080
-FHIR_SERVER_URL=http://localhost:8080
+export RHSSO_HOST=sso.local
+export RHSSO_URL=http://$RHSSO_HOST:4080
+export RHSSO_MASTER_PASSWD=admin
+export REALM_ID=kieRealm
+export retrieve_token_url="$RHSSO_URL/realms/$REALM_ID/protocol/openid-connect/token"
+export SEPSISDETECTION_RHPAM_URL=http://localhost:9080
+export FHIR_SERVER_URL=http://localhost:8080
 -----
+
+. Add the following entry to your `/etc/hosts`:
++
+-----
+127.0.0.1   sso.local
+-----
+
 
 . If testing environment deployed to OpenShift:
 +
 -----
 SEPSISDETECTION_RHPAM_URL=https://$(oc get route sepsisdetection-rhpam -n user1-sepsisdetection --template='{{ .spec.host }}')
-RHSSO_URL=https://$(oc get route sso -n sepsisdetection-sso --template='{{ .spec.host }}')
+RHSSO_URL=https://$(oc get route sso -n sepsisdetection-sso --template='{{ .spec.host }}')/auth
 REALM_ID=user1-sepsis
-retrieve_token_url="$RHSSO_URL/auth/realms/$REALM_ID/protocol/openid-connect/token"
+retrieve_token_url="$RHSSO_URL/realms/$REALM_ID/protocol/openid-connect/token"
 FHIR_SERVER_URL=https://$(oc get route fhir-server -n user1-sepsisdetection --template='{{ .spec.host }}')
 -----
 

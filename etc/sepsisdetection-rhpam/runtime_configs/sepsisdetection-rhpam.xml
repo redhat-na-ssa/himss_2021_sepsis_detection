@@ -24,7 +24,7 @@
       </config-item>
       <config-item>
         <name>org.kie.server.repo</name>
-        <value>../etc/sepsisdetection-rhpam/runtime_configs</value>
+        <value>/deployments/config</value>
         <type>java.lang.String</type>
       </config-item>
     </configItems>

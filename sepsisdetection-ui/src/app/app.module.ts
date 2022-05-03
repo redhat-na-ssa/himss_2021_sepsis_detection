@@ -32,7 +32,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
   return () =>
     keycloak.init({
       config: {
-        url: window['_env'].KEYCLOAK_URL+"/auth",
+        url: window['_env'].KEYCLOAK_URL,
         realm: window['_env'].SSO_REALM,
         clientId: window['_env'].SSO_CLIENT
       },

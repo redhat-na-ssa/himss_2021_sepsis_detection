@@ -2,7 +2,7 @@
 (function(window) {
   window._env = window._env || {};
 
-  window._env.KEYCLOAK_URL = "http://localhost:4080";
+  window._env.KEYCLOAK_URL = "http://sso.local:4080";
   window._env.SSO_REALM = "kieRealm";
   window._env.SSO_CLIENT = "sepsisdetection";
   window._env.KIE_SERVER_URL = "http://localhost:9080";
@@ -13,6 +13,6 @@
   window._env.PROCESS_ID = 'sepsisdetection';
   window._env.FHIR_SERVER_URL = 'http://localhost:8080/fhir';
   window._env.FHIR_SSE_STREAMING_URL = 'http://localhost:4199';
-  window._env.PATIENT_VIEWER_URL = 'https://my.healthflow.io/patient-chart?patientId=610f11c05b041e00082c54c2';
+  window._env.PATIENT_VIEWER_URL = 'https://demo.healthflow.io/profile/5e3ad7fe-24fa-4dc2-8be5-25554a8efb2c';
   window._env.IS_OPENSHIFT = 'false';
 })(this);
