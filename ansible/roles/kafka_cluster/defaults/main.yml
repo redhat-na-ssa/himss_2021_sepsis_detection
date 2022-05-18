@@ -18,8 +18,8 @@ zookeeper_readiness_probe_timeout_seconds: 5
 zookeeper_liveness_probe_initial_delay_seconds: 30
 zookeeper_liveness_probe_timeout_seconds: 5
 
-kafka_version: 2.6.0
-kafka_log_message_format_version: "2.6"
+kafka_version: 3.1.0
+kafka_log_message_format_version: "3.1"
 kafka_replicas: 3
 # persistent, ephemeral
 kafka_storage_type: persistent

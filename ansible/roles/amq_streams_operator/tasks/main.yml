@@ -43,7 +43,7 @@
     query: >-
       [?starts_with(metadata.name, '{{ amq_streams_operator_deployment }}')].metadata.name|[0]
 
-- name: "wait until amq streams operator is active"
+- name: "wait until amq streams operator is active in {{ namespace_amq_streams_operator }}"
   oc_obj:
     state: list
     oc_binary: "{{ openshift_cli }}"    

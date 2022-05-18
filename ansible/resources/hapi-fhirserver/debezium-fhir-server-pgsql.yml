@@ -1,6 +1,6 @@
 # https://debezium.io/documentation/reference/connectors/postgresql.html#postgresql-connector-properties
 
-apiVersion: kafka.strimzi.io/v1alpha1
+apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnector
 metadata:
   name: {{ kafka_debezium_name }}

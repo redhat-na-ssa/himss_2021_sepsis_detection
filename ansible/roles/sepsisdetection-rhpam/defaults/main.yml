@@ -13,7 +13,7 @@ postgresql_max_prepared_transactions: 100
 postgresql_max_connections: 100
 postgresql_init_configmap: "{{ psql_app_name }}-init"
 postgresql_memory_limit: 512Mi
-postgresql_cpu_limit: 500m
+postgresql_cpu_limit: 1
 postgresql_memory_request: 256Mi
 postgresql_cpu_request: 100m
 undeploy_psql_bpm: "false"

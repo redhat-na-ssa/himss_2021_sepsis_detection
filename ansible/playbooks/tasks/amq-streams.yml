@@ -63,7 +63,7 @@
     work_dir_name: "kafka_connect"
     resources_dir: "{{ resources_base_dir }}/kafka-connect"
 - include_role:
-    name: ../roles/openshift_kafka_connect
+   name: ../roles/openshift_kafka_connect
   when: >
     ACTION is not defined or
     ACTION is none or

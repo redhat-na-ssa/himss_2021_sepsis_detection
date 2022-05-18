@@ -336,7 +336,11 @@ Ansible is included to deploy this application to OpenShift in a repeatable mann
 
 === Pre-reqs:
 
-. OpenShift Container Platform version 4.7.* or more recent. Resource requirements needed by the app (doesn’t include resource requirements of Openshift to support itself) is as follows:
+. OpenShift Container Platform. Tested on the following versions:
+.. 4.9.0
+.. 4.10.3
+
+. Resource requirements needed by the app (doesn’t include resource requirements of Openshift to support itself) is as follows:
 
 .. RAM: 6 GB
 

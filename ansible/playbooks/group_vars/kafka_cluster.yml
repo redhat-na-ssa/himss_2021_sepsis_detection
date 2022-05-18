@@ -8,7 +8,9 @@ kafka_cluster: kafka-cluster
 kafka_connect: kafka-connect
 
 kafka_topics: >
-  [{"name": "topic-fhir-r4-patient", "partitions": "15", "replicas": "3", "config": "{}"} ]
+  [{"name": "{{ kafka_connect }}-offsets", "partitions": "25", "replicas": "3", "config": '{"cleanup.policy": "compact"}'},
+   {"name": "{{ kafka_connect }}-configs", "partitions": "1", "replicas": "3", "config": '{"cleanup.policy": "compact"}'},
+   {"name": "{{ kafka_connect }}-status", "partitions": "5", "replicas": "3", "config": '{"cleanup.policy": "compact"}'}]
 
 kafka_bootstrap_service: "kafka-cluster-kafka-bootstrap.{{ namespace_kafka_cluster }}.svc"
 kafka_bootstrap_port: 9092

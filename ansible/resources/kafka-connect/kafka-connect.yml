@@ -1,4 +1,4 @@
-apiVersion: kafka.strimzi.io/v1beta1
+apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnect
 metadata:
   name: {{ kafka_connect }}
@@ -18,9 +18,13 @@ spec:
     value.converter: org.apache.kafka.connect.json.JsonConverter
     key.converter.schemas.enable: false
     value.converter.schemas.enable: false
-    config.storage.replication.factor: 3
-    offset.storage.replication.factor: 3
-    status.storage.replication.factor: 3
+    config.storage.replication.factor: 2
+    offset.storage.replication.factor: 2
+    status.storage.replication.factor: 1
+    topic.creation.enable: "false"
+    topic.creation.default.replication.factor: 3
+    topic.creation.default.partitions: 1
+    topic.creation.default.cleanup.policy: compact
   resources:
     requests:
       cpu: '{{ kafka_connect_requests_cpu }}'

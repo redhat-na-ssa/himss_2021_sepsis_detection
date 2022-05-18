@@ -1,4 +1,4 @@
-apiVersion: kafka.strimzi.io/v1beta1
+apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
 metadata:
   name: {{ kafka_cluster }}
@@ -161,7 +161,10 @@ spec:
       offsets.topic.replication.factor: {{ kafka_offsets_topic_replication_factor }}
       transaction.state.log.replication.factor: {{ kafka_transaction_state_log_replication_factor }}
       transaction.state.log.min.isr: {{ transaction_state_log_min_isr }}
-      log.message.format.version: {{ kafka_log_message_format_version }}
+
+      min.insync.replicas: 1
+
+      inter.broker.protocol.version: {{ kafka_log_message_format_version }}
     storage:
 {% if kafka_storage_type == "persistent" %}
       type: persistent-claim
