@@ -143,6 +143,73 @@ user1-sepsisdetection
 -----
 
 
+== Demo Scenario
+
+The demo scenario involves 3 different users each with different roles.
+
+An _Administrator_ starts a business process.
+A _doctor_ reviews the state of the business process and administers any tasks assigned to she/he .
+A _provider_ then administers any tasks assigned to she/he .
+
+=== Reset Demo
+
+. In the Openshift console, navigate to the _routes_ in the _user1-sepsisdetection_ namespace
++
+image::docs/images/ocp_console_ui_route.png[]
+
+.. Click the URL of the _sepsisdetection-ui_ route.
++
+image::docs/images/sepsisui-login.png[]
+
+
+. Authenticate in using credentials of:   _pamAdmin / pam_
+
+. Click the _Reset Demo_ button: 
++
+image::docs/images/sepsisui-admin-no-process.png[]
+
+. After a few seconds, there should be an active business process:
++
+image::docs/images/sepsisui-singleprocess.png[]
+
+. Click the _Log out_ button at the top right corner to log out as an Administrator.
+
+
+=== Doctors:   Administer Tasks
+
+. Log back into the Sepsis Detection UI as a _doctor_.
++
+Use credentials of:   _eve / pam_.
+
+
+. Click `Show/Hide Workflow`:
++
+image::docs/images/sepsisui-risk_assessment.png[]
++
+Notice the timer on the _Primary Doctor Evaluates Risk_ task.
+For the purpose of the demo, this timer is set to 1 minute.
+If not administered within 1 minute of creation, the workflow will automatically route to the _On Call Doctor Evaluates Risk_ task.
+
+. Click the `My Tasks` tab: 
++
+image::docs/images/sepsisui-singletask.png[]
+
+. On any of the tasks, click the _Open_ button and decide on an appropriate course of action.
++
+image::docs/images/sepsisui_risk_evaluation.png[]
+
+.. Select one of the options from the _Risk Evaluation Result_ drop-down.
+.. Click _Submit_.
+
+. Click the _Log out_ button at the top right corner to log out as a _doctor_.
+
+=== Providers:  Administer Tasks
+
+. Log back into the Sepsis Detection UI as a _provider_.
++
+Use credentials of:   _bob / pam_.
+
+. Similar to what you already did as a simualated _doctor_, manage the lifecycle of any tasks assigned to a _provider_.
 
 == Demo Components
 
@@ -219,73 +286,7 @@ image::docs/images/sepsisui-home.png[]
 This UI allows _role-based-access-control_ to various features based on the roles in the SSO _access token_ of an authenticated user.
 
 
-== Demo Scenario
 
-The demo scenario involves 3 different users each with different roles.
-
-An _Administrator_ starts a business process.
-A _doctor_ reviews the state of the business process and administers any tasks assigned to she/he .
-A _provider_ then administers any tasks assigned to she/he .
-
-=== Reset Demo
-
-. In the Openshift console, navigate to the _routes_ in the _user1-sepsisdetection_ namespace
-+
-image::docs/images/ocp_console_ui_route.png[]
-
-.. Click the URL of the _sepsisdetection-ui_ route.
-+
-image::docs/images/sepsisui-login.png[]
-
-
-. Authenticate in using credentials of:   _pamAdmin / pam_
-
-. Click the _Reset Demo_ button: 
-+
-image::docs/images/sepsisui-admin-no-process.png[]
-
-. After a few seconds, there should be an active business process:
-+
-image::docs/images/sepsisui-singleprocess.png[]
-
-. Click the _Log out_ button at the top right corner to log out as an Administrator.
-
-
-=== Doctors:   Administer Tasks
-
-. Log back into the Sepsis Detection UI as a _doctor_.
-+
-Use credentials of:   _eve / pam_.
-
-
-. Click `Show/Hide Workflow`:
-+
-image::docs/images/sepsisui-risk_assessment.png[]
-+
-Notice the timer on the _Primary Doctor Evaluates Risk_ task.
-For the purpose of the demo, this timer is set to 1 minute.
-If not administered within 1 minute of creation, the workflow will automatically route to the _On Call Doctor Evaluates Risk_ task.
-
-. Click the `My Tasks` tab: 
-+
-image::docs/images/sepsisui-singletask.png[]
-
-. On any of the tasks, click the _Open_ button and decide on an appropriate course of action.
-+
-image::docs/images/sepsisui_risk_evaluation.png[]
-
-.. Select one of the options from the _Risk Evaluation Result_ drop-down.
-.. Click _Submit_.
-
-. Click the _Log out_ button at the top right corner to log out as a _doctor_.
-
-=== Providers:  Administer Tasks
-
-. Log back into the Sepsis Detection UI as a _provider_.
-+
-Use credentials of:   _bob / pam_.
-
-. Similar to what you already did as a simualated _doctor_, manage the lifecycle of any tasks assigned to a _provider_.
 
 == Architecture
 
