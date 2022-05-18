@@ -820,7 +820,17 @@ $ oc logs -f -c manager $( oc get pod -n ansible-system | grep "^ansible" | awk 
 === Development
 
 ==== Base Operator
-. Modify Makefile (as needed)
+
+NOTE:  HIMSS 2021 demo is available via RHPDS.  For the purpose of updating the HIMSS 2021 operator (which is invoked when ordering the demo from RHPDS), execution of the steps in this section is all that is needed.
+
+. At the root of the `ansible` directory of this project, modify the Makefile (as needed)
++
+Most likely, all you'll need to do is increment the `VERSION`.
+
+. Ensure you have permissions to push images to push link:https://quay.io/repository/redhat_naps_da/sepsisdetection-operator?tab=tags[HIMSS 2021 Sepsis Detection Operator Image Repo].
+
+. Using the `podman` utility, log into `quay.io`.
+
 . Build image and deploy to quay:
 +
 -----
