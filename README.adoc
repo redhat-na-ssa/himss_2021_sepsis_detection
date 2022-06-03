@@ -337,11 +337,16 @@ Ansible is included to deploy this application to OpenShift in a repeatable mann
 
 === Pre-reqs:
 
-. OpenShift Container Platform. Tested on the following versions:
+. *OpenShift Container Platform*
++
+Sepsis dection demo has been tested on the following versions of OCP:
+
 .. 4.9.0
 .. 4.10.3
 
-. Resource requirements needed by the app (doesn’t include resource requirements of Openshift to support itself) is as follows:
+. *Resource requirements*
++
+Resource requirements as needed by the app (doesn’t include resource requirements of Openshift to support itself) is as follows:
 
 .. RAM: 6 GB
 
@@ -349,9 +354,13 @@ Ansible is included to deploy this application to OpenShift in a repeatable mann
 
 .. Storage: 10 PVCs of type RWO (no RWX requirement) and each of size 5 GiB
 
-. cluster-admin credentials to this OpenShift cluster are needed
+. *cluster-admin credentials* to this OpenShift cluster are needed
 
-. Corresponding oc utility installed locally
+. *wildcard certificate for routes*
++
+Out-of-the-box install of OCP typically includes self-signed certs to secure the cluster's routes.  It is highly recommended that a wildcard cert issued by a well-known certificate authority (ie:  LetsEncrypt) be applied to the cluster.  If not, the sepsisdetection demo will successfully provision but the sepsisdetection-ui (as rendered in your browser) will not function correctly.  In particular, CORS settings typically break when the various routes that your browser will need access to are secured using a self-signed cert.
+
+. *oc utility* (of version correspsonding to OCP cluster) installed locally
 +
 All versions of this utility are available at either of the following:
 
@@ -363,11 +372,11 @@ RHN subscription required
 +
 Accessible without a RHN subscription
 
-. ansible installed locally
+. *ansible* installed locally
 +
 ie: dnf install ansible
 
-. git installed locally
+. *git* installed locally
 
 === Procedure:
 
