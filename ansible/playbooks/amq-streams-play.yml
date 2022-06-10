@@ -1,6 +1,6 @@
 ---
 
-- name: Deploy all vaccination scheduling artifacts
+- name: Deploy all amq-streams artifacts
   hosts: localhost
   connection: local
   gather_facts: false

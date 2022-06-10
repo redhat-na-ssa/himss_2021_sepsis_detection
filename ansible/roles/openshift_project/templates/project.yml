@@ -1,0 +1,10 @@
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  labels:
+    name: {{ namespace }}
+  name: {{ namespace }}
+spec:
+  finalizers:
+  - kubernetes
+

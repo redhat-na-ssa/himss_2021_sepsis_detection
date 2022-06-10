@@ -63,14 +63,14 @@
     work_dir_name: "kafka_connect"
     resources_dir: "{{ resources_base_dir }}/kafka-connect"
 - include_role:
-   name: ../roles/openshift_kafka_connect
+   name: ../roles/kafka_connect
   when: >
     ACTION is not defined or
     ACTION is none or
     ACTION|trim() == "" or
     ACTION|trim() == "install"
 - include_role:
-    name: ../roles/openshift_kafka_connect
+    name: ../roles/kafka_connect
     tasks_from: uninstall
   when: >
     ACTION is defined and

@@ -1,70 +1,57 @@
 ---
 
 - name: "get packagemanifest for {{ operator_name }} operator"
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
-    state: list
+  kubernetes.core.k8s_info:
     kind: packagemanifest
     namespace: openshift-marketplace
     name: "{{ packagemanifest }}"
+    api_version: packages.operators.coreos.com/v1
   register: r_packagemanifest
-  failed_when:
-    - r_packagemanifest.ansible_module_results.stderr is defined
+- debug:
+    msg: "{{ r_packagemanifest.resources[0] }}"
 
 - name: "set facts for {{ operator_name }} operator"
   set_fact:
-    subscription_package_name: "{{ r_packagemanifest.ansible_module_results.results[0].status.packageName }}"
-    subscription_catalog_source: "{{ r_packagemanifest.ansible_module_results.results[0].status.catalogSource }}"
-    subscription_catalog_source_namespace: "{{ r_packagemanifest.ansible_module_results.results[0].status.catalogSourceNamespace }}"
+    subscription_package_name: "{{ r_packagemanifest.resources[0].status.packageName }}"
+    subscription_catalog_source: "{{ r_packagemanifest.resources[0].status.catalogSource }}"
+    subscription_catalog_source_namespace: "{{ r_packagemanifest.resources[0].status.catalogSourceNamespace }}"
 
 - name: "determine channel for {{ operator_name }} operator if no channel specified"
   when: subscription_channel | default("") | length == 0
   set_fact:
-    subscription_channel: "{{ r_packagemanifest.ansible_module_results.results[0].status.defaultChannel }}"
+    subscription_channel: "{{ r_packagemanifest.resources[0].status.defaultChannel }}"
 
 - name: "print channel to be installed"
   debug:
     msg: "{{ operator_name }} operator channel to be installed: {{ subscription_channel }}"
 
-- name: "copy template for {{ subscription_name }} subscription resource"
-  template:
-    src: "{{ resources_base_dir }}/operator-olm/subscription.yml"
-    dest: "{{ work_dir }}/{{ operator_name }}-subscription.yml"
-
 - name: "create subscription for {{ operator_name }} operator in {{ subscription_namespace }} namespace"
-  oc_obj:
+  k8s:
     state: present
-    oc_binary: "{{ openshift_cli }}"
     namespace: "{{ subscription_namespace }}"
     name: "{{ subscription_name }}"
-    kind: subscription.operators.coreos.com
-    files:
-      - "{{ work_dir }}/{{ operator_name }}-subscription.yml"
+    definition: "{{ lookup('template', 'templates/subscription.yml') | from_yaml }}"
 
 - name: wait until installplan is created
-  oc_obj:
-    state: list
-    oc_binary: "{{ openshift_cli }}"
+  kubernetes.core.k8s_info:
     kind: InstallPlan
     namespace: "{{ subscription_namespace }}"
+    api_version: operators.coreos.com/v1alpha1
   register: r_install_plan
   retries: 30
   delay: 5
   until:
-    - r_install_plan.ansible_module_results.results | length > 0
-    - r_install_plan.ansible_module_results.results[0] | to_json | from_json | json_query(jmesquery) | length > 0
+    - r_install_plan.resources[0] | length > 0
+    - r_install_plan.resources[0] | to_json | from_json | json_query(jmesquery) | length > 0
   vars:
-    jmesquery: "items[*].spec.clusterServiceVersionNames[] | [?contains(@, '{{ csv_prefix }}') == `true`]"
+    jmesquery: "spec.clusterServiceVersionNames | [?contains(@, '{{ csv_prefix }}') == `true`]"
 
 - name: "manually approve installplan"
   when: not automatic_installplan_approval
   block:
   - name: "set install plan name"
     set_fact:
-      install_plan: "{{ r_install_plan.ansible_module_results.results[0]['items'] | to_json | from_json | json_query(query) }}"
-    vars:
-      query: >-
-        [?starts_with(spec.clusterServiceVersionNames[0], '{{ csv_prefix }}')].metadata.name|[0]
+      install_plan: "{{ r_install_plan.resources[0].metadata.name }}"
 
   - name: "approve installplan {{ install_plan }}"
     shell: |
