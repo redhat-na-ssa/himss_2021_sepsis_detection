@@ -22,3 +22,5 @@ knative_kafka_subscription_name: knative-kafka-operator
 knative_kafka_operator_subscription_channel: alpha
 
 undeploy_knative: false
+
+namespace: "{{ namespace_knativeserving }}"

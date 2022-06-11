@@ -1,22 +1,13 @@
 ---
 
 - name: wait for sso to be ready
-  oc_obj:
-    state: list
-    oc_binary: "{{ openshift_cli }}"    
+  kubernetes.core.k8s_info:
     kind: Statefulset
     name: keycloak
     namespace: "{{ namespace_sso }}"
-  register: r_sso_statefulset
-  retries: 30
-  delay: 10
-  changed_when: false
-  until:
-    - r_sso_statefulset.ansible_module_results.results[0].status.readyReplicas is defined
-    - r_sso_statefulset.ansible_module_results.results[0].status.replicas is defined
-    - >-
-      r_sso_statefulset.ansible_module_results.results[0].status.readyReplicas ==
-      r_sso_statefulset.ansible_module_results.results[0].status.replicas
+    wait_sleep: 10
+    wait_timeout: 90
+
 
 # https://github.com/Emergency-Response-Demo/install/issues/71
 - name: "Define random value for variable siteadmin_role_id "
@@ -36,19 +27,20 @@
   register: sso_route_cmd
 
 - name: get sso admin credentials secret
-  oc_secret:
-    state: list
-    oc_binary: "{{ openshift_cli }}"
+  kubernetes.core.k8s_info:
+    kind: Secret
     namespace: "{{ namespace_sso }}"
-    decode: true
     name: "{{ sso_admin_credentials_secret }}"
   register: sso_admin_credentials
 
 - set_fact:
-    sso_admin_user: "{{ sso_admin_credentials.ansible_module_results.decoded[\"ADMIN_USERNAME\"] }}"
-    sso_admin_password: "{{ sso_admin_credentials.ansible_module_results.decoded[\"ADMIN_PASSWORD\"] }}"
+    sso_admin_user: "{{ sso_admin_credentials.resources[0].data.ADMIN_USERNAME  | b64decode }}"
+    sso_admin_password: "{{ sso_admin_credentials.resources[0].data.ADMIN_PASSWORD | b64decode }}"
     sso_url: "https://{{ sso_route_cmd.stdout }}"
     sepsis_ui_route_url: "https://{{ sepsisdetection_ui_app_name }}-{{ project_name }}.{{ ocp_domain }}"
+- debug:
+    msg: "sso_admin_user = {{ sso_admin_user }}  ;  sso_admin_password = {{ sso_admin_password }}"
+
 
 - name: get admin token
   uri:
@@ -65,11 +57,6 @@
   set_fact:
     admin_token: "{{ admin_token_result | json_query('json.access_token') }}"
 
-- name: copy realm template
-  template:
-    src: "{{ sso_realm_template }}"
-    dest: "{{ work_dir }}/{{ sso_realm_id }}.json"
-
 - name: check if {{ sso_realm_id }} exists
   uri:
     url: "{{ sso_url }}/auth/admin/realms/{{ sso_realm_id }}"
@@ -81,6 +68,7 @@
   register: result
   changed_when: false
 
+
 - name: create {{ sso_realm_id }} realm
   uri:
     url: "{{ sso_url }}/auth/admin/realms"
@@ -88,7 +76,7 @@
     headers:
       Authorization: Bearer {{ admin_token }}
       Content-Type: application/json
-    body: "{{ lookup('file', work_dir + '/' + sso_realm_id + '.json') }}"
+    body: "{{ lookup('template', 'templates/realm.json') }}"
     body_format: json
     status_code: 201
     validate_certs: no
@@ -133,14 +121,18 @@
     shell1: !unsafe "$((${#_m} % 4))"
 
 - name: create client configmap
-  oc_configmap:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: present
-    namespace: "{{ namespace }}"
-    name: "{{ sso_config_configmap }}"
-    from_literal:
-      AUTH_URL: "{{ sso_url }}/auth"
-      KEYCLOAK: "true"
-      PUBLIC_KEY: "{{ lookup('file', work_dir + '/sso_public_key.txt') }}"
-      REALM: "{{ sso_realm_id }}"
-      CLIENTID: "{{ sso_clientId }}"
+    namespace: "{{ namespace_sso }}"
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ sso_config_configmap }}"
+      data:
+        AUTH_URL: "{{ sso_url }}/auth"
+        KEYCLOAK: "true"
+        PUBLIC_KEY: "{{ lookup('file', work_dir + '/sso_public_key.txt') }}"
+        REALM: "{{ sso_realm_id }}"
+        CLIENTID: "{{ sso_clientId }}"
+
