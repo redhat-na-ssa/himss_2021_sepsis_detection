@@ -7,17 +7,9 @@
     topic_replicas: "{{ topic.replicas }}"
     topic_config: "{{ topic.config }}"
 
-- name: copy topic template to work directory
-  template:
-    src: "{{ resources_dir }}/{{ topic_template }}"
-    dest: "{{ work_dir }}/{{ topic_name }}-{{ topic_template }}"
-
 - name: "create {{ topic_name }} kafkatopic"
-  oc_obj:
+  k8s:
     state: present
-    oc_binary: "{{ openshift_cli }}"
-    name: "{{ topic_name }}"
+    kind: KafkaTopic
+    definition: "{{ lookup('template', 'templates/' + topic_template ) | from_yaml }}"
     namespace: "{{ namespace }}"
-    kind: kafkatopic
-    files:
-      - "{{ work_dir }}/{{ topic_name }}-{{ topic_template }}"
