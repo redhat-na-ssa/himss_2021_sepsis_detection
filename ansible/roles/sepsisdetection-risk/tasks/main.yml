@@ -3,35 +3,51 @@
 ########    Sepsis Detection Risk Assessment Service    #############
 
 - name: create {{ service_account }} service account for {{ application_name }} application
-  oc_serviceaccount:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: present
     name: "{{ service_account }}"
-    namespace: "{{ namespace }}"
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: "{{ service_account }}"
+        namespace: "{{ namespace }}"
 
 - name: give cluster admin privileges to {{ service_account }} service account
-  oc_adm_policy_user:
+  k8s:
     state: present
-    oc_binary: "{{ openshift_cli }}"
-    resource_kind: role
-    resource_name: admin
-    user: "system:serviceaccount:{{ namespace }}:{{ service_account }}"
-    namespace: "{{ namespace }}"
-    rolebinding_name: "{{ service_account }}-admin"
+    name: "{{ service_account }}-admin"
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: RoleBinding
+      metadata:
+        name: "{{ service_account }}-admin"
+        namespace: "{{ namespace }}"
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: admin
+      subjects:
+      - kind: ServiceAccount
+        name: "{{ service_account }}-admin"
+        namespace: "{{ namespace }}"
 
-- name: copy application properties template
-  template:
-    src: "{{ resources_dir }}/{{ application_properties }}"
-    dest: "{{ work_dir }}/{{ application_properties }}"
+- name: "copy {{ application_properties }} template"
+  set_fact:
+    aprops: "{{ lookup('template', 'templates/' + application_properties )  }}"
 
-- name: create {{ application_configmap }} application configmap
-  oc_configmap:
-    oc_binary: "{{ openshift_cli }}"
+- name: "create {{ application_configmap }} application configmap"
+  k8s:
     state: present
     name: "{{ application_configmap }}"
     namespace: "{{ namespace }}"
-    from_file:
-      dir: "{{ work_dir }}/{{ application_properties }}"
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ application_configmap }}"
+      data:
+        application.properties: "{{ aprops }}"
 
 - import_tasks: deploy_from_source.yml
   when: deploy_from is defined and deploy_from == "source"

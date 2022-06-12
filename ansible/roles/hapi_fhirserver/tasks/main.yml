@@ -83,62 +83,72 @@
 
 
 ########    FHIR Server    #############
-#- name: "create {{ service_account }} service account for {{ application_name }} application"
-#  oc_serviceaccount:
-#    oc_binary: "{{ openshift_cli }}"
-#    state: present
-#    name: "{{ service_account }}"
-#    namespace: "{{ namespace }}"
-#
-#- name: give cluster admin privileges to {{ service_account }} service account
-#  oc_adm_policy_user:
-#    state: present
-#    oc_binary: "{{ openshift_cli }}"
-#    resource_kind: role
-#    resource_name: admin
-#    user: "system:serviceaccount:{{ namespace }}:{{ service_account }}"
-#    namespace: "{{ namespace }}"
-#    rolebinding_name: "{{ service_account }}-admin"
-#
-#- name: copy {{ application_properties }} template
-#  template:
-#    src: "{{ resources_dir }}/{{ application_properties }}"
-#    dest: "{{ work_dir }}/{{ application_properties }}"
-#
-#- name: create {{ application_configmap }} application configmap
-#  oc_configmap:
-#    oc_binary: "{{ openshift_cli }}"
-#    state: present
-#    name: "{{ application_configmap }}"
-#    namespace: "{{ namespace }}"
-#    from_file:
-#      dir: "{{ work_dir }}/{{ application_properties }}"
-#
-#- import_tasks: deploy_from_source.yml
-#  when: deploy_from is defined and deploy_from == "source"
-#
-#- import_tasks: deploy_from_image.yml
-#  when: deploy_from is defined and deploy_from == "image"
-#
-#- set_fact:
-#    route_hostname: "{{ application_name }}-{{ namespace }}.{{ ocp_domain_host.stdout }}"
-#- name: "copy route template"
-#  template:
-#    src: "{{ resources_dir }}/route.yml"
-#    dest: "{{ work_dir }}/route.yml"
-#- name: "deploy {{ application_name }} route {{ route_hostname }}"
-#  oc_obj:
-#    state: present
-#    oc_binary: "{{ openshift_cli }}"
-#    name: "{{ application_name }}"
-#    namespace: "{{ namespace }}"
-#    kind: route
-#    files:
-#      - "{{ work_dir }}/route.yml"
-#
+- name: "create {{ service_account }} service account for {{ application_name }} application"
+  k8s:
+    state: present
+    name: "{{ service_account }}"
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: "{{ service_account }}"
+        namespace: "{{ namespace }}"
+
+- name: "give cluster admin privileges to {{ service_account }} service account"
+  k8s:
+    state: present
+    name: "{{ service_account }}-admin"
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: RoleBinding
+      metadata:
+        name: "{{ service_account }}-admin"
+        namespace: "{{ namespace }}"
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: admin
+      subjects:
+      - kind: ServiceAccount
+        name: "{{ service_account }}-admin"
+        namespace: "{{ namespace }}"
+
+- name: "copy {{ application_properties }} template"
+  set_fact:
+    aprops: "{{ lookup('template', 'templates/' + application_properties )  }}"
+
+- name: "create {{ application_configmap }} application configmap"
+  k8s:
+    state: present
+    name: "{{ application_configmap }}"
+    namespace: "{{ namespace }}"
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ application_configmap }}"
+      data:
+        application.yaml: "{{ aprops }}"
+
+- import_tasks: deploy_from_source.yml
+  when: deploy_from is defined and deploy_from == "source"
+
+- import_tasks: deploy_from_image.yml
+  when: deploy_from is defined and deploy_from == "image"
+
+- set_fact:
+    route_hostname: "{{ application_name }}-{{ namespace }}.{{ ocp_domain_host.stdout }}"
+
+- name: "deploy {{ application_name }} route {{ route_hostname }}"
+  k8s:
+    state: present
+    kind: Deployment
+    definition: "{{ lookup('template', 'templates/route.yml') | from_yaml }}"
+    namespace: "{{ namespace }}"
+
 ###########################################################
 
 
 ########    HAPI FHIR Postgresql Debezium    #############
-# - import_tasks: deploy_debezium_connector.yml
+- import_tasks: deploy_debezium_connector.yml
 ###########################################################

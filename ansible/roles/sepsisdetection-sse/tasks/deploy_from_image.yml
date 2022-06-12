@@ -1,45 +1,21 @@
 ---
 
-- name: copy imagestream template
-  template:
-    src: "{{ resources_dir }}/{{ binary_imagestream_template }}"
-    dest: "{{ work_dir }}/{{ binary_imagestream_template }}"
-
-- name: create imagestream in the {{ namespace }} project
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
+- name: "create imagestream in the {{ namespace }} project"
+  k8s:
     state: present
+    kind: ImageStream
+    definition: "{{ lookup('template', 'templates/' + binary_imagestream_template) | from_yaml }}"
     namespace: "{{ namespace }}"
-    kind: imagestream
-    name: "{{ application_name }}"
-    files:
-      - "{{ work_dir }}/{{ binary_imagestream_template }}"
 
 - set_fact:
     application_image_tag: "{{ service_image_tag }}"
 
-- name: copy application template
-  template:
-    src: "{{ resources_dir }}/{{ application_template }}"
-    dest: "{{ work_dir }}/{{ application_template }}"
-
-- name: check if {{ application_name }} application is deployed
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
-    state: list
-    namespace: "{{ namespace }}"
-    name: "{{ application_name }}"
-    kind: dc
-  register: result
-
-- name: deploy {{ application_name }} application
-  oc_list:
-    oc_binary: "{{ openshift_cli }}"
+- name: "deploy {{ application_name }} application"
+  k8s:
     state: present
+    kind: DeploymentConfig
+    definition: "{{ lookup('template', 'templates/' + application_template ) | from_yaml }}"
     namespace: "{{ namespace }}"
-    files:
-      - "{{ work_dir }}/{{ application_template }}"
-  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != ""
 
 - name: "wait until {{ application_name }} application is up and running"
   shell: "{{ openshift_cli }} get dc {{ application_name }} -o template --template={{ json_template }} -n {{ namespace }}"
