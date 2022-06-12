@@ -3,68 +3,57 @@
 #######    RH-PAM Database    ##################
 
 - name: "create {{ postgresql_service_account }} service account in {{ namespace }}"
-  oc_serviceaccount:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: present
     name: "{{ postgresql_service_account }}"
-    namespace: "{{ namespace }}"
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: "{{ postgresql_service_account }}"
+        namespace: "{{ namespace }}"
 
-- name: create work directory
-  file:
-    path: "{{ work_dir }}/{{ postgresql_init_configmap }}"
-    state: directory
-
-- name: copy init files to work directory
-  copy:
-    src: "{{ item }}"
-    dest: "{{ work_dir }}/{{ postgresql_init_configmap }}/"
-  with_fileglob:
-    - "{{ resources_dir }}/sql/*.sh"
-    - "{{ resources_dir }}/sql/*.sql"
-
-- name: create {{ postgresql_init_configmap }} configmap
-  oc_configmap:
-    oc_binary: "{{ openshift_cli }}"
+- name: "create {{ postgresql_init_configmap }} configmap"
+  k8s:
     state: present
     name: "{{ postgresql_init_configmap }}"
     namespace: "{{ namespace }}"
-    from_file:
-      dir: "{{ work_dir }}/{{ postgresql_init_configmap }}"
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ postgresql_init_configmap }}"
+        namespace: "{{ namespace }}"
+      data:
+        create_database.sh: "{{ lookup('template', 'templates/sql/create_database.sh' )  }}"
+        postgresql-jbpm-lo-trigger-clob.sql: "{{ lookup('template', 'templates/sql/postgresql-jbpm-lo-trigger-clob.sql' )  }}"
+        postgresql-springboot-jbpm-schema.sql: "{{ lookup('template', 'templates/sql/postgresql-springboot-jbpm-schema.sql' )  }}"
+        quartz_tables_postgres.sql: "{{ lookup('template', 'templates/sql/quartz_tables_postgres.sql' )  }}"
+        task_assigning_tables_postgresql.sql: "{{ lookup('template', 'templates/sql/task_assigning_tables_postgresql.sql' )  }}"
+        wait_for_postgresql.sh: "{{ lookup('template', 'templates/sql/wait_for_postgresql.sh' )  }}"
 
-- name: copy postgresql template
-  template:
-    src: "{{ resources_dir }}/postgresql.yml"
-    dest: "{{ work_dir }}/postgresql.yml"
-
-- name: postgresql secret
-  oc_secret:
-    oc_binary: "{{ openshift_cli }}"
+- name: "postgresql secret {{ psql_credentials_secret }}"
+  k8s:
     state: present
-    namespace: "{{ namespace }}"
-    name: "{{ psql_credentials_secret }}"
-    type: generic
-    from_literal:
-      database-user: "{{ psql_user_name }}"
-      database-password: "{{ psql_user_passwd }}"
-      database-name: "{{ psql_db_name }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "{{ psql_credentials_secret }}"
+        namespace: "{{ namespace }}"
+      type: Opaque
+      data:
+        database-user: "{{ psql_user_name | b64encode }}"
+        database-password: "{{ psql_user_passwd | b64encode }}"
+        database-name: "{{ psql_db_name | b64encode }}"
 
-- name: "check if {{ psql_app_name }} is deployed"
-  oc_obj:
-    state: list
-    oc_binary: "{{ openshift_cli }}"
-    name: "{{ psql_app_name }}"
-    namespace: "{{ namespace }}"
-    kind: dc
-  register: result
 
-- name: "deploy {{ psql_app_name }}"
-  oc_list:
+- name: "deploy {{ psql_app_name }} in {{ namespace }}"
+  k8s:
     state: present
-    oc_binary: "{{ openshift_cli }}"
+    kind: DeploymentConfig
+    definition: "{{ lookup('template', 'templates/postgresql.yml') | from_yaml }}"
     namespace: "{{ namespace }}"
-    files:
-      - "{{ work_dir }}/postgresql.yml"
-  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != ""
 
 - name: "wait until {{ psql_app_name }} database is up and running"
   shell: "{{ openshift_cli }} get dc {{ psql_app_name }} -o template --template={{ json_template }} -n {{ namespace }}"
@@ -79,27 +68,35 @@
 
 
 ########    RH-PAM Server    #############
-- name: create {{ service_account }} service account for {{ application_name }} application
-  oc_serviceaccount:
-    oc_binary: "{{ openshift_cli }}"
+- name: "create {{ service_account }} service account for {{ application_name }} application"
+  k8s:
     state: present
     name: "{{ service_account }}"
-    namespace: "{{ namespace }}"
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: "{{ service_account }}"
+        namespace: "{{ namespace }}"
 
-- name: give cluster admin privileges to {{ service_account }} service account
-  oc_adm_policy_user:
+- name: "give cluster admin privileges to {{ service_account }} service account"
+  k8s:
     state: present
-    oc_binary: "{{ openshift_cli }}"
-    resource_kind: role
-    resource_name: admin
-    user: "system:serviceaccount:{{ namespace }}:{{ service_account }}"
-    namespace: "{{ namespace }}"
-    rolebinding_name: "{{ service_account }}-admin"
-
-- name: create work directory
-  file:
-    path: "{{ work_dir }}/{{ application_name }}"
-    state: directory
+    name: "{{ service_account }}-admin"
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: RoleBinding
+      metadata:
+        name: "{{ service_account }}-admin"
+        namespace: "{{ namespace }}"
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: admin
+      subjects:
+      - kind: ServiceAccount
+        name: "{{ service_account }}-admin"
+        namespace: "{{ namespace }}"
 
 - name: retrieve sso route
   shell: "{{ openshift_cli }} get route sso -o jsonpath='{.spec.host}' -n {{ namespace_sso }}"
@@ -108,25 +105,23 @@
 - set_fact:
     sso_url: "https://{{ sso_route_cmd.stdout }}"
 
-- name: copy config files to work directory
-  template:
-    src: "{{ item }}"
-    dest: "{{ work_dir }}/{{ application_name }}/"
-  with_fileglob:
-    - "{{ resources_dir }}/application.properties"
-    - "{{ resources_dir }}/jbpm-quartz.properties"
-    - "{{ resources_dir }}/logback-spring.xml"
-    - "{{ resources_dir }}/{{ application_name }}.xml"
 
-- name: create {{ application_configmap }} application configmap
-  oc_configmap:
-    oc_binary: "{{ openshift_cli }}"
+- name: "create {{ application_configmap }} application configmap"
+  k8s:
     state: present
     name: "{{ application_configmap }}"
     namespace: "{{ namespace }}"
-    from_file:
-      dir: "{{ work_dir }}/{{ application_name }}"
-
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ application_configmap }}"
+      data:
+        application.properties: "{{ lookup('template', 'templates/' + application_properties ) }}"
+        jbpm-quartz.properties: "{{ lookup('template', 'templates/jbpm-quartz.properties' ) }}"
+        logback-spring.xml: "{{ lookup('template', 'templates/logback-spring.xml' ) }}"
+        sepsisdetection-rhpam.xml: "{{ lookup('template', 'templates/sepsisdetection-rhpam.xml' ) }}"
+ 
 - import_tasks: deploy_from_source.yml
   when: deploy_from is defined and deploy_from == "source"
 
@@ -135,18 +130,12 @@
 
 - set_fact:
     route_hostname: "{{ application_name }}-{{ namespace }}.{{ ocp_domain_host.stdout }}"
-- name: "copy route template"
-  template:
-    src: "{{ resources_dir }}/route.yml"
-    dest: "{{ work_dir }}/route.yml"
-- name: "deploy {{ application_name }} route {{ route_hostname }}"
-  oc_obj:
-    state: present
-    oc_binary: "{{ openshift_cli }}"
-    name: "{{ application_name }}"
-    namespace: "{{ namespace }}"
-    kind: route
-    files:
-      - "{{ work_dir }}/route.yml"
 
-###########################################################
+- name: "deploy {{ application_name }} route {{ route_hostname }}"
+  k8s:
+    state: present
+    kind: Deployment
+    definition: "{{ lookup('template', 'templates/route.yml') | from_yaml }}"
+    namespace: "{{ namespace }}"
+ 
+############################################################

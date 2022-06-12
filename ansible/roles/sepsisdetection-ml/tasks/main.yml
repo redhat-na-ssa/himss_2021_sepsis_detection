@@ -1,46 +1,27 @@
 ---
 
-
-- name: check if {{ application_name }} application is deployed
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
-    state: list
-    namespace: "{{ namespace }}"
-    name: "{{ application_name }}"
-    kind: kservice
-  register: result
-
 - name: "Download {{ binary_imagestream_template_url }}"
   get_url:
     url: "{{ binary_imagestream_template_url }}"
     dest: "{{ work_dir }}/{{ binary_imagestream_template}}"
     force: yes
-  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != ""
-
 
 - name: create imagestream {{ application_name }} in the {{ namespace }} project
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: present
+    kind: ImageStream
+    definition: "{{ lookup('template', work_dir + '/' + binary_imagestream_template) | from_yaml }}"
     namespace: "{{ namespace }}"
-    kind: imagestream
-    name: "{{ application_name }}"
-    files:
-      - "{{ work_dir }}/{{ binary_imagestream_template }}"
-  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != ""
 
 - name: "Download {{ application_template_url }}"
   get_url:
     url: "{{ application_template_url }}"
     dest: "{{ work_dir }}/{{ application_template}}"
     force: yes
-  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != ""
 
 - name: deploy {{ application_name }} application
-  oc_list:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: present
+    kind: DeploymentConfig
+    definition: "{{ lookup('template', work_dir + '/' + application_template ) | from_yaml }}"
     namespace: "{{ namespace }}"
-    files:
-      - "{{ work_dir }}/{{ application_template }}"
-  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != ""

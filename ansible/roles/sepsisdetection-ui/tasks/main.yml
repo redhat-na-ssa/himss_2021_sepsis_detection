@@ -1,20 +1,15 @@
 ---
 
-- name: check if {{ application_name }} application is deployed
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
-    state: list
-    namespace: "{{ namespace }}"
-    name: "{{ application_name }}"
-    kind: dc
-  register: result
-
 - name: "create service account {{ application_name }}"
-  oc_serviceaccount:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: present
     name: "{{ application_name }}"
-    namespace: "{{ namespace }}"
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: "{{ application_name }}"
+        namespace: "{{ namespace }}"
 
 - name: retrieve sso route
   shell: "{{ openshift_cli }} get route sso -o jsonpath='{.spec.host}' -n {{ namespace_sso }}"
@@ -27,49 +22,32 @@
     sso_url: "https://{{ sso_route_cmd.stdout }}"
     sepsisdetection_sse_hostname: "{{ sepsisdetection_sse_app_name }}-{{ project_name }}.{{ ocp_domain }}"
 
-- name: copy env.js file to work directory
-  template:
-    src: "{{ resources_dir }}/env.js"
-    dest: "{{ work_dir }}/env.js"
-
 - name: create {{ application_name }} configmap
-  oc_configmap:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: present
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
-    from_file:
-      dir: "{{ work_dir }}"
-
-- name: copy application template
-  template:
-    src: "{{ resources_dir }}/{{ application_template }}"
-    dest: "{{ work_dir }}/{{ application_template }}"
-
-- name: copy imagestream template
-  template:
-    src: "{{ resources_dir }}/{{ binary_imagestream_template }}"
-    dest: "{{ work_dir }}/{{ binary_imagestream_template }}"
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ application_name }}"
+      data:
+        env.js: "{{ lookup('template', 'templates/env.js' ) }}"
 
 - name: create imagestream {{ application_name }} in the {{ namespace }} project
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: present
+    kind: ImageStream
+    definition: "{{ lookup('template', 'templates/' + binary_imagestream_template) | from_yaml }}"
     namespace: "{{ namespace }}"
-    kind: imagestream
-    name: "{{ application_name }}"
-    files:
-      - "{{ work_dir }}/{{ binary_imagestream_template }}"
-
 
 - name: deploy {{ application_name }} application
-  oc_list:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: present
+    kind: DeploymentConfig
+    definition: "{{ lookup('template', 'templates/' + application_template ) | from_yaml }}"
     namespace: "{{ namespace }}"
-    files:
-      - "{{ work_dir }}/{{ application_template }}"
-  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != ""
 
 - name: "wait until {{ application_name }} application is up and running"
   shell: "{{ openshift_cli }} get dc {{ application_name }} -o template --template={{ json_template }} -n {{ namespace }}"
