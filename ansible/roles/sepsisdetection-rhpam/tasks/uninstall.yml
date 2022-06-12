@@ -1,93 +1,88 @@
 ---
 
 - name: delete route
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
-    kind: route
+    api_version: route.openshift.io/v1
+    kind: Route
 
 - name: delete service
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
-    kind: service
-
+    kind: Service
 
 - name: delete deployment config
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
-    kind: dc
+    api_version: apps.openshift.io/v1
+    kind: DeploymentConfig
 
 - name: delete imagestream in the {{ namespace }} project
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
-    kind: imagestream
+    api_version: image.openshift.io/v1
+    kind: ImageStream
 
 - name: "delete configmap {{ application_configmap }}"
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: absent
-    name: "{{ application_configmap }}"
+    name: "{{ application_name }}"
     namespace: "{{ namespace }}"
     kind: configmap
 
 - name: delete postgresql dc
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: absent
-    name: "{{ psql_app_name  }}"
+    name: "{{ psql_app_name }}"
     namespace: "{{ namespace }}"
-    kind: dc
+    api_version: apps.openshift.io/v1
+    kind: DeploymentConfig
   when: undeploy_psql_bpm is defined and undeploy_psql_bpm == "true"
 
 - name: delete postgresql service
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: absent
     name: "{{ psql_app_name }}"
     namespace: "{{ namespace }}"
-    kind: service
+    kind: Service
   when: undeploy_psql_bpm is defined and undeploy_psql_bpm == "true"
 
-- name: delete postgresql pvc
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
+- name: "delete {{ psql_app_name }} pvc"
+  k8s:
     state: absent
     name: "{{ psql_app_name }}"
     namespace: "{{ namespace }}"
-    kind: pvc
+    kind: PersistentVolumeClaim
   when: undeploy_psql_bpm is defined and undeploy_psql_bpm == "true"
 
 - name: delete postgresql secret
-  oc_secret:
-    oc_binary: "{{ openshift_cli }}"
-    namespace: "{{ namespace }}"
-    name: "{{ psql_app_name }}"
+  k8s:
     state: absent
+    name: "{{ psql_app_name }}"
+    namespace: "{{ namespace }}"
+    kind: Secret
   when: undeploy_psql_bpm is defined and undeploy_psql_bpm == "true"
 
 - name: delete postgresql init configmap
-  oc_configmap:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: absent
     name: "{{ postgresql_init_configmap }}"
     namespace: "{{ namespace }}"
+    kind: ConfigMap
   when: undeploy_psql_bpm is defined and undeploy_psql_bpm == "true"
 
 - name: delete {{ postgresql_service_account }} service account
-  oc_serviceaccount:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: absent
     name: "{{ postgresql_service_account }}"
     namespace: "{{ namespace }}"
+    kind: ServiceAccount
   when: undeploy_psql_bpm is defined and undeploy_psql_bpm == "true"
