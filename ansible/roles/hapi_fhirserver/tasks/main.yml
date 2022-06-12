@@ -2,85 +2,73 @@
 
 #######    Fhir Server Database    ##################
 
+
 - name: "create {{ postgresql_service_account }} service account in {{ namespace }}"
-  oc_serviceaccount:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: present
     name: "{{ postgresql_service_account }}"
-    namespace: "{{ namespace }}"
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: "{{ postgresql_service_account }}"
+        namespace: "{{ namespace }}"
 
-- name: create work directory
-  file:
-    path: "{{ work_dir }}/{{ postgresql_init_configmap }}"
-    state: directory
+- set_fact:
+    d_conf_file: "{{ lookup('template', 'templates/sql/' + hapi_psql_debezium_conf_file )  }}"
+    create_db_file: "{{ lookup('template', 'templates/sql/create_database.sh' )  }}"
+    wait_for_psql_file: "{{ lookup('template', 'templates/sql/wait_for_postgresql.sh' )  }}"
 
-- name: copy init files to work directory
-  copy:
-    src: "{{ item }}"
-    dest: "{{ work_dir }}/{{ postgresql_init_configmap }}/"
-  with_fileglob:
-    - "{{ resources_dir }}/sql/*.sh"
-
-# Commented out because FHIR server auto-generates the database schema (if it doesn't already exist)
-#- name: download sql scripts from remote repository
-#  get_url:
-#    url: "{{ item }}"
-#    dest: "{{ work_dir }}/{{ postgresql_init_configmap }}/"
-#  with_items:
-#     - "{{ psql_init_scripts }}"
-
-- name: create {{ postgresql_init_configmap }} configmap
-  oc_configmap:
-    oc_binary: "{{ openshift_cli }}"
+- name: "create {{ postgresql_init_configmap }} configmap"
+  k8s:
     state: present
     name: "{{ postgresql_init_configmap }}"
     namespace: "{{ namespace }}"
-    from_file:
-      dir: "{{ work_dir }}/{{ postgresql_init_configmap }}"
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ postgresql_init_configmap }}"
+        namespace: "{{ namespace }}"
+      data:
+        create_database.sh: "{{ create_db_file }}"
+        wait_for_postgresql.sh: "{{ wait_for_psql_file }}"
 
-- name: create {{ hapi_psql_debezium_conf_name }} configmap
-  oc_configmap:
-    oc_binary: "{{ openshift_cli }}"
+- name: "create {{ hapi_psql_debezium_conf_name }} configmap"
+  k8s:
     state: present
     name: "{{ hapi_psql_debezium_conf_name }}"
     namespace: "{{ namespace }}"
-    from_file:
-      dir: "{{ resources_dir }}/sql/{{ hapi_psql_debezium_conf_file }}"
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ hapi_psql_debezium_conf_name }}"
+        namespace: "{{ namespace }}"
+      data:
+        hapi-psql-debezium-conf.conf: "{{ d_conf_file }}"
 
-- name: copy postgresql template
-  template:
-    src: "{{ resources_dir }}/postgresql.yml"
-    dest: "{{ work_dir }}/postgresql.yml"
-
-- name: postgresql secret
-  oc_secret:
-    oc_binary: "{{ openshift_cli }}"
+- name: "postgresql secret {{ psql_credentials_secret }}"
+  k8s:
     state: present
-    namespace: "{{ namespace }}"
-    name: "{{ psql_credentials_secret }}"
-    type: generic
-    from_literal:
-      database-user: "{{ psql_user_name }}"
-      database-password: "{{ psql_user_passwd }}"
-      database-name: "{{ psql_db_name }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "{{ psql_credentials_secret }}"
+        namespace: "{{ namespace }}"
+      type: Opaque
+      data:
+        database-user: "{{ psql_user_name | b64encode }}"
+        database-password: "{{ psql_user_passwd | b64encode }}"
+        database-name: "{{ psql_db_name | b64encode }}"
 
-- name: "check if {{ psql_app_name }} is deployed"
-  oc_obj:
-    state: list
-    oc_binary: "{{ openshift_cli }}"
-    name: "{{ psql_app_name }}"
-    namespace: "{{ namespace }}"
-    kind: dc
-  register: result
-
-- name: "deploy {{ psql_app_name }}"
-  oc_list:
+- name: "deploy {{ psql_app_name }} in {{ namespace }}"
+  k8s:
     state: present
-    oc_binary: "{{ openshift_cli }}"
+    kind: DeploymentConfig
+    definition: "{{ lookup('template', 'templates/postgresql.yml') | from_yaml }}"
     namespace: "{{ namespace }}"
-    files:
-      - "{{ work_dir }}/postgresql.yml"
-  when: result.ansible_module_results.stderr is defined and result.ansible_module_results.stderr != ""
 
 - name: "wait until {{ psql_app_name }} database is up and running"
   shell: "{{ openshift_cli }} get dc {{ psql_app_name }} -o template --template={{ json_template }} -n {{ namespace }}"
@@ -95,62 +83,62 @@
 
 
 ########    FHIR Server    #############
-- name: create {{ service_account }} service account for {{ application_name }} application
-  oc_serviceaccount:
-    oc_binary: "{{ openshift_cli }}"
-    state: present
-    name: "{{ service_account }}"
-    namespace: "{{ namespace }}"
-
-- name: give cluster admin privileges to {{ service_account }} service account
-  oc_adm_policy_user:
-    state: present
-    oc_binary: "{{ openshift_cli }}"
-    resource_kind: role
-    resource_name: admin
-    user: "system:serviceaccount:{{ namespace }}:{{ service_account }}"
-    namespace: "{{ namespace }}"
-    rolebinding_name: "{{ service_account }}-admin"
-
-- name: copy {{ application_properties }} template
-  template:
-    src: "{{ resources_dir }}/{{ application_properties }}"
-    dest: "{{ work_dir }}/{{ application_properties }}"
-
-- name: create {{ application_configmap }} application configmap
-  oc_configmap:
-    oc_binary: "{{ openshift_cli }}"
-    state: present
-    name: "{{ application_configmap }}"
-    namespace: "{{ namespace }}"
-    from_file:
-      dir: "{{ work_dir }}/{{ application_properties }}"
-
-- import_tasks: deploy_from_source.yml
-  when: deploy_from is defined and deploy_from == "source"
-
-- import_tasks: deploy_from_image.yml
-  when: deploy_from is defined and deploy_from == "image"
-
-- set_fact:
-    route_hostname: "{{ application_name }}-{{ namespace }}.{{ ocp_domain_host.stdout }}"
-- name: "copy route template"
-  template:
-    src: "{{ resources_dir }}/route.yml"
-    dest: "{{ work_dir }}/route.yml"
-- name: "deploy {{ application_name }} route {{ route_hostname }}"
-  oc_obj:
-    state: present
-    oc_binary: "{{ openshift_cli }}"
-    name: "{{ application_name }}"
-    namespace: "{{ namespace }}"
-    kind: route
-    files:
-      - "{{ work_dir }}/route.yml"
-
+#- name: "create {{ service_account }} service account for {{ application_name }} application"
+#  oc_serviceaccount:
+#    oc_binary: "{{ openshift_cli }}"
+#    state: present
+#    name: "{{ service_account }}"
+#    namespace: "{{ namespace }}"
+#
+#- name: give cluster admin privileges to {{ service_account }} service account
+#  oc_adm_policy_user:
+#    state: present
+#    oc_binary: "{{ openshift_cli }}"
+#    resource_kind: role
+#    resource_name: admin
+#    user: "system:serviceaccount:{{ namespace }}:{{ service_account }}"
+#    namespace: "{{ namespace }}"
+#    rolebinding_name: "{{ service_account }}-admin"
+#
+#- name: copy {{ application_properties }} template
+#  template:
+#    src: "{{ resources_dir }}/{{ application_properties }}"
+#    dest: "{{ work_dir }}/{{ application_properties }}"
+#
+#- name: create {{ application_configmap }} application configmap
+#  oc_configmap:
+#    oc_binary: "{{ openshift_cli }}"
+#    state: present
+#    name: "{{ application_configmap }}"
+#    namespace: "{{ namespace }}"
+#    from_file:
+#      dir: "{{ work_dir }}/{{ application_properties }}"
+#
+#- import_tasks: deploy_from_source.yml
+#  when: deploy_from is defined and deploy_from == "source"
+#
+#- import_tasks: deploy_from_image.yml
+#  when: deploy_from is defined and deploy_from == "image"
+#
+#- set_fact:
+#    route_hostname: "{{ application_name }}-{{ namespace }}.{{ ocp_domain_host.stdout }}"
+#- name: "copy route template"
+#  template:
+#    src: "{{ resources_dir }}/route.yml"
+#    dest: "{{ work_dir }}/route.yml"
+#- name: "deploy {{ application_name }} route {{ route_hostname }}"
+#  oc_obj:
+#    state: present
+#    oc_binary: "{{ openshift_cli }}"
+#    name: "{{ application_name }}"
+#    namespace: "{{ namespace }}"
+#    kind: route
+#    files:
+#      - "{{ work_dir }}/route.yml"
+#
 ###########################################################
 
 
 ########    HAPI FHIR Postgresql Debezium    #############
-- import_tasks: deploy_debezium_connector.yml
+# - import_tasks: deploy_debezium_connector.yml
 ###########################################################

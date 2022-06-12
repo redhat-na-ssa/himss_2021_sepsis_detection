@@ -55,7 +55,7 @@ items:
             volumes:
             - init-volume
           failurePolicy: Abort
-        timeoutSeconds: 600
+        timeoutSeconds: 30
       resources: {}
       type: Recreate
     triggers:
@@ -79,7 +79,7 @@ items:
           name: {{ psql_app_name }}
           app: {{ psql_app_name }}
       spec:
-        serviceAccountName: "{{ postgresql_service_account }}"
+        serviceAccountName: {{ postgresql_service_account }}
         containers:
         - name: postgresql
           image: " "
