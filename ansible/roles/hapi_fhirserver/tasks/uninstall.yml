@@ -5,24 +5,23 @@
     state: absent
     name: "{{ kafka_debezium_name }}"
     namespace: "{{ namespace_kafka_cluster }}"
-    kind: kafkaConnector
-  ignore_errors: yes
+    kind: KafkaConnector
+    api_version: kafka.strimzi.io/v1beta2
 
 - name: delete route
   k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
-    kind: route
-  ignore_errors: yes
+    kind: Route
+    api_version: route.openshift.io/v1
 
 - name: delete service
   k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
-    kind: service
-  ignore_errors: yes
+    kind: Service
 
 
 - name: delete deployment config {{ application_name }}
@@ -31,23 +30,22 @@
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
     kind: DeploymentConfig
-  ignore_errors: yes
+    api_version: apps.openshift.io/v1
 
 - name: delete imagestream in the {{ namespace }} project
   k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
-    kind: imagestream
-  ignore_errors: yes
+    kind: ImageStream
+    api_version: image.openshift.io/v1
 
 - name: "delete configmap {{ application_configmap }}"
   k8s:
     state: absent
     name: "{{ application_configmap }}"
     namespace: "{{ namespace }}"
-    kind: configmap
-  ignore_errors: yes
+    kind: ConfigMap
 
 - name: delete postgresql dc {{ psql_app_name  }}
   k8s:
@@ -55,35 +53,32 @@
     name: "{{ psql_app_name  }}"
     namespace: "{{ namespace }}"
     kind: DeploymentConfig
+    api_version: apps.openshift.io/v1
   when: undeploy_fhir_db is defined and undeploy_fhir_db|trim() == "true"
-  ignore_errors: yes
 
 - name: delete postgresql service
   k8s:
     state: absent
     name: "{{ psql_app_name }}"
     namespace: "{{ namespace }}"
-    kind: service
+    kind: Service
   when: undeploy_fhir_db is defined and undeploy_fhir_db|trim() == "true"
-  ignore_errors: yes
 
 - name: delete postgresql pvc
   k8s:
     state: absent
     name: "{{ psql_app_name }}"
     namespace: "{{ namespace }}"
-    kind: pvc
+    kind: PersistentVolumeClaim
   when: undeploy_fhir_db is defined and undeploy_fhir_db|trim() == "true"
-  ignore_errors: yes
 
 - name: delete postgresql secret
   k8s:
     namespace: "{{ namespace }}"
     name: "{{ psql_app_name }}"
     state: absent
-    kind: secret
+    kind: Secret
   when: undeploy_fhir_db is defined and undeploy_fhir_db|trim() == "true"
-  ignore_errors: yes
 
 - name: delete postgresql init configmap
   k8s:
@@ -92,7 +87,6 @@
     namespace: "{{ namespace }}"
     kind: ConfigMap
   when: undeploy_fhir_db is defined and undeploy_fhir_db|trim() == "true"
-  ignore_errors: yes
 
 - name: delete {{ postgresql_service_account }} service account
   k8s:
@@ -101,4 +95,3 @@
     namespace: "{{ namespace }}"
     kind: ServiceAccount
   when: undeploy_fhir_db is defined and undeploy_fhir_db|trim() == "true"
-  ignore_errors: yes

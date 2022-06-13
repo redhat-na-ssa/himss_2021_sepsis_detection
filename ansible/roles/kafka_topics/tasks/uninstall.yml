@@ -1,19 +1,20 @@
 ---
 
 - name: list kafka topic instances
-  oc_obj:
-    state: list
-    oc_binary: "{{ openshift_cli }}" 
+  kubernetes.core.k8s_info:
     kind: KafkaTopic
+    api_version: kafka.strimzi.io/v1beta2
     namespace: "{{ namespace }}"
   register: r_kafka_topics
+#- debug:
+#    msg: "{{ r_kafka_topics }}"
 
 - name: remove kafka topics
-  oc_obj:
+  k8s:
     state: absent
-    oc_binary: "{{ openshift_cli }}"
     name: "{{ item.metadata.name }}"
     kind: kafkatopic
     namespace: "{{ namespace }}"
+    api_version: kafka.strimzi.io/v1beta2
   with_items:
-    - "{{ r_kafka_topics.ansible_module_results.results[0]['items'] }}"
+    - "{{ r_kafka_topics.resources }}"

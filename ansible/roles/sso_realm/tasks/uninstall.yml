@@ -12,13 +12,15 @@
   when: sso_route_cmd.stderr is not defined
   block:
   - name: get sso admin credentials secret
-    oc_secret:
-      state: list
-      oc_binary: "{{ openshift_cli }}"
+    kubernetes.core.k8s_info:
+      state: Secret
       namespace: "{{ namespace_sso }}"
       decode: true
       name: "{{ sso_admin_credentials_secret }}"
     register: sso_admin_credentials
+
+  - debug:
+      msg: "{{ sso_admin_credentials }}"
   
   - set_fact:
       sso_admin_user: "{{ sso_admin_credentials.ansible_module_results.decoded[\"ADMIN_USERNAME\"] }}"
@@ -62,9 +64,8 @@
     when: result.status == 200
   
   - name: delete client configmap
-    oc_obj:
-      oc_binary: "{{ openshift_cli }}"
+    k8s:
       state: absent
       namespace: "{{ namespace }}"
       name: "{{ sso_config_configmap }}"
-      kind: configmap
+      kind: ConfigMap

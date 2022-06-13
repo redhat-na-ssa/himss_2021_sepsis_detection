@@ -15,6 +15,14 @@
     namespace: "{{ namespace }}"
     kind: ServiceAccount
 
+- name: delete {{ application_name }} image stream
+  k8s:
+    state: absent
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+    kind: ImageStream
+    api_version: image.openshift.io/v1
+
 - name: "delete routes.serving.knative.dev {{ application_name }}"
   k8s:
     state: absent

@@ -1,0 +1,8 @@
+---
+
+- name: "delete {{ project_name }}"
+  k8s:
+    state: absent
+    name: "{{ project_name }}"
+    kind: Project
+    api_version: project.openshift.io/v1

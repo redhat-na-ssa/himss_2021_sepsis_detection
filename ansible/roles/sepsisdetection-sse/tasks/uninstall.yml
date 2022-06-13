@@ -1,41 +1,38 @@
 ---
 
 - name: delete route
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
-    kind: route
+    api_version: route.openshift.io/v1
+    kind: Route
 
-- name: delete deployment config
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
+- name: "delete service {{ application_name }}"
+  k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
-    kind: dc
+    kind: Service
 
-- name: delete service
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
+- name: "delete DeploymentConfig {{ application_name }}"
+  k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
-    kind: service
+    api_version: apps.openshift.io/v1
+    kind: DeploymentConfig
 
 - name: delete imagestream in the {{ namespace }} project
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
-    kind: imagestream
+    kind: ImageStream
 
 - name: "delete configmap {{ application_configmap }}"
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: absent
     name: "{{ application_configmap }}"
     namespace: "{{ namespace }}"
-    kind: configmap
+    kind: ConfigMap

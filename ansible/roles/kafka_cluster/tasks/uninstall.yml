@@ -1,9 +1,9 @@
 ---
 
 - name: remove kafka {{ kafka_cluster }}
-  oc_obj:
+  k8s:
     state: absent
-    oc_binary: "{{ openshift_cli }}"
     name: "{{ kafka_cluster }}"
     kind: kafka
+    api_version: kafka.strimzi.io/v1beta2
     namespace: "{{ namespace }}"

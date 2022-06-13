@@ -1,45 +1,12 @@
 ---
 
-- name: "remove knativekafka"
-  oc_obj:
-    state: absent
-    oc_binary: "{{ openshift_cli }}"
-    kind: KnativeKafka
-    namespace: "{{ namespace_knativeeventing }}"
-    name: "{{ knative_kafka_name }}"
-
-- name: "remove knativeeventing"
-  oc_obj:
-    state: absent
-    oc_binary: "{{ openshift_cli }}"
-    kind: KnativeEventing
-    namespace: "{{ namespace_knativeeventing }}"
-    name: knative-eventing
-  when: undeploy_knative is defined and undeploy_knative == "true"
-
-- name: "Delete {{ namespace_knativeeventing }} project"
-  oc_obj:
-    state: absent
-    oc_binary: "{{ openshift_cli }}"
-    kind: Project
-    name: "{{ namespace_knativeeventing }}"
-  when: undeploy_knative is defined and undeploy_knative == "true"
-
 - name: "remove knativeserving"
-  oc_obj:
+  k8s:
     state: absent
-    oc_binary: "{{ openshift_cli }}"
     kind: KnativeServing
     namespace: "{{ namespace_knativeserving }}"
     name: knative-serving
-  when: undeploy_knative is defined and undeploy_knative == "true"
-
-- name: "Delete {{ namespace_knativeserving }} project"
-  oc_obj:
-    state: absent
-    oc_binary: "{{ openshift_cli }}"
-    kind: Project
-    name: "{{ namespace_knativeserving }}"
+    api_version: operator.knative.dev/v1alpha1
   when: undeploy_knative is defined and undeploy_knative == "true"
 
 - name: "delete serverless operator in {{ namespace_serverless_operator }} namespace"
@@ -52,3 +19,12 @@
     subscription_name: "{{ serverless_operator_subscription_name }}"
     csv_prefix: "{{ serverless_operator_csv_prefix }}"
   when: undeploy_knative is defined and undeploy_knative == "true"
+
+- name: "Delete {{ namespace_knativeserving }} project"
+  k8s:
+    state: absent
+    kind: Project
+    name: "{{ namespace_knativeserving }}"
+    api_version: project.openshift.io/v1
+  when: undeploy_knative is defined and undeploy_knative == "true"
+

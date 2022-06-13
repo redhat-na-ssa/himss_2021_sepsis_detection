@@ -13,6 +13,10 @@
     - group_vars/sepsisdetection_rhpam.yml
   vars:
     ACTION: uninstall
+    undeploy_sso: 'true'
+    undeploy_knative: 'true'
+    undeploy_fhir_db: 'true'
+    undeploy_psql_bpm:  'true'
 
   tasks:
   - include: tasks/sepsisdetection-ui.yml
@@ -25,3 +29,4 @@
   - include: tasks/sso.yml
   - include: tasks/knative.yml
   - include: tasks/amq-streams.yml
+  - include: tasks/delete_project.yml

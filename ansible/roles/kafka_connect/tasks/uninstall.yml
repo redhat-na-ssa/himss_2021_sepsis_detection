@@ -1,9 +1,9 @@
 ---
 
 - name: delete kafka connect object
-  oc_obj:
+  k8s:
     state: absent
-    kind: kafkaconnect
-    oc_binary: "{{ openshift_cli }}"
+    kind: KafkaConnect
+    api_version: kafka.strimzi.io/v1beta2
     name: "{{ kafka_connect }}"
     namespace: "{{ namespace }}"

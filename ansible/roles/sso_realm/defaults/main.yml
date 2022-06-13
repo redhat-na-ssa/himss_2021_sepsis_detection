@@ -2,11 +2,6 @@
 
 sso_admin_credentials_secret: credential-rhsso
 
-sso_realm_template: "{{ resources_dir }}/realm.json"
-
-siteadmin_template: "{{ resources_dir }}/siteadmin-user.json"
-siteadmin_add_role: "{{ resources_dir }}/add-role-to-siteadmin.json"
-
 sso_config_configmap: sso-config
 
 smtp_host:

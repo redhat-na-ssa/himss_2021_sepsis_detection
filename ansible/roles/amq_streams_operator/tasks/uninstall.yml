@@ -17,9 +17,3 @@
   vars:
     operatorgroup_name: "{{ namespace_amq_streams_operator }}"
     operatorgroup_namespace: "{{ namespace_amq_streams_operator }}"
-
-- name: "delete namespace {{ namespace_amq_streams_operator }}"
-  oc_project:
-    oc_binary: "{{ openshift_cli }}"
-    state: absent
-    name: "{{ namespace_amq_streams_operator }}"

@@ -1,10 +1,10 @@
 ---
 
 - name: "delete keycloak custom resource"
-  oc_obj:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: absent
-    kind: keycloaks.keycloak.org
+    kind: Keycloak
+    api_version: keycloak.org/v1alpha1
     name: rhsso
     namespace: "{{ namespace }}"
   when: undeploy_sso is defined and undeploy_sso == "true"
@@ -30,8 +30,9 @@
   when: undeploy_sso is defined and undeploy_sso == "true"
 
 - name: "delete namespace {{ namespace_sso }}"
-  oc_project:
-    oc_binary: "{{ openshift_cli }}"
+  k8s:
     state: absent
     name: "{{ namespace_sso }}"
+    kind: Project
+    api_version: project.openshift.io/v1
   when: undeploy_sso is defined and undeploy_sso == "true"

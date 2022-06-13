@@ -1,5 +1,13 @@
 ---
 
+- name: delete {{ application_name }} image stream
+  k8s:
+    state: absent
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+    kind: ImageStream
+    api_version: image.openshift.io/v1
+
 - name: "delete route {{ application_name }}"
   k8s:
     state: absent

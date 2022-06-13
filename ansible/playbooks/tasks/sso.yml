@@ -24,14 +24,6 @@
     ACTION|trim() == "" or
     ACTION|trim() == "install"
 
-
-- include_role:
-    name: ../roles/sso_realm
-    tasks_from: uninstall
-  when: >
-    ACTION is defined and
-    ACTION|trim() == "uninstall"
-
 - include_role:
     name: ../roles/sso
     tasks_from: uninstall
