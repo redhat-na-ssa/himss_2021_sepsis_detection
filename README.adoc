@@ -376,6 +376,13 @@ Accessible without a RHN subscription
 +
 ie: dnf install ansible
 
+.. Ensure the `kubernetes.core` ansible galaxy collection is installed locally:
++
+-----
+$ ansible-galaxy collection install kubernetes.core
+-----
+
+
 . *git* installed locally
 
 === Procedure:
