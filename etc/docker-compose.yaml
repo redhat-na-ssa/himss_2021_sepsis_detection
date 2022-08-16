@@ -116,7 +116,11 @@ services:
 
   sepsis-ml:
     container_name: sepsis-ml
+  
+    # NOTE:  The following  image is built using:    "kn func build -i <image-name>:<image-version>" 
+    #        More details can be found here: https://github.com/redhat-na-ssa/sepsis-detection/blob/master/serving/README.md
     image: quay.io/redhat_naps_da/sepsis-detection:1.3
+
     restart: always
     ports:
       - "5080:8080"
