@@ -1,12 +1,12 @@
 = kafka-connect-debezium-postgresql
 
 == Purpose
-There is already a Debezium connector image (docker.io/debezium/connect) with the ability for Change Data Capture of a PostgreSQL database.
-However, this connector is not _strimzi_ enabled.
+There is already a Debezium connector image (https://hub.docker.com/r/debezium/connect   or  https://quay.io/repository/debezium/connect) with the ability for Change Data Capture of a PostgreSQL database.
+This Debezium link:https://debezium.io/documentation/reference/stable/tutorial.html[tutorial] provides a good example of how to use it.
 
-When leveraging AMQ Streams, a Debezium enabled Strimzi image is needed.
-
-This image is derived from `registry.redhat.io/amq7/amq-streams-kafka-26-rhel7:1.7.0` and augmented with Debezium PostgreSQL connector bits.
+This connector includes libraries for all databases (ie:  db2, mongodb, mysql, oracle, postgresql, sqlserver and vitess).
+For the purpose of the HIMSS 2021 demo, only the libraries to capture change events from PostgreSQL are needed.
+Thus, for the purpose of utilizing a slimmer container image, this image is derived from `registry.redhat.io/amq7/amq-streams-kafka-26-rhel7:1.7.0` and augmented with Debezium PostgreSQL connector bits only.
 
 == Usage
 Execute the following to build this image

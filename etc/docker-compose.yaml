@@ -70,7 +70,10 @@ services:
 
   psql_sso:
     container_name: psql_sso
+
+    # https://github.com/sclorg/postgresql-container/blob/master/12/Dockerfile.rhel8
     image: registry.redhat.io/rhel8/postgresql-12:1-72.1626836556
+
     restart: always
     ports:
       - "4432:4432"
@@ -130,7 +133,10 @@ services:
 
   psql-fhir:
     container_name: psql-fhir
-    image: registry.redhat.io/rhel8/postgresql-12
+
+    # https://github.com/sclorg/postgresql-container/blob/master/12/Dockerfile.rhel8
+    image: registry.redhat.io/rhel8/postgresql-12:1-72.1626836556
+
     restart: always
     ports:
       - "5432:5432"
@@ -193,7 +199,10 @@ services:
 
   psql-rhpam:
     container_name: psql-rhpam
-    image: registry.redhat.io/rhel8/postgresql-12
+
+    # https://github.com/sclorg/postgresql-container/blob/master/12/Dockerfile.rhel8
+    image: registry.redhat.io/rhel8/postgresql-12:1-72.1626836556
+
     restart: always
     ports:
       - "6432:6432"
