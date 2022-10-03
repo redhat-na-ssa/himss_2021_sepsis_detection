@@ -4,7 +4,7 @@ services:
 
   zookeeper:
     container_name: zookeeper
-    image: quay.io/strimzi/kafka:latest-kafka-2.6.0
+    image: quay.io/strimzi/kafka:latest-kafka-3.1.2
     command: [
       "sh", "-c",
       "bin/zookeeper-server-start.sh config/zookeeper.properties"
@@ -21,7 +21,7 @@ services:
 #   NOTE: via this configuration, kafka is available to external clients on port: 9094
   kafka:
     container_name: kafka
-    image: quay.io/strimzi/kafka:latest-kafka-2.6.0
+    image: quay.io/strimzi/kafka:latest-kafka-3.1.2
     command: [
       "sh", "-c",
       "bin/kafka-server-start.sh config/server.properties --override listeners=INSIDE://:9092,OUTSIDE://:9094 --override listener.security.protocol.map=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT --override advertised.listeners=INSIDE://:9092,OUTSIDE://localhost:9094 --override zookeeper.connect=zookeeper:2181 --override inter.broker.listener.name=INSIDE"
@@ -38,7 +38,7 @@ services:
 
   kafka-connect:
     container_name: kafka-connect
-    image: docker.io/debezium/connect:1.5
+    image: quay.io/debezium/connect:2.0
     depends_on:
       - zookeeper
     ports:
@@ -54,7 +54,7 @@ services:
 
   kafdrop:
     container_name: kafdrop
-    image: docker.io/obsidiandynamics/kafdrop:3.27.0
+    image: docker.io/obsidiandynamics/kafdrop:3.30.0
     restart: always
     ports:
       - "9000:9000"
@@ -146,7 +146,6 @@ services:
       POSTGRESQL_DATABASE: fhir
       POSTGRESQL_MAX_PREPARED_TRANSACTIONS: 10
     volumes:
-    # https://github.com/sclorg/postgresql-container/tree/generated/12
     - ./hapi-fhir/hapi-psql-wal.conf:/opt/app-root/src/postgresql-cfg/hapi-psql-wal.conf:bind
     - ./hapi-fhir/hapi-psql-wal.sh:/opt/app-root/src/postgresql-start/hapi-psql-wal.sh:bind
     networks:
@@ -154,8 +153,9 @@ services:
 
   hapi-fhir:
     container_name: hapi-fhir
-    # https://github.com/redhat-naps-da/hapi-fhir-jpaserver-starter
-    image: quay.io/redhat_naps_da/hapi-fhir-jpaserver-starter-ocp:v5.3.0-psql-bytea-1
+
+    # https://github.com/redhat-na-ssa/hapi-fhir-jpaserver-starter/tree/v6.1.0-pgsql-debezium
+    image: quay.io/redhat_naps_da/hapi-fhir-jpaserver-starter-ocp:v6.1.0-psql-bytea-2
 
     restart: always
     ports:

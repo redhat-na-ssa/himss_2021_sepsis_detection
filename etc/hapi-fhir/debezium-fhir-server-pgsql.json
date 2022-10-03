@@ -1,5 +1,5 @@
 {
-  "name": "debezium-fhir-server-pgsql",  
+  "name": "debezium-fhir-pgsql",  
   "config": {  
     "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
     "tasks.max": "1",
@@ -9,7 +9,8 @@
     "database.user": "fhir",
     "database.password": "fhir",
     "database.dbname": "fhir",  
-    "database.server.name": "fhir",  
+    "database.server.name": "fhir",
+    "topic.prefix": "fhir",
     "schema.include.list": "public",  
     "table.include.list": "public.hfj_res_ver",
     "value.converter": "io.debezium.converters.CloudEventsConverter"
