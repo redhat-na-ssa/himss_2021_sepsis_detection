@@ -341,8 +341,8 @@ Ansible is included to deploy this application to OpenShift in a repeatable mann
 +
 Sepsis dection demo has been tested on the following versions of OCP:
 
-.. 4.9.0
-.. 4.10.3
+.. 4.10.26
+.. 4.11.2
 
 . *Resource requirements*
 +

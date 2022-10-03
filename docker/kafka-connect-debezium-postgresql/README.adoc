@@ -1,20 +1,26 @@
 = kafka-connect-debezium-postgresql
 
-== Purpose
+== Background
 There is already a Debezium connector image (https://hub.docker.com/r/debezium/connect   or  https://quay.io/repository/debezium/connect) with the ability for Change Data Capture of a PostgreSQL database.
 This Debezium link:https://debezium.io/documentation/reference/stable/tutorial.html[tutorial] provides a good example of how to use it.
-
 This connector includes libraries for all databases (ie:  db2, mongodb, mysql, oracle, postgresql, sqlserver and vitess).
-For the purpose of the HIMSS 2021 demo, only the libraries to capture change events from PostgreSQL are needed.
-Thus, for the purpose of utilizing a slimmer container image, this image is derived from `registry.redhat.io/amq7/amq-streams-kafka-26-rhel7:1.7.0` and augmented with Debezium PostgreSQL connector bits only.
+This connector is started using:  `/docker-entrypoint.sh start`
+
+== Purpose
+When using Debezium in OpenShift, you'll most likely want Debezium to interact with an existing AMQ Streams/Strimzi environment managed by the Strimzi operator.
+Doing so involves deploying _KafkaConnect_ and _KafkaConnector_ resources via the Strimzi operator as per the link:https://debezium.io/documentation/reference/2.0/operations/openshift.html[docs].
+
+The _KafkaConnector_ resource expects the image to be based on _Strimzi_, not on _Debezium_.
+For example, a _KafkaConnector_ resource in OCP expects a start command of:  /opt/kafka/kafka_connect_run.sh
+Subsequently, the _Debezium_ connectors mentioned previously are not compatible with an environment managed by the Strimzi Operator.
 
 == Usage
 Execute the following to build this image
 
-. Download the `1.5.0.Final` version of the debezium PostgreSQL connector.
+. Download the `2.0.0.Beta2` version of the debezium PostgreSQL connector.
 +
 -----
-$ wget https://repo1.maven.org/maven2/io/debezium/debezium-connector-postgres/1.5.0.Final/debezium-connector-postgres-1.5.0.Final-plugin.tar.gz 
+$ wget https://repo1.maven.org/maven2/io/debezium/debezium-connector-postgres/2.0.0.Beta2/debezium-connector-postgres-2.0.0.Beta2-plugin.tar.gz 
 -----
 
 . Extract contents into the `contrib` directory.
@@ -22,12 +28,12 @@ $ wget https://repo1.maven.org/maven2/io/debezium/debezium-connector-postgres/1.
 . Build the image:
 +
 -----
-$ buildah bud -f Dockerfile -t quay.io/redhat_naps_da/strimzi-debezium-postgresql:1.7.0-1.5.0.Final .
+$ buildah bud -f Dockerfile -t quay.io/redhat_naps_da/strimzi-debezium-postgresql:2.1.0-2.0.0.Beta .
 -----
 
 . Push the image:
 +
 -----
-$ podman push quay.io/redhat_naps_da/strimzi-debezium-postgresql:1.7.0-1.5.0.Final
+$ podman push quay.io/redhat_naps_da/strimzi-debezium-postgresql:2.1.0-2.0.0.Beta
 -----
 

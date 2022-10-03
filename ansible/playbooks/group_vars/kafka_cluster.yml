@@ -16,4 +16,4 @@ kafka_bootstrap_service: "kafka-cluster-kafka-bootstrap.{{ namespace_kafka_clust
 kafka_bootstrap_port: 9092
 kafka_bootstrap_address: "{{ kafka_bootstrap_service }}:{{ kafka_bootstrap_port }}"
 
-kafka_connect_image: quay.io/redhat_naps_da/strimzi-debezium-postgresql:1.7.0-1.5.0.Final
+kafka_connect_image: quay.io/redhat_naps_da/strimzi-debezium-postgresql:2.1.0-2.0.0.Beta

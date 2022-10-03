@@ -18,5 +18,6 @@ spec:
     database.dbname: {{ hapi_psql_db_name }}
     database.server.name: {{ kafka_debezium_db_server_name }}
     schema.include.list: {{ kafka_debezium_schema_whitelist }}
+    topic.prefix: "{{ kafka_debezium_db_server_name }}"
     table.include.list: {{ kafka_debezium_table_whitelist }}
     value.converter: io.debezium.converters.CloudEventsConverter

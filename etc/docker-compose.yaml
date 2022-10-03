@@ -38,7 +38,13 @@ services:
 
   kafka-connect:
     container_name: kafka-connect
+
+    # quay.io/debezium/connect:2.0 image can be used in a local podman/docker-compose environment
+    # However, in an OCP environment involving the Strimzi, AMQ Streams operator (with KafkaConnector resources), the debezium images can not be used.
+    # Instead, a custom image based on Strimzi/AMQ Streams images needs to be created.
+    # See:  docker/kafka-connect-debezium-postgresql of this project for more details.
     image: quay.io/debezium/connect:2.0
+
     depends_on:
       - zookeeper
     ports:
