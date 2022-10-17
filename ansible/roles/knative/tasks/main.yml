@@ -24,7 +24,7 @@
     wait_timeout: 90
 
 - name: "deploy Knative Serving to {{ namespace_knativeserving }}"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: KnativeServing
     definition: "{{ lookup('template', 'templates/' + knative_serving_template) | from_yaml }}"

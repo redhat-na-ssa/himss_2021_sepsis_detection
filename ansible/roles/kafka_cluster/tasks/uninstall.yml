@@ -1,7 +1,7 @@
 ---
 
 - name: remove kafka {{ kafka_cluster }}
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ kafka_cluster }}"
     kind: kafka

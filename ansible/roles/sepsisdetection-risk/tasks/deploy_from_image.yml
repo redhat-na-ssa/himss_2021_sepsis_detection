@@ -1,7 +1,7 @@
 ---
 
 - name: "create imagestream in the {{ namespace }} project"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: ImageStream
     definition: "{{ lookup('template', 'templates/' + binary_imagestream_template) | from_yaml }}"
@@ -11,7 +11,7 @@
     application_image_tag: "{{ service_image_tag }}"
 
 - name: "deploy {{ application_name }} application"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: DeploymentConfig
     definition: "{{ lookup('template', 'templates/' + application_template ) | from_yaml }}"

@@ -13,7 +13,7 @@
   when: r_subscription.resources[0] is defined
 
 - name: "remove clusterserviceversion for {{ operator_name }} operator"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     kind: ClusterServiceVersion
     api_version: operators.coreos.com/v1alpha1
@@ -23,7 +23,7 @@
   - r_subscription.resources[0] is defined
 
 - name: "remove subscription for {{ operator_name }} operator"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     kind: Subscription
     api_version: operators.coreos.com/v1alpha1

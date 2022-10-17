@@ -1,7 +1,7 @@
 ---
 
 - name: delete {{ application_name }} image stream
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
@@ -9,7 +9,7 @@
     api_version: image.openshift.io/v1
 
 - name: "delete route {{ application_name }}"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
@@ -17,14 +17,14 @@
     kind: Route
 
 - name: "delete service {{ application_name }}"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
     kind: Service
 
 - name: "delete DeploymentConfig {{ application_name }}"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
@@ -32,7 +32,7 @@
     kind: DeploymentConfig
 
 - name: delete {{ application_name }} service account
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"

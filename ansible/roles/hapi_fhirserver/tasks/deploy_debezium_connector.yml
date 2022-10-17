@@ -1,7 +1,7 @@
 ---
 
 - name: "deploy kafka connector {{ kafka_debezium_name }}"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: KafkaConnector
     definition: "{{ lookup('template', 'templates/' + kafka_debezium_template ) | from_yaml }}"

@@ -7,7 +7,7 @@
     force: yes
 
 - name: create imagestream {{ application_name }} in the {{ namespace }} project
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: ImageStream
     definition: "{{ lookup('template', work_dir + '/' + binary_imagestream_template) | from_yaml }}"
@@ -20,7 +20,7 @@
     force: yes
 
 - name: deploy {{ application_name }} application
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: DeploymentConfig
     definition: "{{ lookup('template', work_dir + '/' + application_template ) | from_yaml }}"

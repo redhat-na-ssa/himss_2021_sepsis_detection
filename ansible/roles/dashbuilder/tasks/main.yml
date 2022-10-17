@@ -1,7 +1,7 @@
 ---
 
 - name: "create service account {{ application_name }}"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     name: "{{ application_name }}"
     definition:
@@ -12,14 +12,14 @@
         namespace: "{{ namespace }}"
 
 - name: create imagestream {{ application_name }} in the {{ namespace }} project
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: ImageStream
     definition: "{{ lookup('template', 'templates/' + binary_imagestream_template) | from_yaml }}"
     namespace: "{{ namespace }}"
 
 - name: deploy {{ application_name }} application
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: DeploymentConfig
     definition: "{{ lookup('template', 'templates/dashbuilderservice.yml' ) | from_yaml }}"
@@ -39,7 +39,7 @@
     route_hostname: "{{ application_name }}-{{ namespace }}.{{ ocp_domain_host.stdout }}"
 
 - name: "deploy {{ application_name }} route {{ route_hostname }}"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: Deployment
     definition: "{{ lookup('template', 'templates/route.yml') | from_yaml }}"

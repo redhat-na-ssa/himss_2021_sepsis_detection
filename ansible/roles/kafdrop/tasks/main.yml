@@ -1,7 +1,7 @@
 ---
 
 - name: create imagestream {{ application_name }} in the {{ namespace }} project
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: ImageStream
     definition: "{{ lookup('template', 'templates/' + binary_imagestream_template) | from_yaml }}"
@@ -11,7 +11,7 @@
 #   Internal error occurred: docker.io/obsidiandynamics/kafdrop:3.8.1: toomanyrequests: You have reached your pull rate limit. 
 #   You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit
 - name: deploy {{ application_name }} application
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: DeploymentConfig
     definition: "{{ lookup('template', 'templates/' + kafdrop_application_template ) | from_yaml }}"

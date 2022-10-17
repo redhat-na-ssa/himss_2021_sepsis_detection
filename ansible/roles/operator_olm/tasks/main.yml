@@ -31,7 +31,7 @@
     msg: "{{ operator_name }} operator channel to be installed: {{ subscription_channel }}"
 
 - name: "create subscription for {{ operator_name }} operator in {{ subscription_namespace }} namespace"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     namespace: "{{ subscription_namespace }}"
     name: "{{ subscription_name }}"

@@ -1,7 +1,7 @@
 ---
 
 - name: "create {{ kafka_cluster }} kafka cluster"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: Kafka
     definition: "{{ lookup('template', 'templates/' + kafka_template ) | from_yaml }}"
