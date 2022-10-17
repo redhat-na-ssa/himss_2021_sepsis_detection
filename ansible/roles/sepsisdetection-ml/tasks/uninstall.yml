@@ -1,7 +1,7 @@
 ---
 
 - name: "delete service.serving.knative.dev {{ application_name }}"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
@@ -9,14 +9,14 @@
     kind: Service
 
 - name: delete {{ application_name }} service account
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
     kind: ServiceAccount
 
 - name: delete {{ application_name }} image stream
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
@@ -24,7 +24,7 @@
     api_version: image.openshift.io/v1
 
 - name: "delete routes.serving.knative.dev {{ application_name }}"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
@@ -32,7 +32,7 @@
     kind: Route
 
 - name: "delete ingresses.networking.internal.knative.dev {{ application_name }}"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"

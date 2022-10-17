@@ -121,7 +121,7 @@
     shell1: !unsafe "$((${#_m} % 4))"
 
 - name: create client configmap
-  k8s:
+  kubernetes.core.k8s:
     state: present
     namespace: "{{ namespace_sso }}"
     definition:

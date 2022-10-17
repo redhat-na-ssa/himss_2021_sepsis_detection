@@ -64,7 +64,7 @@
     when: result.status == 200
   
   - name: delete client configmap
-    k8s:
+    kubernetes.core.k8s:
       state: absent
       namespace: "{{ namespace }}"
       name: "{{ sso_config_configmap }}"

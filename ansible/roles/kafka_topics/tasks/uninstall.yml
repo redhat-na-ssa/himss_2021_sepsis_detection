@@ -10,7 +10,7 @@
 #    msg: "{{ r_kafka_topics }}"
 
 - name: remove kafka topics
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ item.metadata.name }}"
     kind: kafkatopic

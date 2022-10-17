@@ -3,12 +3,12 @@
 # create project
 
 - name: create project {{ namespace }}
-  k8s:
+  kubernetes.core.k8s:
     state: present
     definition: "{{ lookup('template', 'templates/project.yml') | from_yaml }}"
 
 - name: assign user {{ project_admin }} as project admin in {{ namespace }}
-  k8s:
+  kubernetes.core.k8s:
     state: present
     definition: "{{ lookup('template', 'templates/rolebinding.yml') | from_yaml }}"
   when: >

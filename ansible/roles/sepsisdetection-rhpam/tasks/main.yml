@@ -3,7 +3,7 @@
 #######    RH-PAM Database    ##################
 
 - name: "create {{ postgresql_service_account }} service account in {{ namespace }}"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     name: "{{ postgresql_service_account }}"
     definition:
@@ -14,7 +14,7 @@
         namespace: "{{ namespace }}"
 
 - name: "create {{ postgresql_init_configmap }} configmap"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     name: "{{ postgresql_init_configmap }}"
     namespace: "{{ namespace }}"
@@ -33,7 +33,7 @@
         wait_for_postgresql.sh: "{{ lookup('template', 'templates/sql/wait_for_postgresql.sh' )  }}"
 
 - name: "postgresql secret {{ psql_credentials_secret }}"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1
@@ -49,7 +49,7 @@
 
 
 - name: "deploy {{ psql_app_name }} in {{ namespace }}"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: DeploymentConfig
     definition: "{{ lookup('template', 'templates/postgresql.yml') | from_yaml }}"
@@ -69,7 +69,7 @@
 
 ########    RH-PAM Server    #############
 - name: "create {{ service_account }} service account for {{ application_name }} application"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     name: "{{ service_account }}"
     definition:
@@ -80,7 +80,7 @@
         namespace: "{{ namespace }}"
 
 - name: "give cluster admin privileges to {{ service_account }} service account"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     name: "{{ service_account }}-admin"
     definition:
@@ -107,7 +107,7 @@
 
 
 - name: "create {{ application_configmap }} application configmap"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     name: "{{ application_configmap }}"
     namespace: "{{ namespace }}"
@@ -132,7 +132,7 @@
     route_hostname: "{{ application_name }}-{{ namespace }}.{{ ocp_domain_host.stdout }}"
 
 - name: "deploy {{ application_name }} route {{ route_hostname }}"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: Deployment
     definition: "{{ lookup('template', 'templates/route.yml') | from_yaml }}"
