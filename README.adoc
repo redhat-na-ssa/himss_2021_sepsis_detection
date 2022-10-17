@@ -376,10 +376,27 @@ Accessible without a RHN subscription
 +
 ie: dnf install ansible
 
-.. Ensure the `kubernetes.core` ansible galaxy collection is installed locally:
+.. On the host machine that will run the ansible, ensure that both `kubernetes` and `jmespath` ansible galaxy collections are installed for the version of python using by ansible:
+
+... Check version of python used by ansible: 
 +
 -----
-$ ansible-galaxy collection install kubernetes.core
+$ ansible --version
+
+
+ansible [core 2.12.2]
+  ... 
+
+  python version = 3.8.12 (default, Sep 16 2021, 10:46:05) [GCC 8.5.0 20210514 (Red Hat 8.5.0-3)]
+  
+  ...
+
+-----
+
+... Install dependencies as root user: 
++
+-----
+# python3.8 -m pip install kubernetes jmespath
 -----
 
 
