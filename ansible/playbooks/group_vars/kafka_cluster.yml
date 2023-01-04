@@ -1,6 +1,6 @@
 ---
 
-namespace_amq_streams_operator: "{{ project_name }}"
+namespace_amq_streams_operator: "openshift-operator"
 namespace_kafka_cluster: "{{ project_name }}"
 
 kafka_cluster: kafka-cluster

@@ -1,5 +1,10 @@
 ---
 
+# Purpose of this ansible role is to automate the installation of an operator in Openshift
+# For community operators, the equivalent could be done manually by selecting & installing an operator from https://operatorhub.io
+#   NOTE: operatorhub.io maintains a populated Subscription.operators.coreos.com for each operator
+#         oc apply -f <subscription file> is executed to deploy the operator
+
 - name: "get packagemanifest for {{ operator_name }} operator"
   kubernetes.core.k8s_info:
     kind: packagemanifest
@@ -32,7 +37,7 @@
     name: "{{ subscription_name }}"
     definition: "{{ lookup('template', 'templates/subscription.yml') | from_yaml }}"
 
-- name: wait until installplan is created
+- name: "wait until installplan is created in {{ subscription_namespace }}"
   kubernetes.core.k8s_info:
     kind: InstallPlan
     namespace: "{{ subscription_namespace }}"
@@ -41,18 +46,34 @@
   retries: 30
   delay: 5
   until:
+    - r_install_plan.resources | length > 0
     - r_install_plan.resources[0] | length > 0
     - r_install_plan.resources[0] | to_json | from_json | json_query(jmesquery) | length > 0
   vars:
     jmesquery: "spec.clusterServiceVersionNames | [?contains(@, '{{ csv_prefix }}') == `true`]"
 
-- name: "manually approve installplan"
-  when: not automatic_installplan_approval
-  block:
-  - name: "set install plan name"
-    set_fact:
-      install_plan: "{{ r_install_plan.resources[0].metadata.name }}"
+- name: "set install plan name"
+  set_fact:
+    install_plan: "{{ r_install_plan.resources[0].metadata.name }}"
+    csv_name: "{{ r_install_plan.resources[0] | to_json | from_json | json_query(jmesquery) }}"
+  vars:
+    jmesquery: "spec.clusterServiceVersionNames[?contains(@, '{{ csv_prefix }}')] | [0]"
 
-  - name: "approve installplan {{ install_plan }}"
-    shell: |
-      {{ openshift_cli }} patch installplan {{ install_plan }} --type='merge' -p '{"spec":{"approved":true}}' -n {{ subscription_namespace }}
+- name: "approve installplan {{ install_plan }}"
+  shell: |
+    {{ openshift_cli }} patch installplan {{ install_plan }} --type='merge' -p '{"spec":{"approved":true}}' -n {{ subscription_namespace }}
+  when: not automatic_installplan_approval
+
+- name: "wait until csv {{ csv_name }} is active in {{ subscription_namespace }}"
+  kubernetes.core.k8s_info:
+    kind: ClusterServiceVersion
+    name: "{{ csv_name }}"
+    namespace: "{{ subscription_namespace }}"
+    api_version: operators.coreos.com/v1alpha1
+  register: r_csv
+  retries: 30
+  delay: 5
+  until:
+    - r_csv.resources | length > 0
+    - r_csv.resources[0] | length > 0
+    - r_csv.resources[0].status.phase == "Succeeded"
