@@ -30,14 +30,14 @@
     wait_timeout: 360
 
 - name: "create keycloak custom resource"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     name: rhsso
     namespace: "{{ namespace_sso }}"
     definition: "{{ lookup('template', 'templates/'+ keycloak_cr_template) | from_yaml }} "
 
 - name: "create keycloak route"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: Route
     name: sso

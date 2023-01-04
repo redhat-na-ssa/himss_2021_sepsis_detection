@@ -8,7 +8,7 @@
     topic_config: "{{ topic.config }}"
 
 - name: "create {{ topic_name }} kafkatopic"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: KafkaTopic
     definition: "{{ lookup('template', 'templates/' + topic_template ) | from_yaml }}"

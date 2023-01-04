@@ -1,7 +1,7 @@
 ---
 
 - name: "delete route {{ application_name }}"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
@@ -9,14 +9,14 @@
     kind: Route
 
 - name: "delete service {{ application_name }}"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
     kind: Service
 
 - name: "delete DeploymentConfig {{ application_name }}"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
@@ -24,14 +24,14 @@
     kind: DeploymentConfig
 
 - name: "delete {{ application_name }} service account"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
     kind: ServiceAccount
 
 - name: "delete {{ application_name }} image stream"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
@@ -39,7 +39,7 @@
     kind: ImageStream
 
 - name: "delete configmap {{ application_configmap }}"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"

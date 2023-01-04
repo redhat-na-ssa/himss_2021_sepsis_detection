@@ -1,7 +1,7 @@
 ---
 
 - name: delete debezium connector
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ kafka_debezium_name }}"
     namespace: "{{ namespace_kafka_cluster }}"
@@ -9,7 +9,7 @@
     api_version: kafka.strimzi.io/v1beta2
 
 - name: delete route
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
@@ -17,7 +17,7 @@
     api_version: route.openshift.io/v1
 
 - name: delete service
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
@@ -25,7 +25,7 @@
 
 
 - name: delete deployment config {{ application_name }}
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
@@ -33,7 +33,7 @@
     api_version: apps.openshift.io/v1
 
 - name: delete imagestream in the {{ namespace }} project
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
@@ -41,14 +41,14 @@
     api_version: image.openshift.io/v1
 
 - name: "delete configmap {{ application_configmap }}"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_configmap }}"
     namespace: "{{ namespace }}"
     kind: ConfigMap
 
 - name: delete postgresql dc {{ psql_app_name  }}
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ psql_app_name  }}"
     namespace: "{{ namespace }}"
@@ -57,7 +57,7 @@
   when: undeploy_fhir_db is defined and undeploy_fhir_db|trim() == "true"
 
 - name: delete postgresql service
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ psql_app_name }}"
     namespace: "{{ namespace }}"
@@ -65,7 +65,7 @@
   when: undeploy_fhir_db is defined and undeploy_fhir_db|trim() == "true"
 
 - name: delete postgresql pvc
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ psql_app_name }}"
     namespace: "{{ namespace }}"
@@ -73,7 +73,7 @@
   when: undeploy_fhir_db is defined and undeploy_fhir_db|trim() == "true"
 
 - name: delete postgresql secret
-  k8s:
+  kubernetes.core.k8s:
     namespace: "{{ namespace }}"
     name: "{{ psql_app_name }}"
     state: absent
@@ -81,7 +81,7 @@
   when: undeploy_fhir_db is defined and undeploy_fhir_db|trim() == "true"
 
 - name: delete postgresql init configmap
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ postgresql_init_configmap }}"
     namespace: "{{ namespace }}"
@@ -89,7 +89,7 @@
   when: undeploy_fhir_db is defined and undeploy_fhir_db|trim() == "true"
 
 - name: delete {{ postgresql_service_account }} service account
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ postgresql_service_account }}"
     namespace: "{{ namespace }}"

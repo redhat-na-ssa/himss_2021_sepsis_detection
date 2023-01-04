@@ -1,7 +1,7 @@
 ---
 
 - name: delete kafka connect object
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     kind: KafkaConnect
     api_version: kafka.strimzi.io/v1beta2

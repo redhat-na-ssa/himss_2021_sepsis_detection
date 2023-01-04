@@ -1,7 +1,7 @@
 ---
 
 - name: "create service account {{ application_name }}"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     name: "{{ application_name }}"
     definition:
@@ -23,7 +23,7 @@
     sepsisdetection_sse_hostname: "{{ sepsisdetection_sse_app_name }}-{{ project_name }}.{{ ocp_domain }}"
 
 - name: create {{ application_name }} configmap
-  k8s:
+  kubernetes.core.k8s:
     state: present
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
@@ -36,14 +36,14 @@
         env.js: "{{ lookup('template', 'templates/env.js' ) }}"
 
 - name: create imagestream {{ application_name }} in the {{ namespace }} project
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: ImageStream
     definition: "{{ lookup('template', 'templates/' + binary_imagestream_template) | from_yaml }}"
     namespace: "{{ namespace }}"
 
 - name: deploy {{ application_name }} application
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: DeploymentConfig
     definition: "{{ lookup('template', 'templates/' + application_template ) | from_yaml }}"

@@ -1,14 +1,14 @@
 ---
 
 - name: "delete service {{ application_name }}"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
     kind: Service
 
 - name: "delete DeploymentConfig {{ application_name }}"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
@@ -17,14 +17,14 @@
 
 
 - name: "delete imagestream in the {{ namespace }} project"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
     kind: ImageStream
 
 - name: "delete configmap {{ application_configmap }}"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ application_configmap }}"
     namespace: "{{ namespace }}"

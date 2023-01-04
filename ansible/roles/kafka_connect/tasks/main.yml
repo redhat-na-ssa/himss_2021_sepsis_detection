@@ -1,7 +1,7 @@
 ---
 
 - name: create kafka connect object 
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: kafkaconnect
     definition: "{{ lookup('template', 'templates/' + kafka_connect_template ) | from_yaml }}"

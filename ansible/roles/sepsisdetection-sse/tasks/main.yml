@@ -3,7 +3,7 @@
 ########    Sepsis Detection SSE Service    #############
 
 - name: create {{ service_account }} service account for {{ application_name }} application
-  k8s:
+  kubernetes.core.k8s:
     state: present
     name: "{{ service_account }}"
     definition:
@@ -14,7 +14,7 @@
         namespace: "{{ namespace }}"
 
 - name: give cluster admin privileges to {{ service_account }} service account
-  k8s:
+  kubernetes.core.k8s:
     state: present
     name: "{{ service_account }}-admin"
     definition:
@@ -37,7 +37,7 @@
     aprops: "{{ lookup('template', 'templates/' + application_properties )  }}"
 
 - name: create {{ application_configmap }} application configmap
-  k8s:
+  kubernetes.core.k8s:
     state: present
     name: "{{ application_configmap }}"
     namespace: "{{ namespace }}"
@@ -58,7 +58,7 @@
 - set_fact:
     route_hostname: "{{ application_name }}-{{ namespace }}.{{ ocp_domain_host.stdout }}"
 - name: "deploy {{ application_name }} route {{ route_hostname }}"
-  k8s:
+  kubernetes.core.k8s:
     state: present
     kind: Deployment
     definition: "{{ lookup('template', 'templates/route.yml') | from_yaml }}"

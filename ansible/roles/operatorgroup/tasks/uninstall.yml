@@ -1,7 +1,7 @@
 ---
 
 - name: "Delete operatorgroup in {{ operatorgroup_namespace }}"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ operatorgroup_name }}"
     namespace: "{{ operatorgroup_namespace }}"

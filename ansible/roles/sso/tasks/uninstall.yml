@@ -1,7 +1,7 @@
 ---
 
 - name: "delete keycloak custom resource"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     kind: Keycloak
     api_version: keycloak.org/v1alpha1
@@ -30,7 +30,7 @@
   when: undeploy_sso is defined and undeploy_sso == "true"
 
 - name: "delete namespace {{ namespace_sso }}"
-  k8s:
+  kubernetes.core.k8s:
     state: absent
     name: "{{ namespace_sso }}"
     kind: Project
