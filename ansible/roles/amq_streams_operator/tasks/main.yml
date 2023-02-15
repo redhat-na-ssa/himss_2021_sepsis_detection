@@ -1,13 +1,5 @@
 ---
 
-- name: "create operatorgroup in {{ namespace_amq_streams_operator }}"
-  import_role:
-    name: ../roles/operatorgroup
-  vars:
-    operatorgroup_name: "{{ namespace_amq_streams_operator }}"
-    operatorgroup_namespace: "{{ namespace_amq_streams_operator }}"
-    operatorgroup_target_namespace: "{{ namespace_amq_streams_operator }}"
-
 - name: "deploy amq streams operator in {{ namespace_amq_streams_operator }}"
   import_role:
     name: ../roles/operator_olm

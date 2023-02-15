@@ -1,0 +1,104 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: sepsisdetection-risk
+  name: sepsisdetection-risk
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    group: sepsis
+    app: sepsisdetection-risk
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 3600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      labels:
+        group: sepsis
+        app: sepsisdetection-risk
+    spec:
+      containers:
+        - env:
+          - name: KUBERNETES_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          - name: JAVA_OPTIONS
+            value: >
+              -Dquarkus.config.locations=/deployments/config -Dvertx.metrics.options.enabled=true -Dvertx.metrics.options.registryName=prometheus
+          - name: AB_JOLOKIA_OFF
+            value: 'true'
+          imagePullPolicy: IfNotPresent
+          name: sepsisdetection-risk
+          ports:
+            - containerPort: 9779
+              name: prometheus
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/live
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 3
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /q/health/ready
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 3
+          resources:
+            limits:
+              cpu: '1500m'
+              memory: '1Gi'
+            requests:
+              cpu: '250m'
+              memory: '250Mi'
+          securityContext:
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /deployments/config
+            name: config
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: sepsisdetection-risk
+      serviceAccountName: sepsisdetection-risk
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          items:
+            - key: application.properties
+              path: application.properties
+          name: sepsisdetection-risk
+        name: config
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - sepsisdetection-risk
+        from:
+          kind: ImageStreamTag
+          name: "sepsisdetection-risk:0.0.4"
+      type: ImageChange
+

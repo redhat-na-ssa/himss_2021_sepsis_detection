@@ -24,3 +24,5 @@ knative_kafka_operator_subscription_channel: alpha
 undeploy_knative: false
 
 namespace: "{{ namespace_knativeserving }}"
+
+knative_serving_name: sepsis-ks

@@ -1,0 +1,30 @@
+---
+version: "3.7"
+
+services:
+  primary:
+    hostname: 'primary'
+    image: registry.connect.redhat.com/crunchydata/crunchy-postgres:ubi8-15.1-0
+    environment:
+      PG_MODE: primary
+      PG_USER: sso
+      PG_PASSWORD: sso
+      PG_DATABASE: sso
+      PG_PRIMARY_USER: primaryuser
+      PG_PRIMARY_PORT: 5432
+      PG_PRIMARY_PASSWORD: password
+      PG_ROOT_PASSWORD: password
+      PGHOST: /tmp
+    volumes:
+    - primary-pgdata:/pgdata
+    ports:
+    - "5432"
+    networks:
+    - crunchynet
+
+networks:
+  crunchynet:
+    driver: bridge
+
+volumes:
+  primary-pgdata:

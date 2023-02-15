@@ -21,14 +21,6 @@
     subscription_starting_csv: "{{ sso_operator_subscription_starting_csv  }}"
     csv_prefix: "{{ sso_operator_csv_prefix }}"
 
-- name: "wait until sso operator is active in {{ namespace_sso }}"
-  kubernetes.core.k8s_info:
-    kind: Deployment
-    name: "{{ sso_operator_deployment_name }}"
-    namespace: "{{ namespace_sso }}"
-    wait_sleep: 10
-    wait_timeout: 360
-
 - name: "create keycloak custom resource"
   kubernetes.core.k8s:
     state: present
@@ -44,10 +36,12 @@
     namespace: "{{ namespace_sso }}"
     definition: "{{ lookup('template', 'templates/'+ keycloak_route_template) | from_yaml }} "
 
-- name: "wait until sso server database is active in {{ namespace_sso }}"
+- name: "wait until keycloak-postgresql is active in {{ namespace_sso }}"
   kubernetes.core.k8s_info:
     kind: Deployment
     name: "keycloak-postgresql"
     namespace: "{{ namespace_sso }}"
+    wait: yes
     wait_sleep: 10
     wait_timeout: 90
+

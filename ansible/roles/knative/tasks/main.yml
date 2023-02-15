@@ -30,8 +30,8 @@
     definition: "{{ lookup('template', 'templates/' + knative_serving_template) | from_yaml }}"
     namespace: "{{ namespace_knativeserving }}"
 
-- name: "wait until KnativeServing has started in {{ namespace_knativeserving }}"
-  shell: "{{ openshift_cli }} get KnativeServing knative-serving -o jsonpath='{.status.conditions[?(@.type == \"Ready\")].status}'  -n {{ namespace_knativeserving }}"
+- name: "wait until KnativeServing {{ knative_serving_name }} has started in {{ namespace_knativeserving }}"
+  shell: "{{ openshift_cli }} get KnativeServing {{ knative_serving_name }} -o jsonpath='{.status.conditions[?(@.type == \"Ready\")].status}'  -n {{ namespace_knativeserving }}"
   register: r_knativeserving
 # - debug:
 #     msg: "{{ r_knativeserving.stdout }}"
@@ -41,7 +41,4 @@
   - r_knativeserving.stdout | length > 0
   - r_knativeserving.stdout == 'True'
 
-- name: "test knative"
-  shell:  "{{ openshift_cli }} get kservice"
-  ignore_errors: true
 #####################################################################3

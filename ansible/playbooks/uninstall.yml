@@ -13,8 +13,9 @@
     - group_vars/sepsisdetection_rhpam.yml
   vars:
     ACTION: uninstall
-    undeploy_sso: 'true'
-    undeploy_knative: 'true'
+    undeploy_amq_operator: 'false'
+    undeploy_knative: 'false'
+    undeploy_sso: 'false'
     undeploy_fhir_db: 'true'
     undeploy_psql_bpm:  'true'
 

@@ -74,8 +74,8 @@ services:
       - default
 
 
-  psql_sso:
-    container_name: psql_sso
+  psql-sso:
+    container_name: psql-sso
 
     # https://github.com/sclorg/postgresql-container/blob/master/12/Dockerfile.rhel8
     image: registry.redhat.io/rhel8/postgresql-12:1-72.1626836556
@@ -94,48 +94,6 @@ services:
     - ./sso/db/sso-psql.conf:/opt/app-root/src/postgresql-cfg/sso-psql.conf:bind
     networks:
       - default
-
-  sso:
-    container_name: sso
-    image: quay.io/jbride/keycloak:17.0.0-2-psql
-    restart: always
-    ports:
-      - "4443:4443"
-      - "4080:4080"
-    command: [start-dev]
-    environment:
-
-      # Add the following entry in your /etc/hosts:  127.0.0.1  sso.local
-      KC_HOSTNAME: sso.local:4080
-
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_DB_URL: 'jdbc:postgresql://psql_sso:4432/sso'
-      KC_DB_USERNAME: sso
-      KC_DB_PASSWORD: sso
-      KC_HTTP_PORT: 4080
-      KC_HTTPS_PORT: 4443
-      JAVA_OPTS_APPEND: -Dkeycloak.migration.strategy=IGNORE_EXISTING -Dkeycloak.import=/opt/kie-realm.json
-    volumes:
-    - ./sso/kie-realm.json:/opt/kie-realm.json:bind
-    depends_on:
-      - psql_sso
-    networks:
-      - default
-
-  sepsis-ml:
-    container_name: sepsis-ml
-  
-    # NOTE:  The following  image is built using:    "kn func build -i <image-name>:<image-version>" 
-    #        More details can be found here: https://github.com/redhat-na-ssa/sepsis-detection/blob/master/serving/README.md
-    image: quay.io/redhat_naps_da/sepsis-detection:1.3
-
-    restart: always
-    ports:
-      - "5080:8080"
-    networks:
-      - default
-
 
   psql-fhir:
     container_name: psql-fhir
@@ -180,7 +138,7 @@ services:
 
   sepsis-risk:
     container_name: sepsis-risk
-    image: quay.io/redhat_naps_da/sepsisdetection-risk:0.0.4
+    image: quay.io/redhat_naps_da/sepsisdetection-risk:0.0.5
     restart: always
     ports:
       - "3080:3080"
@@ -190,89 +148,6 @@ services:
       - "hapi-fhir"
     networks:
       - default
-
-  sepsis-sse:
-    container_name: sepsis-sse
-    image: quay.io/redhat_naps_da/sepsisdetection-sse:0.0.3
-    restart: always
-    ports:
-      - "4199:4199"
-    volumes:
-    - ./sepsisdetection-sse/application.properties:/deployments/config/application.properties:bind
-    networks:
-      - default
-
-
-  psql-rhpam:
-    container_name: psql-rhpam
-
-    # https://github.com/sclorg/postgresql-container/blob/master/12/Dockerfile.rhel8
-    image: registry.redhat.io/rhel8/postgresql-12:1-72.1626836556
-
-    restart: always
-    ports:
-      - "6432:6432"
-    environment:
-      PGPORT: 6432
-      POSTGRESQL_USER: rhpam
-      POSTGRESQL_PASSWORD: rhpam
-      POSTGRESQL_DATABASE: rhpam
-      POSTGRESQL_MAX_PREPARED_TRANSACTIONS: 10
-      SCRIPT_DIR: /opt/sql
-    volumes:
-    - ./sepsisdetection-rhpam/db/rhpam-psql.conf:/opt/app-root/src/postgresql-cfg/rhpam-psql.conf:bind
-    - ./sepsisdetection-rhpam/db/ddl-scripts/postgresql/:/opt/sql:bind
-    - ./sepsisdetection-rhpam/db/create_rhpam_database.sh:/opt/app-root/src/postgresql-start/create_rhpam_database.sh:bind
-    networks:
-      - default
-
-#  dashbuilder:
-#    container_name: dashbuilder
-#    image: quay.io/redhat_naps_da/dashbuilder-rhpam-db:0.0.1
-#    restart: always
-#    ports:
-#      - "6080:6080"
-#    environment:
-#      JAVA_OPTIONS: "-Dquarkus.http.host=0.0.0.0 -Dquarkus.http.port=6080 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Ddashbuilder.runtime.multi=true -Ddashbuilder.datasources=jbpmdb -Ddashbuilder.datasource.jbpmdb.jdbcUrl=jdbc:postgresql://psql-rhpam:6432/rhpam -Ddashbuilder.datasource.jbpmdb.providerClassName=org.postgresql.Driver -Ddashbuilder.datasource.jbpmdb.maxSize=10 -Ddashbuilder.datasource.jbpmdb.principal=rhpam -Ddashbuilder.datasource.jbpmdb.credential=rhpam -Dquarkus.http.enable-compression=false -Ddashbuilder.import.base.dir=/opt/dashbuilder"
-#    depends_on:
-#      - psql-rhpam
-#    networks:
-#      - default
-
-  sepsisdetection-rhpam:
-    container_name: sepsis-rhpam
-    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.13
-    restart: always
-    ports:
-      - "9080:9080"
-    environment:
-      JAVA_MAX_MEM_RATIO: '60'
-      JAVA_INITIAL_MEM_RATIO: '0'
-      GC_MAX_METASPACE_SIZE: '500'
-      SPRING_CONFIG_LOCATION: "file:///deployments/config/application.properties"
-
-      # org.kie.server.repo        : dictates to kie-server where to find its KIE container configuration file
-      # kie.maven.settings.custom  : dictates to kie-server where to fine its artifact repo of KJars
-      JAVA_OPTS_APPEND: '-Dorg.kie.server.repo=/deployments/config -Dkie.maven.settings.custom=/m2/settings.xml'
-
-      # Optional: Change to URL of Nexus (if in use)
-      MAVEN_MIRROR_URL: ''
-
-    volumes:
-    - ./sepsisdetection-rhpam/runtime_configs:/deployments/config/:bind
-    depends_on:
-      - psql-rhpam
-    networks:
-      - default
-
-#  sepsis_ui:
-#    container_name: sepsis-ui
-#    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.15-sse
-#    restart: always
-#    ports:
-#      - "7080:7080"
-#    networks:
-#      - default
 
 networks:
   default:
