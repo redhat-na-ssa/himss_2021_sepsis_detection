@@ -30,3 +30,11 @@
     namespace: "{{ namespace }}"
     kind: ServiceAccount
 
+- name: delete {{ application_name }} ImageStream
+  kubernetes.core.k8s:
+    state: absent
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+    kind: ImageStream
+    api_version: image.openshift.io/v1
+

@@ -17,7 +17,7 @@
     definition: "{{ lookup('template', 'templates/' + kafdrop_application_template ) | from_yaml }}"
     namespace: "{{ namespace }}"
 
-- name: "wait until {{ application_name }} application is up and running"
+- name: "wait until {{ application_name }} application is up and running in {{ namespace }}"
   shell: "{{ openshift_cli }} get dc {{ application_name }} -o template --template={{ json_template }} -n {{ namespace }}"
   vars:
     json_template: '\{\{.status.readyReplicas\}\}'

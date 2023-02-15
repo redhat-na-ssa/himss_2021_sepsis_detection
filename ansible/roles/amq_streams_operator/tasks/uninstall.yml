@@ -9,11 +9,5 @@
     subscription_namespace: "{{ namespace_amq_streams_operator }}"
     subscription_name: "{{ amq_streams_operator_subscription_name }}"
     csv_prefix: "{{ amq_streams_operator_csv_prefix }}"
+  when: undeploy_amq_operator is defined and undeploy_amq_operator == "true"
 
-- name: "delete operatorgroup from {{ namespace_amq_streams_operator }} namespace"
-  import_role:
-    name: ../roles/operatorgroup
-    tasks_from: uninstall
-  vars:
-    operatorgroup_name: "{{ namespace_amq_streams_operator }}"
-    operatorgroup_namespace: "{{ namespace_amq_streams_operator }}"

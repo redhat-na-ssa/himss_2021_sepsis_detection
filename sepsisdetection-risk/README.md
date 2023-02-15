@@ -12,3 +12,5 @@ $ ./mvnw clean package \
     -Dquarkus.container-image.tag=0.0.4
 
 $ podman push quay.io/redhat_naps_da/sepsisdetection-risk:0.0.4
+
+$ oc kustomize src/main/kustomize/overlays/production/

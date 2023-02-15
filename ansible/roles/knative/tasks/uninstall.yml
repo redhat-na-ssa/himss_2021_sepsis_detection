@@ -5,7 +5,7 @@
     state: absent
     kind: KnativeServing
     namespace: "{{ namespace_knativeserving }}"
-    name: knative-serving
+    name: knative-ks
     api_version: operator.knative.dev/v1alpha1
   when: undeploy_knative is defined and undeploy_knative == "true"
 

@@ -8,3 +8,5 @@ dependencies:
       ACTION is none or
       ACTION|trim() == "" or
       ACTION|trim() == "install"
+    vars:
+      allow_duplicate_param: sso
