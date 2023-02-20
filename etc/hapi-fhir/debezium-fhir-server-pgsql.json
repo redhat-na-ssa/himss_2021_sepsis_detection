@@ -4,7 +4,7 @@
     "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
     "tasks.max": "1",
     "plugin.name": "pgoutput",
-    "database.hostname": "psql-fhir",  
+    "database.hostname": "rht",  
     "database.port": "5432",
     "database.user": "fhir",
     "database.password": "fhir",

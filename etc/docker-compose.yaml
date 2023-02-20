@@ -1,11 +1,17 @@
 version: '3.7'
 
 # NETWORKING README
-#   This docker compose assumes a networking architecture where all listed containers bind to the host.
-#   As such, the containers configured in this compose file all bind to different ports.
-#   You need to ensure your host is not already running processes that bind to ports used in this compose file.
-#   Also, this compose file assumes that the host (and subsequently all containers bound to it) is resolvable by the name:  sepsis.
-#   It's recommended that you add an entry with the name "sepsis" to your /etc/hosts 
+#   This docker compose assumes a networking architecture where: 
+#     1)  containers are not in the same pod
+#     2)  containers bind to the host and use the "port mapping" technique for deconfliction.
+#   The above assumptions occurs by default when running this docker-compose in rootless podman4 via the default slirp4netns network setup:
+#     https://github.com/containers/podman/blob/main/docs/tutorials/basic_networking.md#slirp4netns
+#
+#   As such, the containers created as per this compose file are configured to all bind to different ports on the host.
+#   You need to ensure your host is not already running processes that bind to ports specified in this docker-compose file.
+#   Also, this docker-compose file assumes that the host (and subsequently all containers bound to it) is resolvable by the name:  rht.
+#   To accomplish this, it is recommended that you add an entry with the name "rht" to your /etc/hosts.  ie:
+#       192.168.122.1     rht
 
 services:
 
@@ -13,7 +19,7 @@ services:
     container_name: ftools
     image: quay.io/jbride/ftools:0.0.3
     networks:
-      - sepsis-ml
+      - sepsis
 
   zookeeper:
     container_name: zookeeper
@@ -27,23 +33,24 @@ services:
     environment:
       LOG_DIR: /tmp/logs
     networks:
-      - sepsis-ml
+      - sepsis
 
 
-      # "bin/kafka-server-start.sh config/server.properties --override listeners=INSIDE://:9092,OUTSIDE://:9094 --override listener.security.protocol.map=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT --override advertised.listeners=INSIDE://:9092,OUTSIDE://localhost:9094 --override zookeeper.connect=sepsis:2181 --override inter.broker.listener.name=INSIDE"
-      
 # https://github.com/pubnub/kafka-bridge/blob/master/kafka/plain/docker-compose.yaml
 #   Allows for kafka client that is external to the container network (ie: on the host) to connect to this Kafka broker and consume messages
-#   NOTE: via this configuration, kafka is available to external clients on host at: "sepsis:9094"
+#   NOTE: via this configuration, kafka is available to external clients on host at: "rht:9094"
   kafka:
     container_name: kafka
     image: quay.io/strimzi/kafka:latest-kafka-3.1.2
     command: [
+
+      # Test using the following:
+      #   $ podman run -it --rm --entrypoint /bin/bash  quay.io/jbride/ftools:0.0.3 -c "kcat -b rht:9092 -L"
       "sh", "-c",
       "bin/kafka-server-start.sh config/server.properties \
-          --override zookeeper.connect=sepsis:2181 \
+          --override zookeeper.connect=rht:2181 \
           --override listeners=INSIDE://:9092,OUTSIDE://:9094 --override listener.security.protocol.map=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT \
-          --override advertised.listeners=INSIDE://sepsis:9092,OUTSIDE://sepsis:9094 \
+          --override advertised.listeners=INSIDE://rht:9092,OUTSIDE://rht:9094 \
           --override inter.broker.listener.name=INSIDE"
     ]
     depends_on:
@@ -54,7 +61,7 @@ services:
     environment:
       LOG_DIR: "/tmp/logs"
     networks:
-      - sepsis-ml
+      - sepsis
 
   kafka-connect:
     container_name: kafka-connect
@@ -70,13 +77,13 @@ services:
     ports:
       - "8083:8083"
     environment:
-      BOOTSTRAP_SERVERS: sepsis:9092
+      BOOTSTRAP_SERVERS: rht:9092
       GROUP_ID: 1
       CONFIG_STORAGE_TOPIC: my_connect_configs
       OFFSET_STORAGE_TOPIC: my_connect_offsets
       STATUS_STORAGE_TOPIC: my_connect_statuses
     networks:
-      - sepsis-ml
+      - sepsis
 
   kafdrop:
     container_name: kafdrop
@@ -85,13 +92,13 @@ services:
     ports:
       - "9000:9000"
     environment:
-      KAFKA_BROKERCONNECT: "sepsis:9092"
+      KAFKA_BROKERCONNECT: "rht:9092"
       JVM_OPTS: "-Xms32M -Xmx64M"
       SERVER_SERVLET_CONTEXTPATH: "/"
     depends_on:
       - kafka
     networks:
-      - sepsis-ml
+      - sepsis
 
 
   psql-sso:
@@ -113,7 +120,7 @@ services:
     volumes:
     - ./sso/db/sso-psql.conf:/opt/app-root/src/postgresql-cfg/sso-psql.conf:bind
     networks:
-      - sepsis-ml
+      - sepsis
 
   openldap:
     container_name: openldap
@@ -126,7 +133,7 @@ services:
     volumes:
     - ./openldap/ldap-example-users-2.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/ldap-example-users-2.ldif:bind
     networks:
-      - sepsis-ml
+      - sepsis
 
   kc-sso:
     container_name: kc-sso
@@ -161,7 +168,7 @@ services:
 
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_DB_URL: 'jdbc:postgresql://sepsis:4432/sso'
+      KC_DB_URL: 'jdbc:postgresql://rht:4432/sso'
       KC_DB_USERNAME: sso
       KC_DB_PASSWORD: sso
 
@@ -179,7 +186,7 @@ services:
     volumes:
       - ./sso/realm.json:/opt/realm.json:bind
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://kc-sso:4080/realms/kc-demo/.well-known/openid-configuration"]
+      test: ["CMD", "curl", "-f", "http://sso.local:4080/realms/kc-demo/.well-known/openid-configuration"]
       interval: 20s
       timeout: 5s
       retries: 5
@@ -187,7 +194,7 @@ services:
       - psql-sso
       - openldap
     networks:
-      - sepsis-ml 
+      - sepsis 
 
   sepsis-ml:
     container_name: sepsis-ml
@@ -200,7 +207,7 @@ services:
     ports:
       - "5080:8080"
     networks:
-      - sepsis-ml
+      - sepsis
 
   psql-fhir:
     container_name: psql-fhir
@@ -220,7 +227,7 @@ services:
     - ./hapi-fhir/hapi-psql-wal.conf:/opt/app-root/src/postgresql-cfg/hapi-psql-wal.conf:bind
     - ./hapi-fhir/hapi-psql-wal.sh:/opt/app-root/src/postgresql-start/hapi-psql-wal.sh:bind
     networks:
-      - sepsis-ml
+      - sepsis
 
   hapi-fhir:
     container_name: hapi-fhir
@@ -241,7 +248,7 @@ services:
     depends_on:
       - "psql-fhir"
     networks:
-      - sepsis-ml
+      - sepsis
 
   sepsis-risk:
     container_name: sepsis-risk
@@ -254,7 +261,7 @@ services:
     depends_on:
       - "hapi-fhir"
     networks:
-      - sepsis-ml
+      - sepsis
 
 
   sepsis-sse:
@@ -266,7 +273,7 @@ services:
     volumes:
     - ./sepsisdetection-sse/application.properties:/deployments/config/application.properties:bind
     networks:
-      - sepsis-ml
+      - sepsis
 
   psql-rhpam:
     container_name: psql-rhpam
@@ -291,7 +298,7 @@ services:
     depends_on:
       - kafka
     networks:
-      - sepsis-ml
+      - sepsis
 
 #  dashbuilder:
 #    container_name: dashbuilder
@@ -300,11 +307,11 @@ services:
 #    ports:
 #      - "6080:6080"
 #    environment:
-#      JAVA_OPTIONS: "-Dquarkus.http.host=0.0.0.0 -Dquarkus.http.port=6080 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Ddashbuilder.runtime.multi=true -Ddashbuilder.datasources=jbpmdb -Ddashbuilder.datasource.jbpmdb.jdbcUrl=jdbc:postgresql://sepsis:6432/rhpam -Ddashbuilder.datasource.jbpmdb.providerClassName=org.postgresql.Driver -Ddashbuilder.datasource.jbpmdb.maxSize=10 -Ddashbuilder.datasource.jbpmdb.principal=rhpam -Ddashbuilder.datasource.jbpmdb.credential=rhpam -Dquarkus.http.enable-compression=false -Ddashbuilder.import.base.dir=/opt/dashbuilder"
+#      JAVA_OPTIONS: "-Dquarkus.http.host=0.0.0.0 -Dquarkus.http.port=6080 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Ddashbuilder.runtime.multi=true -Ddashbuilder.datasources=jbpmdb -Ddashbuilder.datasource.jbpmdb.jdbcUrl=jdbc:postgresql://rht:6432/rhpam -Ddashbuilder.datasource.jbpmdb.providerClassName=org.postgresql.Driver -Ddashbuilder.datasource.jbpmdb.maxSize=10 -Ddashbuilder.datasource.jbpmdb.principal=rhpam -Ddashbuilder.datasource.jbpmdb.credential=rhpam -Dquarkus.http.enable-compression=false -Ddashbuilder.import.base.dir=/opt/dashbuilder"
 #    depends_on:
 #      - psql-rhpam
 #    networks:
-#      - sepsis-ml
+#      - sepsis
 
   sepsisdetection-rhpam:
     container_name: sepsis-rhpam
@@ -319,7 +326,7 @@ services:
       SPRING_CONFIG_LOCATION: "file:///deployments/config/application.properties"
 
       # org.kie.server.repo        : dictates to kie-server where to find its KIE container configuration file
-      # kie.maven.settings.custom  : dictates to kie-server where to fine its artifact repo of KJars
+      # kie.maven.settings.custom  : dictates to kie-server where to find its artifact repo of KJars
       JAVA_OPTS_APPEND: '-Dorg.kie.server.repo=/deployments/config -Dkie.maven.settings.custom=/m2/settings.xml'
 
       # Optional: Change to URL of Nexus (if in use)
@@ -330,17 +337,18 @@ services:
     depends_on:
       - psql-rhpam
     networks:
-      - sepsis-ml
+      - sepsis
 
-#  sepsis_ui:
-#    container_name: sepsis-ui
-#    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.15-sse
-#    restart: always
-#    ports:
-#      - "7080:7080"
-#    networks:
-#      - default
+  sepsis_ui:
+    container_name: sepsis-ui
+    image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.15-sse
+    restart: always
+    ports:
+      - "7080:7080"
+    networks:
+      - sepsis
 
 networks:
-  sepsis-ml:
+  sepsis:
+    name: sepsis
     driver: bridge

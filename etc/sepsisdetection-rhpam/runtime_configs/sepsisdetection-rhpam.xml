@@ -4,7 +4,7 @@
     <configItems>
       <config-item>
         <name>org.kie.server.location</name>
-        <value>http://localhost:9080/rest/server</value>
+        <value>http://rht:9080/rest/server</value>
         <type>java.lang.String</type>
       </config-item>
       <config-item>
