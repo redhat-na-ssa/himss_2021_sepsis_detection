@@ -13,6 +13,7 @@ public class FHIRUtil {
     public static final String WORK_ITEM_NAME = "workItemName";
     public static final String PATIENT_VITALS = "PatientVitals";
 
+    // Observation options:  https://www.hl7.org/fhir/valueset-observation-category.html
     public static final String TEMP_CODE_STRING = "Body temperature";
     public static final String BLOOD_PRESSURE_STRING = "Blood pressure panel with all children optional";
     public static final String SBP_CODE_STRING = "Systolic blood pressure";

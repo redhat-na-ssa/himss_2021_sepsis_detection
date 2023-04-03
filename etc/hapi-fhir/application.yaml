@@ -14,7 +14,7 @@ spring:
     check-location: false
     baselineOnMigrate: true
   datasource:
-    url: 'jdbc:postgresql://psql-fhir:5432/fhir'
+    url: 'jdbc:postgresql://rht:5432/fhir'
     username: fhir
     password: fhir
     driverClassName: org.postgresql.Driver

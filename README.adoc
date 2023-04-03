@@ -504,7 +504,7 @@ Set the following environment variables with values similar to the following:
 export RHSSO_HOST=sso.local
 export RHSSO_URL=http://$RHSSO_HOST:4080
 export RHSSO_MASTER_PASSWD=admin
-export REALM_ID=kieRealm
+export REALM_ID=kc-demo
 export retrieve_token_url="$RHSSO_URL/realms/$REALM_ID/protocol/openid-connect/token"
 export SEPSISDETECTION_RHPAM_URL=http://localhost:9080
 export FHIR_SERVER_URL=http://localhost:8080
