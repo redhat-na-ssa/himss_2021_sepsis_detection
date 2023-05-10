@@ -53,6 +53,8 @@
     <modules>
         <module>sepsisdetection-kjar</module>
         <module>sepsisdetection-rhpam</module>
+        <module>sepsisdetection-risk</module>
+        <module>sepsisdetection-sse</module>
   </modules>
 
   <profiles>
