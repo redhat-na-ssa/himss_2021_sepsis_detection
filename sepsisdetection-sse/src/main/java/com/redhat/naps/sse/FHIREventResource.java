@@ -1,33 +1,37 @@
 package com.redhat.naps.sse;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import io.smallrye.mutiny.Multi;
 
 import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.jboss.resteasy.annotations.SseElementType;
-import org.reactivestreams.Publisher;
+import org.jboss.logging.Logger;
+import org.jboss.resteasy.reactive.RestStreamElementType;
 
 @Path("sse")
 @ApplicationScoped
 public class FHIREventResource {
 
-    @Inject
-    @Channel(Util.RAW_FHIR_EVENT_STREAM) Publisher<String> rawFhirEvents;
+    Logger log = Logger.getLogger("FHIREventResource");
 
-    @Inject
-    @Channel(Util.RISK_ASSESSMENT_CHANNEL) Publisher<String> riskAssessEvents;
+    @Channel(Util.RAW_FHIR_EVENT_STREAM) 
+    Multi<String> rawFhirEvents;
+
+    @Channel(Util.RISK_ASSESSMENT_CHANNEL) 
+    Multi<String> riskAssessEvents;
 
 
     // Test:   curl -N http://localhost:4199/sse/event/fhir/raw
     @GET
     @Path("/event/fhir/raw")
     @Produces(MediaType.SERVER_SENT_EVENTS)
-    @SseElementType("text/plain")
-    public Publisher<String> rawEventStream() {
+    @RestStreamElementType(MediaType.TEXT_PLAIN)
+    public Multi<String> rawEventStream() {
+        log.info("rawEventStream()");
         return rawFhirEvents;
     }
 
@@ -35,8 +39,9 @@ public class FHIREventResource {
     @GET
     @Path("/event/fhir/riskAsses")
     @Produces(MediaType.SERVER_SENT_EVENTS)
-    @SseElementType("text/plain")
-    public Publisher<String> riskAssessEventStream() {
+    @RestStreamElementType(MediaType.TEXT_PLAIN)
+    public Multi<String> riskAssessEventStream() {
+        log.info("riskAssessEventStream()");
         return riskAssessEvents;
     }
 

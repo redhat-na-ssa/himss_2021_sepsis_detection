@@ -23,7 +23,7 @@ services:
 
   zookeeper:
     container_name: zookeeper
-    image: quay.io/strimzi/kafka:latest-kafka-3.1.2
+    image: registry.redhat.io/amq7/amq-streams-kafka-33-rhel8@sha256:4db51b59b7a0e78a85cb7456aea6d897cca06291d7d8ddbaf5af0b198bbb733c
     command: [
       "sh", "-c",
       "bin/zookeeper-server-start.sh config/zookeeper.properties"
@@ -41,7 +41,7 @@ services:
 #   NOTE: via this configuration, kafka is available to external clients on host at: "rht:9094"
   kafka:
     container_name: kafka
-    image: quay.io/strimzi/kafka:latest-kafka-3.1.2
+    image: registry.redhat.io/amq7/amq-streams-kafka-33-rhel8@sha256:4db51b59b7a0e78a85cb7456aea6d897cca06291d7d8ddbaf5af0b198bbb733c
     command: [
 
       # Test using the following:
@@ -266,7 +266,7 @@ services:
 
   sepsis-sse:
     container_name: sepsis-sse
-    image: quay.io/redhat_naps_da/sepsisdetection-sse:0.0.3
+    image: quay.io/redhat_naps_da/sepsisdetection-sse:0.0.5
     restart: always
     ports:
       - "4199:4199"
@@ -302,7 +302,7 @@ services:
 
 #  dashbuilder:
 #    container_name: dashbuilder
-#    image: quay.io/redhat_naps_da/dashbuilder-rhpam-db:0.0.1
+#    image: quay.io/redhat_naps_da/dashbuilder-rhpam-db:0.0.2
 #    restart: always
 #    ports:
 #      - "6080:6080"
@@ -315,7 +315,7 @@ services:
 
   sepsisdetection-rhpam:
     container_name: sepsis-rhpam
-    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.13
+    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.14
     restart: always
     ports:
       - "9080:9080"

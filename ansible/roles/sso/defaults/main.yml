@@ -5,7 +5,7 @@ sso_operator_subscription_template: subscription.yml
 sso_operator_packagemanifest: rhsso-operator
 sso_operator_deployment_name: rhsso-operator
 sso_operator_subscription_name: rhsso-operator
-sso_operator_subscription_channel: alpha
+sso_operator_subscription_channel: stable
 sso_operator_subscription_automatic_installplan_approval: false
 sso_operator_subscription_starting_csv: ""
 sso_operator_csv_prefix: rhsso-operator

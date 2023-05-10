@@ -24,6 +24,8 @@ kafka_replicas: 3
 # persistent, ephemeral
 kafka_storage_type: persistent
 kafka_volume_capacity: 5Gi
+
+kafka_default_replication_factor: 3
 kafka_offsets_topic_replication_factor: 3
 kafka_transaction_state_log_replication_factor: 3
 transaction_state_log_min_isr: 2

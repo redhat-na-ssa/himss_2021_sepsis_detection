@@ -51,6 +51,8 @@ items:
       spec:
         containers:
           - env:
+            - name: MAVEN_MIRROR_URL
+              value: "{{ nexus_mirror }}"
             - name: JAVA_OPTIONS
               value: "-Dquarkus.http.host=0.0.0.0 -Dquarkus.http.port=8080 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Ddashbuilder.runtime.multi=true -Ddashbuilder.datasources=jbpmdb -Ddashbuilder.datasource.jbpmdb.jdbcUrl=jdbc:postgresql://{{ rhpam_psql_app_name }}:5432/{{ rhpam_psql_db_name }} -Ddashbuilder.datasource.jbpmdb.providerClassName=org.postgresql.Driver -Ddashbuilder.datasource.jbpmdb.maxSize=10 -Ddashbuilder.datasource.jbpmdb.principal={{ rhpam_psql_user_name }} -Ddashbuilder.datasource.jbpmdb.credential={{ rhpam_psql_passwd }} -Dquarkus.http.enable-compression=false -Ddashbuilder.import.base.dir=/opt/dashbuilder"
             imagePullPolicy: IfNotPresent

@@ -62,10 +62,6 @@ items:
                 -Dvertx.metrics.options.enabled=true -Dvertx.metrics.options.registryName=prometheus
             - name: AB_JOLOKIA_OFF
               value: 'true'
-            - name: APP_CONFIGMAP_NAME
-              value: {{ application_configmap }}
-            - name: APP_CONFIGMAP_KEY
-              value: {{ application_configmap_key }}
             imagePullPolicy: IfNotPresent
             name: {{ application_name }}
             ports:

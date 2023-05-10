@@ -158,6 +158,7 @@ spec:
           quantile: "0.$4"
 {% endif %}
     config:
+      default.replication.factor: {{ kafka_default_replication_factor }}
       offsets.topic.replication.factor: {{ kafka_offsets_topic_replication_factor }}
       transaction.state.log.replication.factor: {{ kafka_transaction_state_log_replication_factor }}
       transaction.state.log.min.isr: {{ transaction_state_log_min_isr }}
