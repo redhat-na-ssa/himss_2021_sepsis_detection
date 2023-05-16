@@ -10,15 +10,15 @@
   },
   "spec" : {
     "ports" : [ {
-      "name" : "http",
-      "port" : 80,
-      "protocol" : "TCP",
-      "targetPort" : 8080
-    }, {
       "name" : "https",
       "port" : 443,
       "protocol" : "TCP",
       "targetPort" : 8443
+    }, {
+      "name" : "http",
+      "port" : 8080,
+      "protocol" : "TCP",
+      "targetPort" : 8080
     } ],
     "selector" : {
       "app.kubernetes.io/name" : "sepsisdetection-sse"
@@ -58,6 +58,9 @@
                 "fieldPath" : "metadata.namespace"
               }
             }
+          }, {
+            "name" : "JAVA_OPTIONS",
+            "value" : "-Dvertx.metrics.options.enabled=true -Dvertx.metrics.options.registryName=prometheus"
           } ],
           "image" : "quay.io/redhat_naps_da/sepsisdetection-sse:0.0.5",
           "imagePullPolicy" : "Always",
@@ -75,12 +78,12 @@
           },
           "name" : "sepsisdetection-sse",
           "ports" : [ {
-            "containerPort" : 8443,
-            "name" : "https",
-            "protocol" : "TCP"
-          }, {
             "containerPort" : 8080,
             "name" : "http",
+            "protocol" : "TCP"
+          }, {
+            "containerPort" : 8443,
+            "name" : "https",
             "protocol" : "TCP"
           } ],
           "readinessProbe" : {
@@ -95,6 +98,16 @@
             "successThreshold" : 1,
             "timeoutSeconds" : 10
           },
+          "resources" : {
+            "limits" : {
+              "cpu" : "1000m",
+              "memory" : "1024Mi"
+            },
+            "requests" : {
+              "cpu" : "100m",
+              "memory" : "128Mi"
+            }
+          },
           "startupProbe" : {
             "failureThreshold" : 3,
             "httpGet" : {
@@ -106,7 +119,30 @@
             "periodSeconds" : 10,
             "successThreshold" : 1,
             "timeoutSeconds" : 10
-          }
+          },
+          "volumeMounts" : [ {
+            "mountPath" : "/deployments/config",
+            "name" : "config",
+            "readOnly" : false
+          } ]
+        } ],
+        "initContainers" : [ {
+          "args" : [ "pod", "strimzi.io/name=kafka-connect-connect" ],
+          "image" : "groundnuty/k8s-wait-for:no-root-v1.7",
+          "imagePullPolicy" : "IfNotPresent",
+          "name" : "check-kafka"
+        } ],
+        "volumes" : [ {
+          "configMap" : {
+            "defaultMode" : 420,
+            "items" : [ {
+              "key" : "application.properties",
+              "path" : "application.properties"
+            } ],
+            "name" : "sepsisdetection-sse",
+            "optional" : false
+          },
+          "name" : "config"
         } ]
       }
     }
