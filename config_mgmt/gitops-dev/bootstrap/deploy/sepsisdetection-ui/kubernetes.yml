@@ -1,0 +1,112 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/name: sepsisdetection-ui
+    app.kubernetes.io/managed-by: quarkus
+  name: sepsisdetection-ui
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: sepsisdetection-ui-view
+roleRef:
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+  name: view
+subjects:
+  - kind: ServiceAccount
+    name: sepsisdetection-ui
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sepsisdetection-ui
+  labels:
+    app.kubernetes.io/name: sepsisdetection-ui
+spec:
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 7080
+  selector:
+    group: sepsisdetection
+    app: sepsisdetection-ui
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: sepsisdetection-ui
+  name: sepsisdetection-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      group: sepsisdetection
+      app: sepsisdetection-ui
+  template:
+    metadata:
+      labels:
+        group: sepsisdetection
+        app: sepsisdetection-ui
+    spec:
+      containers:
+        - image: quay.io/redhat_naps_da/sepsisdetection-ui:0.0.20-sse
+          name: sepsisdetection-ui
+          ports:
+          - containerPort: 7080
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 7080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 3
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 7080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 3
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          volumeMounts:
+          - name: env
+            mountPath: /opt/app-root/src/assets/js/env.js
+            subPath: env.js
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      initContainers:
+        - args:
+            - pod
+            - -lapp=fhir-server
+          image: groundnuty/k8s-wait-for:no-root-v1.7
+          imagePullPolicy: IfNotPresent
+          name: check-fhir-server
+        - args:
+            - pod
+            - -lapp.kubernetes.io/name=sepsisdetection-sse
+          image: groundnuty/k8s-wait-for:no-root-v1.7
+          imagePullPolicy: IfNotPresent
+          name: check-sse
+      serviceAccount: sepsisdetection-ui
+      serviceAccountName: sepsisdetection-ui
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          name: sepsisdetection-ui
+        name: env

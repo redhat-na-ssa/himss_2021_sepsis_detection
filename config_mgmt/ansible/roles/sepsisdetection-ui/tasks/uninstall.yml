@@ -44,3 +44,4 @@
     name: "{{ application_name }}"
     namespace: "{{ namespace }}"
     kind: configmap
+  when: delete_sepsisdetection_ui_cm|bool is true

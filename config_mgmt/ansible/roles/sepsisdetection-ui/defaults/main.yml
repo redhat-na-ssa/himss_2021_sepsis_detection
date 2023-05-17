@@ -11,3 +11,5 @@ binary_imagestream_template: binary-imagestream.yml
 application_properties: application.properties
 application_configmap: "{{ application_name }}"
 application_configmap_key: "{{ application_properties }}"
+
+delete_sepsisdetection_ui_cm: false

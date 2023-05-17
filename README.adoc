@@ -419,7 +419,7 @@ $ git clone https://github.com/redhat-naps-da/himss_2021_sepsis_detection
 . Change to the ansible directory of this project:
 +
 -----
-$ cd ansible
+$ cd config_mgmt/ansible
 -----
 
 . Deploy to OpenShift:
