@@ -1,5 +1,30 @@
 [{
   "apiVersion" : "v1",
+  "kind" : "ServiceAccount",
+  "metadata" : {
+    "labels" : {
+      "app.kubernetes.io/name" : "sepsisdetection-risk",
+      "app.kubernetes.io/managed-by" : "quarkus"
+    },
+    "name" : "sepsisdetection-risk"
+  }
+},{
+  "apiVersion" : "rbac.authorization.k8s.io/v1",
+  "kind" : "RoleBinding",
+  "metadata" : {
+    "name" : "sepsisdetection-risk-view"
+  },
+  "roleRef" : {
+    "kind" : "ClusterRole",
+    "apiGroup" : "rbac.authorization.k8s.io",
+    "name" : "view"
+  },
+  "subjects" : [ {
+    "kind" : "ServiceAccount",
+    "name" : "sepsisdetection-risk"
+  } ]
+},{
+  "apiVersion" : "v1",
   "kind" : "Service",
   "metadata" : {
     "labels" : {
@@ -127,16 +152,17 @@
           } ]
         } ],
         "initContainers" : [ {
-          "args" : [ "pod", "strimzi.io/name=kafka-connect-connect" ],
+          "args" : [ "pod", "-lstrimzi.io/name=kafka-connect-connect" ],
           "image" : "groundnuty/k8s-wait-for:no-root-v1.7",
           "imagePullPolicy" : "IfNotPresent",
           "name" : "check-kafka"
         }, {
-          "args" : [ "pod", "app=fhir-server" ],
+          "args" : [ "pod", "-lapp=fhir-server" ],
           "image" : "groundnuty/k8s-wait-for:no-root-v1.7",
           "imagePullPolicy" : "IfNotPresent",
           "name" : "check-fhir-server"
         } ],
+        "serviceAccountName" : "sepsisdetection-risk",
         "volumes" : [ {
           "configMap" : {
             "defaultMode" : 420,

@@ -36,3 +36,18 @@
     name: "{{ application_configmap }}"
     namespace: "{{ namespace }}"
     kind: ConfigMap
+
+- name: "delete sa {{ application_name }}"
+  kubernetes.core.k8s:
+    state: absent
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+    kind: ServiceAccount
+
+- name: "delete RoleBinding {{ application_name }}"
+  kubernetes.core.k8s:
+    state: absent
+    name: "{{ application_name }}"
+    namespace: "{{ namespace }}"
+    api_version: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
