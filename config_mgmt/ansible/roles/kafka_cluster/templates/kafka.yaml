@@ -15,6 +15,13 @@ spec:
         port: 9093
         type: internal
         tls: true
+
+      # https://access.redhat.com/documentation/en-us/red_hat_amq/2021.q3/html/using_amq_streams_on_openshift/assembly-configuring-external-listeners-str#proc-accessing-kafka-using-routes-str
+      - name: external
+        port: 9094
+        type: route
+        tls: true
+
     resources:
       requests:
         cpu: '{{ kafka_requests_cpu }}'
