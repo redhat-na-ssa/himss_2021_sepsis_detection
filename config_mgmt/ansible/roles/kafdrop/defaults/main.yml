@@ -2,7 +2,7 @@
 
 application_name: "kafdrop"
 
-image_name: "docker.io/obsidiandynamics/kafdrop"
+image_name: "quay.io/redhat_naps_da/kafdrop"
 image_tag: 3.30.0
 
 kafdrop_application_template: kafdropservice.yml

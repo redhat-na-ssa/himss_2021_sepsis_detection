@@ -18,7 +18,7 @@ project_name: "{{ project_admin }}-sepsisdetection"
 
 
 # Namespace where SSO will be installed
-namespace_sso: sepsisdetection-sso
+namespace_sso: "redhat-rhoam-rhsso"
 
 sso_siteadmin_password: r3dh4t1!
 
