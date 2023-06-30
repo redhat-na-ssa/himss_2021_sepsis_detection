@@ -4,6 +4,6 @@ amq_streams_operator_packagemanifest: amq-streams
 amq_streams_operator_subscription_name: amq-streams
 amq_streams_operator_subscription_channel: stable
 amq_streams_operator_subscription_automatic_installplan_approval: false
-amq_streams_subscription_starting_csv: "amqstreams.v2.3.0-1"
+amq_streams_subscription_starting_csv: "amqstreams.v2.4.0-0"
 amq_streams_operator_csv_prefix: amqstreams
 amq_streams_operator_deployment: amq-streams-cluster-operator

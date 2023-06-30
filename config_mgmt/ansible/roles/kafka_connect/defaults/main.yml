@@ -1,6 +1,6 @@
 ---
 
-kafka_connect_version: "3.1.0"
+kafka_connect_version: "3.4.0"
 kafka_connect_replicas: 1
 
 kafka_connect_template: kafka-connect.yml
