@@ -5,97 +5,110 @@
 #   NOTE: operatorhub.io maintains a populated Subscription.operators.coreos.com for each operator
 #         oc apply -f <subscription file> is executed to deploy the operator
 
-- name: "get packagemanifest for {{ operator_name }} operator"
-  kubernetes.core.k8s_info:
-    kind: packagemanifest
-    namespace: openshift-marketplace
-    name: "{{ packagemanifest }}"
-    api_version: packages.operators.coreos.com/v1
-  register: r_packagemanifest
-- fail:
-    msg: "PROBLEM: no packagemanifests in openshift-marketplace namespace! "
-  when: r_packagemanifest.resources[0] is not defined 
-#- debug:
-#    msg: "{{ r_packagemanifest.resources[] }}"
+- name: "determine existence of csv with prefix {{ csv_prefix }} in {{ subscription_namespace }}"
+  shell: "{{ openshift_cli }} get csv -n {{ subscription_namespace }} -o jsonpath='{range .items[*]}{.metadata.name} '"
+  register: csv_l
+- debug:
+    msg: "csv_l = {{ csv_l.stdout }}"
 
-- name: "set facts for {{ operator_name }} operator"
-  set_fact:
-    subscription_package_name: "{{ r_packagemanifest.resources[0].status.packageName }}"
-    subscription_catalog_source: "{{ r_packagemanifest.resources[0].status.catalogSource }}"
-    subscription_catalog_source_namespace: "{{ r_packagemanifest.resources[0].status.catalogSourceNamespace }}"
+- name: install operator
+  when: >
+    csv_l.stdout is not defined or
+    csv_l.stdout is none or
+    csv_l.stdout is not search( csv_prefix )
+  block:  
 
-- name: "determine channel for {{ operator_name }} operator if no channel specified"
-  when: subscription_channel | default("") | length == 0
-  set_fact:
-    subscription_channel: "{{ r_packagemanifest.resources[0].status.defaultChannel }}"
-
-- name: "print channel to be installed"
-  debug:
-    msg: "{{ operator_name }} operator channel to be installed: {{ subscription_channel }}"
-
-- name: "create subscription for {{ operator_name }} operator in {{ subscription_namespace }} namespace"
-  k8s:
-    state: present
-    namespace: "{{ subscription_namespace }}"
-    name: "{{ subscription_name }}"
-    definition: "{{ lookup('template', 'templates/subscription.yml') | from_yaml }}"
-
-
-- name: "wait until installplan with prefix {{ csv_prefix }} is created in {{ subscription_namespace }}"
-  kubernetes.core.k8s_info:
-    kind: InstallPlan
-    namespace: "{{ subscription_namespace }}"
-    api_version: operators.coreos.com/v1alpha1
-  register: r_install_plan
-  retries: 20
-  delay: 5
-  until:
-    - r_install_plan.resources | length > 0
-    - r_install_plan.resources | length > 0
-    - r_install_plan.resources | to_json | from_json | json_query(iplanquery) | d(False)
-  vars:
-    iplanquery: "[?contains(spec.clusterServiceVersionNames[0], '{{ csv_prefix }}')] | [0].metadata.name"
-
-- name: "debug install plans"
-  kubernetes.core.k8s_info:
-    kind: InstallPlan
-    namespace: "{{ subscription_namespace }}"
-    api_version: operators.coreos.com/v1alpha1
-  register: d_install_plans
-#- name: "Copy list of installplans to /tmp/iplans.json"
-#  copy:
-#    content: "{{ d_install_plans.resources | to_json | from_json }}" 
-#    dest: /tmp/iplans.json
-
-
-- set_fact:
-    installplan: "{{ d_install_plans.resources | to_json | from_json | json_query(iplanquery) }}"
-  vars:
-    iplanquery: "[?contains(spec.clusterServiceVersionNames[0], '{{ csv_prefix }}')] | [0]"
-#- copy:
-#    content: "{{ installplan }}" 
-#    dest: /tmp/iplan.json
-
-- set_fact:
-    install_plan_name: "{{ installplan.metadata.name }}"
-    csv_name: "{{ installplan.spec.clusterServiceVersionNames[0] }}"
-
-- name: "approve installplan {{ install_plan_name }}"
-  shell: |
-    {{ openshift_cli }} patch installplan {{ install_plan_name }} --type='merge' -p '{"spec":{"approved":true}}' -n {{ subscription_namespace }}
-  when: not automatic_installplan_approval
-
-- name: "wait until csv {{ csv_name }} is active in {{ subscription_namespace }}"
-  kubernetes.core.k8s_info:
-    kind: ClusterServiceVersion
-    name: "{{ csv_name }}"
-    namespace: "{{ subscription_namespace }}"
-    api_version: operators.coreos.com/v1alpha1
-  register: r_csv
-  retries: 30
-  delay: 5
-  until:
-    - r_csv.resources | length > 0
-    - r_csv.resources[0] | length > 0
-    - r_csv.resources[0].status is defined
-    - r_csv.resources[0].status.phase == "Succeeded"
+  - name: "get packagemanifest for {{ operator_name }} operator"
+    kubernetes.core.k8s_info:
+      kind: packagemanifest
+      namespace: openshift-marketplace
+      name: "{{ packagemanifest }}"
+      api_version: packages.operators.coreos.com/v1
+    register: r_packagemanifest
+  - fail:
+      msg: "PROBLEM: no packagemanifests in openshift-marketplace namespace! "
+    when: r_packagemanifest.resources[0] is not defined 
+  #- debug:
+  #    msg: "{{ r_packagemanifest.resources[] }}"
+  
+  - name: "set facts for {{ operator_name }} operator"
+    set_fact:
+      subscription_package_name: "{{ r_packagemanifest.resources[0].status.packageName }}"
+      subscription_catalog_source: "{{ r_packagemanifest.resources[0].status.catalogSource }}"
+      subscription_catalog_source_namespace: "{{ r_packagemanifest.resources[0].status.catalogSourceNamespace }}"
+  
+  - name: "determine channel for {{ operator_name }} operator if no channel specified"
+    when: subscription_channel | default("") | length == 0
+    set_fact:
+      subscription_channel: "{{ r_packagemanifest.resources[0].status.defaultChannel }}"
+  
+  - name: "print channel to be installed"
+    debug:
+      msg: "{{ operator_name }} operator channel to be installed: {{ subscription_channel }}"
+  
+  - name: "create subscription for {{ operator_name }} operator in {{ subscription_namespace }} namespace"
+    k8s:
+      state: present
+      namespace: "{{ subscription_namespace }}"
+      name: "{{ subscription_name }}"
+      definition: "{{ lookup('template', 'templates/subscription.yml') | from_yaml }}"
+  
+  
+  - name: "wait until installplan with prefix {{ csv_prefix }} is created in {{ subscription_namespace }}"
+    kubernetes.core.k8s_info:
+      kind: InstallPlan
+      namespace: "{{ subscription_namespace }}"
+      api_version: operators.coreos.com/v1alpha1
+    register: r_install_plan
+    retries: 20
+    delay: 5
+    until:
+      - r_install_plan.resources | length > 0
+      - r_install_plan.resources | length > 0
+      - r_install_plan.resources | to_json | from_json | json_query(iplanquery) | d(False)
+    vars:
+      iplanquery: "[?contains(spec.clusterServiceVersionNames[0], '{{ csv_prefix }}')] | [0].metadata.name"
+  
+  - name: "debug install plans"
+    kubernetes.core.k8s_info:
+      kind: InstallPlan
+      namespace: "{{ subscription_namespace }}"
+      api_version: operators.coreos.com/v1alpha1
+    register: d_install_plans
+  #- name: "Copy list of installplans to /tmp/iplans.json"
+  #  copy:
+  #    content: "{{ d_install_plans.resources | to_json | from_json }}" 
+  #    dest: /tmp/iplans.json
+  
+  
+  - set_fact:
+      installplan: "{{ d_install_plans.resources | to_json | from_json | json_query(iplanquery) }}"
+    vars:
+      iplanquery: "[?contains(spec.clusterServiceVersionNames[0], '{{ csv_prefix }}')] | [0]"
+  #- copy:
+  #    content: "{{ installplan }}" 
+  #    dest: /tmp/iplan.json
+  
+  - set_fact:
+      install_plan_name: "{{ installplan.metadata.name }}"
+      csv_name: "{{ installplan.spec.clusterServiceVersionNames[0] }}"
+  
+  - name: "approve installplan {{ install_plan_name }}"
+    shell: |
+      {{ openshift_cli }} patch installplan {{ install_plan_name }} --type='merge' -p '{"spec":{"approved":true}}' -n {{ subscription_namespace }}
+    when: not automatic_installplan_approval
+  
+  - name: "wait until csv {{ csv_name }} is active in {{ subscription_namespace }}"
+    kubernetes.core.k8s_info:
+      kind: ClusterServiceVersion
+      name: "{{ csv_name }}"
+      namespace: "{{ subscription_namespace }}"
+      api_version: operators.coreos.com/v1alpha1
+    register: r_csv
+    retries: 30
+    delay: 5
+    until:
+      - r_csv.resources | length > 0
+      - r_csv.resources[0] | length > 0
+      - r_csv.resources[0].status is defined
+      - r_csv.resources[0].status.phase == "Succeeded"
