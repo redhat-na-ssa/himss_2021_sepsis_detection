@@ -17,13 +17,13 @@ services:
 
   ftools:
     container_name: ftools
-    image: quay.io/jbride/ftools:0.0.3
+    image: quay.io/jbride/ftools:0.0.6
     networks:
       - sepsis
 
   zookeeper:
     container_name: zookeeper
-    image: registry.redhat.io/amq7/amq-streams-kafka-33-rhel8@sha256:4db51b59b7a0e78a85cb7456aea6d897cca06291d7d8ddbaf5af0b198bbb733c
+    image: registry.redhat.io/amq-streams/kafka-34-rhel8:2.4.0-5.1687182821
     command: [
       "sh", "-c",
       "bin/zookeeper-server-start.sh config/zookeeper.properties"
@@ -41,7 +41,7 @@ services:
 #   NOTE: via this configuration, kafka is available to external clients on host at: "rht:9094"
   kafka:
     container_name: kafka
-    image: registry.redhat.io/amq7/amq-streams-kafka-33-rhel8@sha256:4db51b59b7a0e78a85cb7456aea6d897cca06291d7d8ddbaf5af0b198bbb733c
+    image: registry.redhat.io/amq-streams/kafka-34-rhel8:2.4.0-5.1687182821
     command: [
 
       # Test using the following:
@@ -90,7 +90,7 @@ services:
     image: docker.io/obsidiandynamics/kafdrop:3.30.0
     restart: always
     ports:
-      - "9000:9000"
+      - "9001:9000"
     environment:
       KAFKA_BROKERCONNECT: "rht:9092"
       JVM_OPTS: "-Xms32M -Xmx64M"
@@ -229,22 +229,22 @@ services:
     networks:
       - sepsis
 
-  hapi-fhir:
-    container_name: hapi-fhir
+  smilecdr:
+    container_name: smilecdr
 
-    # https://github.com/redhat-na-ssa/hapi-fhir-jpaserver-starter/tree/v6.1.0-pgsql-debezium
-    image: quay.io/redhat_naps_da/hapi-fhir-jpaserver-starter-ocp:v6.1.0-psql-bytea-2
+    image: docker.smilecdr.com/smilecdr:2023.05.R02
 
     restart: always
     ports:
-      - "8080:8080"
-    environment:
-      JAVA_MAX_MEM_RATIO: '60'
-      JAVA_INITIAL_MEM_RATIO: '0'
-      GC_MAX_METASPACE_SIZE: '500'
-      SPRING_CONFIG_LOCATION: "file:///deployments/config/application.yaml"
+      - "8000:8000"
+      - "8001:8001"
+      - "9000:9000"
+      - "9100:1000"
+      - "9200:9200"
+      - "9201:9201"
+    environment: []
     volumes:
-    - ./hapi-fhir/application.yaml:/deployments/config/application.yaml:bind
+    - ./smilecdr/cdr-config-Master.properties:/home/smile/smilecdr/classes/cdr-config-Master.properties:bind
     depends_on:
       - "psql-fhir"
     networks:
@@ -259,7 +259,7 @@ services:
     volumes:
     - ./sepsisdetection-risk/application.properties:/deployments/config/application.properties:bind
     depends_on:
-      - "hapi-fhir"
+      - "smilecdr"
     networks:
       - sepsis
 
