@@ -2,17 +2,17 @@
 
 - set_fact:
     namespace: "{{ project_name }}"
-    resources_dir: "{{ resources_base_dir }}/hapi-fhirserver"
+    resources_dir: "{{ resources_base_dir }}/smilecdr_server"
     work_dir_name: "{{ project_name }}"
 - include_role:
-    name: ../roles/hapi_fhirserver
+    name: ../roles/smilecdr_server
   when: >
     ACTION is not defined or
     ACTION is none or
     ACTION|trim() == "" or
     ACTION|trim() == "install"
 - include_role:
-    name: ../roles/hapi_fhirserver
+    name: ../roles/smilecdr_server
     tasks_from: uninstall
   when: >
     ACTION is defined and

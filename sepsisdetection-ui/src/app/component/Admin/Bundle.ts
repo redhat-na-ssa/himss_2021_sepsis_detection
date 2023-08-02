@@ -22,7 +22,7 @@ export class Bundle  {
             "link": [
                 {
                     "relation": "self",
-                    "url": "http://localhost:8080/fhir/Observation?_pretty=true"
+                    "url": "http://localhost:8000/Observation?_pretty=true"
                 }
             ],
             "entry": [
@@ -436,7 +436,7 @@ export class Bundle  {
                         "method": "POST",
                         "url": "Observation"
                     },
-                    "fullUrl": "http://localhost:8080/fhir/Observation/104",
+                    "fullUrl": "http://localhost:8000/Observation/104",
                     "resource": {
                         "resourceType": "Observation",
                         "id": "104",
@@ -491,7 +491,7 @@ export class Bundle  {
                         "method": "POST",
                         "url": "Patient"
                     },
-                    "fullUrl": "http://localhost:8080/fhir/Patient/1",
+                    "fullUrl": "http://localhost:8000/Patient/1",
                     "resource": {
                         "resourceType": "Patient",
                         "id": "1",

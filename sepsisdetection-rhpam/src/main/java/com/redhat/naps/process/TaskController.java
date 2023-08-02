@@ -60,7 +60,7 @@ public class TaskController {
     public void init() {
     }
 
-    // Example:  curl -X GET localhost:8080/fhir/tasks/taskinstance/2/variables | jq .
+    // Example:  curl -X GET localhost:8000/tasks/taskinstance/2/variables | jq .
     @Transactional
     @RequestMapping(value = "/taskinstance/{taskInstancId}/variables")
     public ResponseEntity<Map<String, Object>> getTaskVariables(@PathVariable("taskInstancId") long tInstanceId) {
@@ -89,7 +89,7 @@ public class TaskController {
 
     
 
-    // Example:  curl -X GET localhost:8080/fhir/tasks/instances/pot-owners?user=jeff | jq .
+    // Example:  curl -X GET localhost:8000/tasks/instances/pot-owners?user=jeff | jq .
     @Transactional
     @RequestMapping(value = "/instances/pot-owners", method = RequestMethod.GET, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TaskSummary>> getTasksAssignedAsPotentialOwner(
@@ -127,7 +127,7 @@ public class TaskController {
         return new ResponseEntity<>(tasks, HttpStatus.OK);
     }
 
-    // Example:  curl -X GET localhost:8080/fhir/tasks/1/contents/input | jq .
+    // Example:  curl -X GET localhost:8000/tasks/1/contents/input | jq .
     @Transactional
     @RequestMapping(value = "/{taskId}/contents/input", method = RequestMethod.GET, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> getTaskInputContentByTaskId(@PathVariable("taskId") Long taskId) {
@@ -154,7 +154,7 @@ public class TaskController {
         }
     }
 
-    // Example:  curl -X GET localhost:8080/fhir/tasks/1/contents/output | jq .
+    // Example:  curl -X GET localhost:8000/tasks/1/contents/output | jq .
     @Transactional
     @RequestMapping(value = "/{taskId}/contents/output", method = RequestMethod.GET, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> getTaskOutputContentByTaskId(@PathVariable("taskId") Long taskId) {
@@ -181,7 +181,7 @@ public class TaskController {
         }
     }
 
-    // Example:  curl -X PUT localhost:8080/fhir/tasks/4/claim?user=jeff
+    // Example:  curl -X PUT localhost:8000/tasks/4/claim?user=jeff
     @Transactional
     @RequestMapping(value = "/{taskId}/claim", method = RequestMethod.PUT)
     public ResponseEntity<Long> claimTask(@PathVariable("taskId") Long taskId, @RequestParam(name = "user") String userId){
@@ -189,7 +189,7 @@ public class TaskController {
         return new ResponseEntity<>(taskId, HttpStatus.OK);
     }
 
-    // Example:  curl -X PUT localhost:8080/fhir/tasks/4/start?user=jeff
+    // Example:  curl -X PUT localhost:8000/tasks/4/start?user=jeff
     @Transactional
     @RequestMapping(value = "/{taskId}/start", method = RequestMethod.PUT)
     public ResponseEntity<Long> startTask(@PathVariable("taskId") Long taskId, @RequestParam(name = "user") String userId){
@@ -198,7 +198,7 @@ public class TaskController {
     }
 
     /*
-       Example:  curl -v -X PUT -H "Content-Type: text/plain" --data "@src/test/resources/fhir/Observation1.json" localhost:8080/fhir/tasks/4/completeWithObservation?user=jeff 
+       Example:  curl -v -X PUT -H "Content-Type: text/plain" --data "@src/test/resources/fhir/Observation1.json" localhost:8000/tasks/4/completeWithObservation?user=jeff 
     */
     @Transactional
     @RequestMapping(value = "/{taskId}/completeWithObservation", method = RequestMethod.PUT, consumes = MimeTypeUtils.TEXT_PLAIN_VALUE)
@@ -227,7 +227,7 @@ public class TaskController {
         }
     }
 
-    // Example:  curl -X GET localhost:8080/fhir/tasks/sanityCheck
+    // Example:  curl -X GET localhost:8000/tasks/sanityCheck
     @Transactional
     @RequestMapping(value = "/sanityCheck", method = RequestMethod.GET, produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> sanityCheck() {

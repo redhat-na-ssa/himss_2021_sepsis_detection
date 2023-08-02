@@ -1,6 +1,6 @@
 ---
 
-- name: Deploy hapi-fhir related artifacts
+- name: Deploy SmileCDR related artifacts
   hosts: localhost
   connection: local
   gather_facts: false
@@ -9,7 +9,7 @@
     - group_vars/all.yml
     - group_vars/tools.yml
     - group_vars/kafka_cluster.yml
-    - group_vars/hapi_fhirserver.yml
+    - group_vars/smilecdr_server.yml
 
   tasks:
-    - include: tasks/hapi-fhirserver.yml
+    - include: tasks/smilecdr_server

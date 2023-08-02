@@ -9,7 +9,7 @@
     - group_vars/all.yml
     - group_vars/tools.yml
     - group_vars/kafka_cluster.yml
-    - group_vars/hapi_fhirserver.yml
+    - group_vars/smilecdr_server.yml
     - group_vars/sepsisdetection_rhpam.yml
   vars:
     ACTION: uninstall
@@ -26,7 +26,7 @@
   - include: tasks/sepsisdetection-ml.yml
   - include: tasks/sepsisdetection-risk.yml
   - include: tasks/sepsisdetection-sse.yml
-  - include: tasks/hapi-fhirserver.yml
+  - include: tasks/smilecdr-server.yml
   - include: tasks/sso.yml
   - include: tasks/knative.yml
   - include: tasks/amq-streams.yml
