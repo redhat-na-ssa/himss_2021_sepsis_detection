@@ -497,7 +497,7 @@ export RHSSO_MASTER_PASSWD=admin
 export REALM_ID=kc-demo
 export retrieve_token_url="$RHSSO_URL/realms/$REALM_ID/protocol/openid-connect/token"
 export SEPSISDETECTION_RHPAM_URL=http://localhost:9080
-export FHIR_SERVER_URL=http://localhost:8080
+export FHIR_SERVER_URL=http://localhost:8000
 -----
 
 . Add the following entry to your `/etc/hosts`:

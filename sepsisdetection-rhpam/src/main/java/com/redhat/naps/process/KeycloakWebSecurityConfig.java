@@ -74,6 +74,8 @@ public class KeycloakWebSecurityConfig extends KeycloakWebSecurityConfigurerAdap
 
         // System property gets picked up by this project's GetObservationsSignalEventCommand
         System.setProperty(FHIRUtil.FHIR_SERVER_URL, fhirUrl);
+
+        log.info("init() just set system property: "+FHIRUtil.FHIR_SERVER_URL+" : "+System.getProperty(FHIRUtil.FHIR_SERVER_URL));
     }
 
     @Override

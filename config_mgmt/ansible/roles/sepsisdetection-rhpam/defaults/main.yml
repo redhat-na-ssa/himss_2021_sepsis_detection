@@ -26,7 +26,7 @@ application_configmap: "{{ application_name }}"
 application_configmap_key: "{{ application_properties }}"
 binary_imagestream_template: binary-imagestream.yml 
 service_image: quay.io/redhat_naps_da/sepsisdetection-rhpam
-service_image_tag: 0.0.14
+service_image_tag: 0.0.15
 application_template: sepsisdetection-rhpam.yml
 sepsisdetection_rhpam_java_max_mem_ratio: 60
 sepsisdetection_rhpam_java_initial_mem_ratio: 0
@@ -41,4 +41,4 @@ kieserver_user_password: "{{ sepsisdetection_rhpam_api_passwd }}"
 kie_deployment_name: "{{ sepsisdetection_rhpam_deployment_name }}"
 kie_deployment_version: "{{ sepsisdetection_rhpam_deployment_version }}"
 kie_process_id: "{{ sepsisdetection_rhpam_process_id }}"
-fhir_server_url: "http://{{ fhir_server_application_name }}:8080"
+fhir_server_url: "http://{{ fhir_server_application_name }}:8000"

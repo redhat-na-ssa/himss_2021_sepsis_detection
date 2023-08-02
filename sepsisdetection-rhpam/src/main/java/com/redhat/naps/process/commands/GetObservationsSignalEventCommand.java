@@ -1,5 +1,6 @@
 package com.redhat.naps.process.commands;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -12,15 +13,14 @@ import com.redhat.naps.process.util.FHIRUtil;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Observation.ObservationComponentComponent;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.stereotype.Component;
-
 import ca.uhn.fhir.context.FhirContext;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Observation;
@@ -43,6 +43,8 @@ public class GetObservationsSignalEventCommand implements Command {
     private static FhirContext fhirCtx = FhirContext.forR4();
 
     private String fhirURL;
+    private String fhirServerUserId = "admin";
+    private String fhirServerUserPassword = "password";
 
     RestTemplate template;
 
@@ -51,9 +53,22 @@ public class GetObservationsSignalEventCommand implements Command {
         if(template == null)
           throw new RuntimeException("unable to obtain RestTemplate");
 
+
         fhirURL = System.getProperty(FHIRUtil.FHIR_SERVER_URL);
         if(StringUtils.isEmpty(fhirURL))
           throw new RuntimeException("Unable to obtain fhirURL with system property: "+FHIRUtil.FHIR_SERVER_URL);
+        else {
+            log.info("GetObservationsSignalCommand fhirURL = "+fhirURL);
+        }
+
+        if(System.getProperty(FHIRUtil.FHIR_SERVER_USER_ID) != null)
+          this.fhirServerUserId = System.getProperty(FHIRUtil.FHIR_SERVER_USER_ID);
+        
+        if(System.getProperty(FHIRUtil.FHIR_SERVER_USER_PASSWORD) != null)
+          this.fhirServerUserPassword = System.getProperty(FHIRUtil.FHIR_SERVER_USER_PASSWORD);
+
+        BasicAuthenticationInterceptor basicAuthI = new BasicAuthenticationInterceptor(fhirServerUserId, fhirServerUserPassword);
+        template.getInterceptors().add(basicAuthI);
     }
 
     @Override
@@ -99,6 +114,7 @@ public class GetObservationsSignalEventCommand implements Command {
         }
     }
 
+
     private List<Observation> getTimeBoxedObservation(Patient patient) {
         List<Observation> obsList = new ArrayList<>();
         Calendar instance = Calendar.getInstance();
@@ -106,7 +122,7 @@ public class GetObservationsSignalEventCommand implements Command {
         Date timeBoxDate = instance.getTime();
         String patientID = patient.getId();
         
-        String url = fhirURL+"/fhir/Observation?patient="+patientID+"&_pretty=true";
+        String url = fhirURL+"/Observation?patient="+patientID+"&_pretty=true";
         log.info("getTimeBoxedObservation() fhirUrl endpoint = "+url);
 
         String bundleStr = template.getForEntity(url,String.class).getBody();

@@ -290,7 +290,7 @@ services:
 
   sepsisdetection-rhpam:
     container_name: sepsis-rhpam
-    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.14
+    image: quay.io/redhat_naps_da/sepsisdetection-rhpam:0.0.15
     restart: always
     ports:
       - "9080:9080"

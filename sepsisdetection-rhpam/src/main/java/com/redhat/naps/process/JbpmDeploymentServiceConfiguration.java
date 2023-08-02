@@ -1,11 +1,8 @@
 package com.redhat.naps.process;
 
-import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
 
 import com.redhat.naps.process.spring.SpringKModuleDeploymentService;
-import com.redhat.naps.process.util.FHIRUtil;
-
 import org.jbpm.kie.services.impl.FormManagerService;
 import org.jbpm.kie.services.impl.bpmn2.BPMN2DataServiceImpl;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
@@ -15,7 +12,6 @@ import org.kie.api.executor.ExecutorService;
 import org.kie.api.runtime.manager.RuntimeManagerFactory;
 import org.kie.internal.identity.IdentityProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

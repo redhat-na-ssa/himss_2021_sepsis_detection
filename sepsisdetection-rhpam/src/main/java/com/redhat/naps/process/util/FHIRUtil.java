@@ -33,4 +33,6 @@ public class FHIRUtil {
     public static final String OBSERVATIONS_ACQUIRED="obsAcquired";
     public static final String EVENT = "Event";
     public static final String FHIR_SERVER_URL = "fhir.server.url";
+    public static final String FHIR_SERVER_USER_ID = "fhir.server.user.id";
+    public static final String FHIR_SERVER_USER_PASSWORD = "fhir.server.user.password";
 }
