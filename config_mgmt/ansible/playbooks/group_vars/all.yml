@@ -39,7 +39,7 @@ deploy_from: image
 kafka_smilecdr_subscription_topic: "fhir_resources"
 
 
-fhir_server_application_name: fhir-server
+fhir_server_application_name: smilecdr-server
 sepsisdetection_rhpam_app_name: sepsisdetection-rhpam
 sepsisdetection_rhpam_api_passwd: kieserver
 sepsisdetection_rhpam_deployment_name: sepsisdetection-kjar

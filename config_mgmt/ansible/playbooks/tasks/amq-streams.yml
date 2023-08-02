@@ -25,31 +25,6 @@
     ACTION|trim() == "" or
     ACTION|trim() == "install"
 
-# 3) AMQ Streams Topics
-- set_fact:
-    namespace: "{{ project_name }}"
-    work_dir_name: "kafka_topics"
-- include_role:
-    name: ../roles/kafka_topics
-  when: >
-    ACTION is not defined or
-    ACTION is none or
-    ACTION|trim() == "" or
-    ACTION|trim() == "install"
-
-
-# 4) AMQ Streams Kafka-Connect
-- set_fact:
-    namespace: "{{ project_name }}"
-    work_dir_name: "kafka_connect"
-- include_role:
-   name: ../roles/kafka_connect
-  when: >
-    ACTION is not defined or
-    ACTION is none or
-    ACTION|trim() == "" or
-    ACTION|trim() == "install"
-
 # 5) Kafdrop
 - set_fact:
     namespace: "{{ project_name }}"
@@ -78,29 +53,6 @@
     ACTION is defined and
     ACTION|trim() == "uninstall"
 
-
-
-# 2) AMQ Streams Kafka-Connect
-- set_fact:
-    namespace: "{{ project_name }}"
-    work_dir_name: "kafka_connect"
-- include_role:
-    name: ../roles/kafka_connect
-    tasks_from: uninstall
-  when: >
-    ACTION is defined and
-    ACTION|trim() == "uninstall"
-
-# 3) AMQ Streams Topics
-- set_fact:
-    namespace: "{{ project_name }}"
-    work_dir_name: "kafka_topics"
-- include_role:
-    name: ../roles/kafka_topics
-    tasks_from: uninstall
-  when: >
-    ACTION is defined and
-    ACTION|trim() == "uninstall"
 
 
 # 4) AMQ Streams Kafka cluster

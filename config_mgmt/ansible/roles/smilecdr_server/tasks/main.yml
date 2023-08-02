@@ -98,22 +98,22 @@
         name: "{{ service_account }}"
         namespace: "{{ namespace }}"
 
-- name: "copy {{ application_properties }} template"
+- name: "copy cdr-config-Master.properties template"
   set_fact:
-    aprops: "{{ lookup('template', 'templates/' + application_properties )  }}"
+    aprops: "{{ lookup('template', 'templates/cdr-config-Master.properties' )  }}"
 
-- name: "create {{ application_configmap }} application configmap"
+- name: "create {{ application_name }} application configmap"
   kubernetes.core.k8s:
     state: present
-    name: "{{ application_configmap }}"
+    name: "{{ application_name }}"
     namespace: "{{ namespace }}"
     definition:
       apiVersion: v1
       kind: ConfigMap
       metadata:
-        name: "{{ application_configmap }}"
+        name: "{{ application_name }}"
       data:
-        application.yaml: "{{ aprops }}"
+        cdr-config-Master.properties: "{{ aprops }}"
 
 - import_tasks: deploy_from_source.yml
   when: deploy_from is defined and deploy_from == "source"

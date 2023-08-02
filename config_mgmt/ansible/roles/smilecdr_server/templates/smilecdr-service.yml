@@ -12,12 +12,24 @@ items:
     name: {{ application_name }}
   spec:
     ports:
-      - name: http
-        port: 8080
+      - name: fhir-rest
+        port: 8000
         protocol: TCP
-        targetPort: 8080
+        targetPort: 8000
+      - name: fhir-web
+        port: 8001
+        protocol: TCP
+        targetPort: 8001
+      - name: admin-json
+        port: 9000
+        protocol: TCP
+        targetPort: 9000
+      - name: admin-web
+        port: 9100
+        protocol: TCP
+        targetPort: 9100
     selector:
-      group: fhir-server
+      group: fhir
       app: {{ application_name }}
     sessionAffinity: None
     type: ClusterIP
@@ -31,7 +43,7 @@ items:
     replicas: 1
     revisionHistoryLimit: 2
     selector:
-      group: fhir-server
+      group: fhir
       app: {{ application_name }}
     strategy:
       activeDeadlineSeconds: 21600
@@ -46,7 +58,7 @@ items:
     template:
       metadata:
         labels:
-          group: fhir-server
+          group: fhir
           app: {{ application_name }}
       spec:
         containers:
@@ -62,15 +74,13 @@ items:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.namespace
-            - name: SPRING_CONFIG_LOCATION
-              value: file:///deployments/config/{{ application_configmap_key }}
             imagePullPolicy: IfNotPresent
             name: {{ application_name }}
             livenessProbe:
               failureThreshold: 3
               httpGet:
-                path: /fhir/TerminologyCapabilities
-                port: 8080
+                path: /swagger-ui.html
+                port: 9000
                 scheme: HTTP
               initialDelaySeconds: 30
               periodSeconds: 60
@@ -78,8 +88,8 @@ items:
             readinessProbe:
               failureThreshold: 3
               httpGet:
-                path: /fhir/TerminologyCapabilities
-                port: 8080
+                path: /swagger-ui.html
+                port: 9000
                 scheme: HTTP
               initialDelaySeconds: 30
               periodSeconds: 60
@@ -96,7 +106,8 @@ items:
             terminationMessagePath: /dev/termination-log
             terminationMessagePolicy: File
             volumeMounts:
-            - mountPath: /deployments/config
+            - mountPath: /home/smile/smilecdr/classes/cdr-config-Master.properties
+              subPath: cdr-config-Master.properties
               name: config
         dnsPolicy: ClusterFirst
         restartPolicy: Always
@@ -107,11 +118,7 @@ items:
         terminationGracePeriodSeconds: 30
         volumes:
         - configMap:
-            defaultMode: 420
-            items:
-              - key: {{ application_configmap_key }}
-                path: {{ application_configmap_key }}
-            name: {{ application_configmap }}
+            name: {{ application_name }}
           name: config
     triggers:
       - type: ConfigChange

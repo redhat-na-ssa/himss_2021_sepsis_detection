@@ -1,9 +1,0 @@
----
-
-- name: delete kafka connect object
-  kubernetes.core.k8s:
-    state: absent
-    kind: KafkaConnect
-    api_version: kafka.strimzi.io/v1beta2
-    name: "{{ kafka_connect }}"
-    namespace: "{{ namespace }}"

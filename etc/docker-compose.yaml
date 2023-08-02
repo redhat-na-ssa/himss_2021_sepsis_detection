@@ -206,7 +206,7 @@ services:
   smilecdr:
     container_name: smilecdr
 
-    image: docker.smilecdr.com/smilecdr:2023.05.R02
+    image: quay.io/redhat_naps_da/smilecdr:2023.05.R02
 
     restart: always
     ports:

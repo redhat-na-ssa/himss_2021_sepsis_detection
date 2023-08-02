@@ -5,7 +5,7 @@ metadata:
 spec:
   host: {{ route_hostname }}
   port:
-    targetPort: http
+    targetPort: fhir-rest
   tls:
     termination: edge
   to:

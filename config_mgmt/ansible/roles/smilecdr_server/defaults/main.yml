@@ -17,19 +17,16 @@ postgresql_cpu_limit: 500m
 postgresql_memory_request: 256Mi
 postgresql_cpu_request: 100m
 psql_init_scripts:
-undeploy_fhir_db: "true"
+undeploy_fhir_db: "false"
 
 service_account: "{{ application_name }}"
-application_properties: application.yaml
-application_configmap: "{{ application_name }}"
-application_configmap_key: "{{ application_properties }}"
 binary_imagestream_template: binary-imagestream.yml 
 
 # https://github.com/redhat-naps-da/hapi-fhir-jpaserver-starter
-service_image: quay.io/redhat_naps_da/hapi-fhir-jpaserver-starter-ocp
-service_image_tag: v5.3.0-psql-bytea-2
+service_image: quay.io/redhat_naps_da/smilecdr
+service_image_tag: 2023.05.R02
 
-application_template: fhir-server-service.yml
+application_template: smilecdr-service.yml
 fhirserver_java_max_mem_ratio: 60
 fhirserver_java_initial_mem_ratio: 0
 fhirserver_gc_max_metaspace_size: 500

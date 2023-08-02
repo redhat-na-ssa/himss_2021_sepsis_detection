@@ -12,4 +12,4 @@
     - group_vars/smilecdr_server.yml
 
   tasks:
-    - include: tasks/smilecdr_server
+    - include: tasks/smilecdr-server.yml

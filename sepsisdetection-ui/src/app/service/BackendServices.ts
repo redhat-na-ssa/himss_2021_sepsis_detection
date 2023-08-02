@@ -15,6 +15,11 @@ export class BackendServices {
 
   bundleData: string;
 
+  // https://stackoverflow.com/questions/50694913/angular-6-httpclient-passing-basic-auth-in-httpoptions
+  var headers_object = new HttpHeaders();
+  headers_object.append('Content-Type', 'application/json');
+  headers_object.append("Authorization", "Basic " + btoa("admin:password"));
+
 
   /*
     The requests to various backends created in this class includes a default Authorization header similar to the following:

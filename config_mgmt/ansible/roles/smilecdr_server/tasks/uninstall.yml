@@ -32,10 +32,10 @@
     kind: ImageStream
     api_version: image.openshift.io/v1
 
-- name: "delete configmap {{ application_configmap }}"
+- name: "delete configmap {{ application_name }}"
   kubernetes.core.k8s:
     state: absent
-    name: "{{ application_configmap }}"
+    name: "{{ application_name }}"
     namespace: "{{ namespace }}"
     kind: ConfigMap
 
