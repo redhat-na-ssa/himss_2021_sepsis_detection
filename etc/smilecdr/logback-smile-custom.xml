@@ -1,0 +1,72 @@
+<included>
+	<!--
+	This file is for customer configuration of the Smile log system.
+	This file will be applied after the main Smile log configuration in classes/logback.xml.
+	This file may be deleted, or replaced completely by a Docker overlay.
+	-->
+
+	<!-- Send all troubleshooting logs to the console for viewing via `docker logs` -->
+	<!--
+	<logger name="ca.cdr.log">
+		<appender-ref ref="STDOUT_SYNC"/>
+	</logger>
+	<logger name="ca.uhn.fhir.log">
+		<appender-ref ref="STDOUT_SYNC"/>
+	</logger>
+	-->
+
+	<!--
+	   Troubleshooting logs.
+	   https://smilecdr.com/docs/logging/troubleshooting_logs.html
+	   Uncomment the logger statements below to send DEBUG troubleshooting messages to logs/smile-troubleshooting.log
+	 -->
+	<!-- Turn on all troubleshooting logs.  This will generate heavy logging, and is not recommended in production systems -->
+	<!--
+	<logger name="ca.cdr.log" level="DEBUG"/>
+	<logger name="ca.uhn.fhir.log" level="DEBUG"/>
+	-->
+
+	<!-- HL7V2 troubleshooting log -->
+	<!-- <logger name="ca.cdr.log.hl7v2_troubleshooting" level="DEBUG"/> -->
+
+	<!-- HTTP troubleshooting log.
+	  DEBUG will log http access.  TRACE will include more detail including headers. -->
+	<!-- <logger name="ca.cdr.log.http_troubleshooting" level="DEBUG"/> -->
+
+	<!-- Security Troubleshooting Log : Authentication and Authorization -->
+	<!-- <logger name="ca.cdr.log.security_troubleshooting" level="DEBUG"/> -->
+
+	<!-- Subscription Troubleshooting Log-->
+	<logger name="ca.cdr.log.subscription_troubleshooting" level="DEBUG"/>
+
+	<!-- LiveBundle Troubleshooting Log -->
+	<!-- <logger name="ca.cdr.log.livebundle_troubleshooting" level="DEBUG"/> -->
+
+	<!-- MDM Troubleshooting Log -->
+	<!-- <logger name="ca.uhn.fhir.log.mdm_troubleshooting" level="DEBUG"/> -->
+
+	<!-- Channel Import Troubleshooting Log -->
+	<!-- <logger name="ca.cdr.log.channel_import_troubleshooting" level="DEBUG"/> -->
+
+	<!-- Realtime Export Troubleshooting Log
+	  DEBUG will report export activating including sql queries.
+	  TRACE will include actual parameter bind values which may contain sensitive information
+	 -->
+	<!-- <logger name="ca.cdr.log.realtime_export_troubleshooting" level="DEBUG"/> -->
+
+	<!-- FHIR Gateway Troubleshooting Log -->
+	<!-- <logger name="ca.cdr.log.fhirgateway_troubleshooting" level="DEBUG"/> -->
+
+	<!-- Connection Pool Troubleshooting Log -->
+	<!-- <logger name="ca.cdr.log.connection_pool_troubleshooting" level="DEBUG"/> -->
+
+	<!-- AWS HealthLake Export Troubleshooting Log -->
+	<!-- <logger name="ca.cdr.log.aws_healthlake_export_troubleshooting" level="DEBUG"/> -->
+
+	<!-- Batch Framework Troubleshooting Log -->
+	<!-- <logger name="ca.uhn.fhir.log.batch_troubleshooting" level="DEBUG"/> -->
+
+	<!-- Narrative Generation Troubleshooting Log -->
+	<!-- <logger name="ca.uhn.fhir.log.narrative_generation_troubleshooting" level="DEBUG"/> -->
+
+</included>

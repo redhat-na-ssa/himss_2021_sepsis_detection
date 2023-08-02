@@ -590,17 +590,29 @@ Access-Control-Allow-Headers: Content-Type, Authorization
 Access-Control-Expose-Headers: Location, Content-Location
 -----
 
+. POST Subscription to FHIR server:
++
+-----
+$ curl -X POST \
+       -v \
+       -u "admin:password" \
+       -H "Content-Type:application/fhir+json" \
+       $FHIR_SERVER_URL/Subscription \
+       -d "@sepsisdetection-rhpam/src/test/resources/fhir/fhir_subscription.json"
+-----
+
 
 . POST Demo Observation to FHIR server
 +
 -----
 $ curl -X POST \
        -H "Content-Type:application/fhir+json" \
-       $FHIR_SERVER_URL/fhir \
+       -u "admin:password" \
+       $FHIR_SERVER_URL \
        -d "@sepsisdetection-rhpam/src/test/resources/fhir/DemoBundle.json"
 -----
 
-. POST Demo RiskAssessment to FHIR server
+. POST Demo RiskAssessment to FHIR server:
 +
 -----
 $ curl -X POST \

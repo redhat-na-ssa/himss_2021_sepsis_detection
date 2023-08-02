@@ -236,15 +236,16 @@ services:
 
     restart: always
     ports:
-      - "8000:8000"
-      - "8001:8001"
-      - "9000:9000"
-      - "9100:1000"
-      - "9200:9200"
-      - "9201:9201"
+      - "8000:8000"       # ENDPOINT_FHIR_REST 
+      - "8001:8001"       # ENDPOINT_FHIRWEB  / FHIR testing tool to explore the FHIR API
+      - "9000:9000"       # ADMIN_JSON        / explore JSON API
+      - "9100:9100"       # ADMIN_WEB
+      - "9200:9200"       # SECURITY_OUT_SMART
+      - "9201:9201"       # ???
     environment: []
     volumes:
     - ./smilecdr/cdr-config-Master.properties:/home/smile/smilecdr/classes/cdr-config-Master.properties:bind
+    - ./smilecdr/logback-smile-custom.xml:/home/smile/smilecdr/logback-smile-custom.xml:bind
     depends_on:
       - "psql-fhir"
     networks:

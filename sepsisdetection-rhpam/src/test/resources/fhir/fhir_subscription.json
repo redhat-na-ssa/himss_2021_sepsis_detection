@@ -1,0 +1,10 @@
+{
+  "resourceType": "Subscription",
+  "status": "requested",
+  "criteria": "[Patient,Observation,Organization]",
+  "channel": {
+    "type": "message",
+    "endpoint": "channel:fhir_resources",
+    "payload": "application/json"
+  }
+}
