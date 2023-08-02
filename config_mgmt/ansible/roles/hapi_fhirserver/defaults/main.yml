@@ -33,13 +33,3 @@ application_template: fhir-server-service.yml
 fhirserver_java_max_mem_ratio: 60
 fhirserver_java_initial_mem_ratio: 0
 fhirserver_gc_max_metaspace_size: 500
-
-hapi_psql_debezium_conf_name: hapi-psql-debezium-conf
-hapi_psql_debezium_conf_file: "{{ hapi_psql_debezium_conf_name }}.conf"
-
-# Debezium configs
-kafka_debezium_template: debezium-fhir-server-pgsql.yml
-kafka_debezium_name: debezium-fhir-server-pgsql
-kafka_debezium_tasks_max: 1
-
-kafka_debezium_schema_whitelist: public

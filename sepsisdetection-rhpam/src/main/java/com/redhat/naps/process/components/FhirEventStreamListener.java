@@ -34,9 +34,9 @@ import com.redhat.naps.process.model.PatientVitals;
 import com.redhat.naps.process.model.SepsisResponse;
 
 @Component
-public class DebeziumStreamListener {
+public class FhirEventStreamListener {
 
-    private final static Logger log = LoggerFactory.getLogger(DebeziumStreamListener.class);
+    private final static Logger log = LoggerFactory.getLogger(FhirEventStreamListener.class);
 
     private static ObjectMapper objectMapper = new ObjectMapper();
     private static FhirContext fhirCtx = FhirContext.forR4();
@@ -47,7 +47,7 @@ public class DebeziumStreamListener {
     @Autowired
     SepsisDetectionWIH sepsisDetectionMLComponent;
 
-    @KafkaListener(topics = "${listener.destination.debezium-stream}", containerFactory = "debeziumListenerContainerFactory")
+    @KafkaListener(topics = "${listener.destination.smilecdr-stream}", containerFactory = "fhirEventStreamListenerContainerFactory")
     public void processMessage(@Payload String cloudEvent, 
                                @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                                @Header(KafkaHeaders.RECEIVED_PARTITION_ID) int partition, 
@@ -91,7 +91,7 @@ public class DebeziumStreamListener {
                 log.warn("Will not process message with FHIR type: "+resType.asText());
             }
         }catch(Exception x) {
-            log.error("Unable to process the following debezium stream event: \n"+cloudEvent);
+            log.error("Unable to process the following smilecdr stream event: \n"+cloudEvent);
             x.printStackTrace();
         }finally {
             ack.acknowledge();

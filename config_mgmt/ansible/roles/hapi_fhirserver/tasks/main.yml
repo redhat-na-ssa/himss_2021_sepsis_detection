@@ -15,7 +15,6 @@
         namespace: "{{ namespace }}"
 
 - set_fact:
-    d_conf_file: "{{ lookup('template', 'templates/sql/' + hapi_psql_debezium_conf_file )  }}"
     create_db_file: "{{ lookup('template', 'templates/sql/create_database.sh' )  }}"
     wait_for_psql_file: "{{ lookup('template', 'templates/sql/wait_for_postgresql.sh' )  }}"
 
@@ -33,20 +32,6 @@
       data:
         create_database.sh: "{{ create_db_file }}"
         wait_for_postgresql.sh: "{{ wait_for_psql_file }}"
-
-- name: "create {{ hapi_psql_debezium_conf_name }} configmap"
-  kubernetes.core.k8s:
-    state: present
-    name: "{{ hapi_psql_debezium_conf_name }}"
-    namespace: "{{ namespace }}"
-    definition:
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        name: "{{ hapi_psql_debezium_conf_name }}"
-        namespace: "{{ namespace }}"
-      data:
-        hapi-psql-debezium-conf.conf: "{{ d_conf_file }}"
 
 - name: "postgresql secret {{ psql_credentials_secret }}"
   kubernetes.core.k8s:
@@ -146,9 +131,4 @@
     definition: "{{ lookup('template', 'templates/route.yml') | from_yaml }}"
     namespace: "{{ namespace }}"
 
-###########################################################
-
-
-########    HAPI FHIR Postgresql Debezium    #############
-- import_tasks: deploy_debezium_connector.yml
 ###########################################################

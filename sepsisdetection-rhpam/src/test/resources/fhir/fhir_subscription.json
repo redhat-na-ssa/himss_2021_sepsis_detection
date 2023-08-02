@@ -1,7 +1,7 @@
 {
   "resourceType": "Subscription",
   "status": "requested",
-  "criteria": "[Patient,Observation,Organization]",
+  "criteria": "[Patient,Organization,RiskAssessment]",
   "channel": {
     "type": "message",
     "endpoint": "channel:fhir_resources",

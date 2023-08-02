@@ -1,13 +1,5 @@
 ---
 
-- name: delete debezium connector
-  kubernetes.core.k8s:
-    state: absent
-    name: "{{ kafka_debezium_name }}"
-    namespace: "{{ namespace_kafka_cluster }}"
-    kind: KafkaConnector
-    api_version: kafka.strimzi.io/v1beta2
-
 - name: delete route
   kubernetes.core.k8s:
     state: absent

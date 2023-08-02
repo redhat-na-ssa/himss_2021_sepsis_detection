@@ -35,11 +35,8 @@ sso_clientId: sepsisdetection
 #   source : Use if this ansible includes tasks to deploy a Jenkins or Tekton BuildConfig that creates the application image from source code
 deploy_from: image
 
-kafka_debezium_db_server_name: fhir
-kafka_debezium_table_whitelist: public.hfj_res_ver
-
-# Topic that Debezium will stream to and triggers BPM process
-kafka_debezium_topic: "{{ kafka_debezium_db_server_name }}.{{ kafka_debezium_table_whitelist }}"
+# Topic that smilecdr will stream to and triggers BPM process
+kafka_smilecdr_subscription_topic: "fhir_resources"
 
 
 fhir_server_application_name: fhir-server

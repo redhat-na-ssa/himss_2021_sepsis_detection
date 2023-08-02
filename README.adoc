@@ -34,7 +34,7 @@ Sepsis is a costly and life threatening condition resulting in multi-organ failu
 
 . *Events in Motion*
 .. Use of Red Hat AMQ Streams
-.. Use of Debezium for _Change Data Capture_ on HAPI FHIR database
+.. Use of FHIR Subscription to stream events in the SmileCDR server to a AMQ Streams topic
 .. Use of both Binary and Structured _Cloud Events_
 .. Visibility of events via KafDrop
 .. Raw FHIR related _Server Sent Events_ streamed to Angular UI
@@ -235,11 +235,11 @@ This server maintains the state of all link:https://www.hl7.org/fhir/resourcelis
 
 The HAPI FHIR server is backed by a PostgreSQL database.
 
-=== AMQ Streams / Debezium / Kafdrop
+=== AMQ Streams / Kafdrop
 
 The architecture of the demo is primarily _event driven_.
 
-As such, the demo makes use of Red Hat's AMQ Streams and Debezium technologies.
+As such, the demo makes use of a FHIR Subscription in the SmileCDR server that streams events to a AMQ Streams topic.
 
 For monitoring of kafka topcs in AMQ Streams, the demo provides an instance of link:https://github.com/obsidiandynamics/kafdrop[Kafdrop]
 
@@ -306,9 +306,9 @@ image::sepsisdetection-kjar/src/main/resources/com/demo/sepsis/highmediummitigat
 image::docs/images/reference_architecture_actual.png[]
 
 . An external client POSTs a FHIR R4 _bundle_ (with a Patient, Location and multiple Observation resources ) to the RESTful API of the HAPI FHIR JPA server.
-. HAPI FHIR JPA Server persists (using Hiberate) to its PostgreSQL database.  FHIR resources are stored as gzip blobs in the following table of the HAPI FHIR database schema:  _public.hfj_res_ver_ .
-. Debezium detects the additional records to the _public.hfj_res_ver_ table and puts them in motion by sending the raw GZIP blobs to a kafka topic:  _fhir.public.hfj_res_ver_
-. Messages in the _fhir.public.hfj_res_ver_ topic can now be viewed via monitoring tools such as _KafDrop_.  The _sepsisdetection_rhpam_ application is also a consumer on that topic.  With consumption of a Patient resource, the RH-PAM _process-engine_ embedded in the _sepsisdetection-RHPAM_ application is invoked and a _sepsis-detection_ business process is started.
+. HAPI FHIR JPA Server persists (using Hiberate) to its PostgreSQL database.
+. A FHIR R4 Subscription is registered in the SmileCDR server.  When the R4 Bundle to POSTed to the SmileCDR server, the SmileCDR streams events to a AMQ Streams topic:  _fhir_resources_
+. Messages in the _fhir_resources_ topic can now be viewed via monitoring tools such as _KafDrop_.  The _sepsisdetection_rhpam_ application is also a consumer on that topic.  With consumption of a Patient resource, the RH-PAM _process-engine_ embedded in the _sepsisdetection-RHPAM_ application is invoked and a _sepsis-detection_ business process is started.
 +
 These business process and corresponding human tasks can be monitored via tools such as RH-PAMs _dashbuilder_ component.
 
@@ -320,7 +320,7 @@ These business process and corresponding human tasks can be monitored via tools 
 
 . The _SepsisDetection-Risk_ service consumes the _generateRiskAssessmentCommand_ Cloud Event.  A FHIR R4 _RiskAssessment_ resource (which includes the data indicating likelyhood of sepsis) is posted to the FHIR Server via its RESTful APIs.
 +
-Debezium detects the addition of the _Risk Assessment_ resource in the HAPI FHIR database and forwards this event as message to Red Hat AMQ Streams.
+The _Risk Assessment_ resource in the SmileCDR server is forwarded as an event to Red Hat AMQ Streams.
 +
 RH-PAM picks up this change event with the Risk Assessment resource and advances the business process to the next task.
 
@@ -469,16 +469,6 @@ NOTE:  If underlying linux container system in use in your local environment is 
 image::docs/images/docker-compose-architecture.png[]
 
 
-. Post Debezium configs to kafka_connect container:
-+
------
-$ curl -X POST \
-        -H "Accept:application/json" -H "Content-Type:application/json" \
-        localhost:8083/connectors/ \
-        -d "@etc/hapi-fhir/debezium-fhir-server-pgsql.json"
------
-+
-NOTE:  This step is not needed when running the solution in OpenShift.  It's only needed when running the solution in a local containerized environmennt (ie:  docker-compose)
 
 . Stop application pod with all linux containers:
 +
@@ -600,6 +590,8 @@ $ curl -X POST \
        $FHIR_SERVER_URL/Subscription \
        -d "@sepsisdetection-rhpam/src/test/resources/fhir/fhir_subscription.json"
 -----
++
+NOTE:  This step is not needed when running the solution in OpenShift.  It's only needed when running the solution in a local containerized environmennt (ie:  docker-compose)
 
 
 . POST Demo Observation to FHIR server

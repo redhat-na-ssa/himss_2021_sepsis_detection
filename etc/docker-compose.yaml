@@ -63,28 +63,6 @@ services:
     networks:
       - sepsis
 
-  kafka-connect:
-    container_name: kafka-connect
-
-    # quay.io/debezium/connect:2.0 image can be used in a local podman/docker-compose environment
-    # However, in an OCP environment involving the Strimzi, AMQ Streams operator (with KafkaConnector resources), the debezium images can not be used.
-    # Instead, a custom image based on Strimzi/AMQ Streams images needs to be created.
-    # See:  docker/kafka-connect-debezium-postgresql of this project for more details.
-    image: quay.io/debezium/connect:2.0
-
-    depends_on:
-      - kafka
-    ports:
-      - "8083:8083"
-    environment:
-      BOOTSTRAP_SERVERS: rht:9092
-      GROUP_ID: 1
-      CONFIG_STORAGE_TOPIC: my_connect_configs
-      OFFSET_STORAGE_TOPIC: my_connect_offsets
-      STATUS_STORAGE_TOPIC: my_connect_statuses
-    networks:
-      - sepsis
-
   kafdrop:
     container_name: kafdrop
     image: docker.io/obsidiandynamics/kafdrop:3.30.0
@@ -99,7 +77,6 @@ services:
       - kafka
     networks:
       - sepsis
-
 
   psql-sso:
     container_name: psql-sso
@@ -223,9 +200,6 @@ services:
       POSTGRESQL_PASSWORD: fhir
       POSTGRESQL_DATABASE: fhir
       POSTGRESQL_MAX_PREPARED_TRANSACTIONS: 10
-    volumes:
-    - ./hapi-fhir/hapi-psql-wal.conf:/opt/app-root/src/postgresql-cfg/hapi-psql-wal.conf:bind
-    - ./hapi-fhir/hapi-psql-wal.sh:/opt/app-root/src/postgresql-start/hapi-psql-wal.sh:bind
     networks:
       - sepsis
 

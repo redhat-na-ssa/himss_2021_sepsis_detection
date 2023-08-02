@@ -61,7 +61,7 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    public ConsumerFactory<String, String> debeziumConsumerFactory() {
+    public ConsumerFactory<String, String> fhirSubscriptionEventConsumerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         configProps.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
@@ -72,33 +72,16 @@ public class KafkaConfiguration {
 
         return new DefaultKafkaConsumerFactory<>(configProps);
         
-
-/* TO-DO:  None of the following seems to be able to deserialize the Structured mode payload of the Debezium event.
-
-        // https://cloudevents.github.io/sdk-java/kafka.html
-        //configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, CloudEventDeserializer.class);
-        
-        // Original configs for consumer binary mode CloudEvent
-        //configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer2.class);
-        //configProps.put(ErrorHandlingDeserializer2.VALUE_DESERIALIZER_CLASS, CloudEventDeserializer.class);
-
-        Map<String, Object> ceDeserializerConfigs = new HashMap<>();
-        ceDeserializerConfigs.put(ENCODING_CONFIG, Encoding.STRUCTURED);
-        CloudEventDeserializer cloudEventDeserializer = new CloudEventDeserializer();
-        cloudEventDeserializer.configure(ceDeserializerConfigs, false); //isKey always false
-        return new DefaultKafkaConsumerFactory<>(configProps, new StringDeserializer(), (Deserializer)cloudEventDeserializer); 
-*/
-        
     }
 
     @Bean
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> debeziumListenerContainerFactory() {
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> fhirEventListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(debeziumConsumerFactory());
+        factory.setConsumerFactory(fhirSubscriptionEventConsumerFactory());
         factory.setConcurrency(concurrency);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         factory.setAutoStartup(false);
-        log.info("debeziumListenerContainerFactory()  started .... ");
+        log.info("fhirEventListenerContainerFactory()  started .... ");
         return factory;
     }
 
