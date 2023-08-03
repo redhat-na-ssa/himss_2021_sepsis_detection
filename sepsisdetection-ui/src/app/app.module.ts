@@ -40,6 +40,24 @@ function initializeKeycloak(keycloak: KeycloakService) {
         onLoad: 'check-sso',
         silentCheckSsoRedirectUri: window.location.origin + '/assets/silent-check-sso.html',
       },
+      shouldAddToken: (request) => {
+
+        /* 
+         *  https://www.npmjs.com/package/keycloak-angular#httpclient-interceptor
+         *
+         *  Ensure that POST requests to FHIR server (requiring Basic Auth) are not over-written with an OIDC based Authorization token by keycloak-angular
+         */
+
+        const { method, url } = request;
+
+        const isPostRequest = 'POST' === method.toUpperCase();
+        const acceptablePaths = window['_env'].FHIR_SERVER_URL;
+        const isAcceptablePathMatch = acceptablePaths.some((path) =>
+            url.includes(path)
+        );
+
+        return !(isPostRequest && isAcceptablePathMatch);
+      }
     });
 }
 

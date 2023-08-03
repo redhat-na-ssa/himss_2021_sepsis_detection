@@ -285,6 +285,8 @@ image::docs/images/sepsisui-home.png[]
 
 This UI allows _role-based-access-control_ to various features based on the roles in the SSO _access token_ of an authenticated user.
 
+link:https://stackoverflow.com/questions/69692842/error-message-error0308010cdigital-envelope-routinesunsupported[set NODE_OPTIONS=--openssl-legacy-provider]
+
 
 
 
