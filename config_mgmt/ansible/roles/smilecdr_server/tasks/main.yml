@@ -67,7 +67,7 @@
 ###########################################################
 
 
-########    FHIR Server    #############
+########    SmileCDR Server    #############
 - name: "create {{ service_account }} service account for {{ application_name }} application"
   kubernetes.core.k8s:
     state: present
@@ -78,8 +78,27 @@
       metadata:
         name: "{{ service_account }}"
         namespace: "{{ namespace }}"
+- kubernetes.core.k8s:
+    state: present
+    name: "scc-anyuid"
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: Role
+      metadata:
+        name: scc-anyuid
+        namespace: "{{ namespace }}"
+      rules:
+      - apiGroups:
+        - security.openshift.io
+        resourceNames:
+        - anyuid
+        resources:
+        - securitycontextconstraints
+        verbs:
+        - use
 
-- name: "give cluster admin privileges to {{ service_account }} service account"
+
+- name: "give anyuid privileges to {{ service_account }} service account"
   kubernetes.core.k8s:
     state: present
     name: "{{ service_account }}"
@@ -91,8 +110,8 @@
         namespace: "{{ namespace }}"
       roleRef:
         apiGroup: rbac.authorization.k8s.io
-        kind: ClusterRole
-        name: admin
+        kind: Role
+        name: scc-anyuid
       subjects:
       - kind: ServiceAccount
         name: "{{ service_account }}"
