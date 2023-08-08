@@ -72,6 +72,9 @@ public class RiskAssessmentService {
     @ConfigProperty(name=RiskAssessmentUtils.POST_TO_FHIR_SERVER, defaultValue = "true")
     boolean postToFhirServer;
 
+    @ConfigProperty(name="com.redhat.naps.rest.smilecdr.authNuserIdpasswd")
+    String authNuserIdpasswd;
+
     @Inject
     EventBus eventBus;
 
@@ -82,6 +85,8 @@ public class RiskAssessmentService {
         //   No serializer found for class io.cloudevents.core.data.BytesCloudEventData and no properties discovered to create BeanSerializer \
         //   (to avoid exception, disable SerializationFeature.FAIL_ON_EMPTY_BEANS) (through reference chain: io.cloudevents.core.v1.CloudEventV1["data"])
         objectMapper.registerModule(JsonFormat.getCloudEventJacksonModule());
+
+        System.setProperty("com.redhat.naps.rest.smilecdr.authNuserIdpasswd", authNuserIdpasswd);
     }
 
     public void publishRiskAssessment(Patient patient, String sepsisResponse, String observationId, String correlationKey) throws JsonProcessingException {

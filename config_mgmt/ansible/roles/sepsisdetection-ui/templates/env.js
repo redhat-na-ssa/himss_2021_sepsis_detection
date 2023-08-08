@@ -19,4 +19,7 @@
 
   window._env.PATIENT_VIEWER_URL = "{{ patient_viewer_url }}";
   window._env.IS_OPENSHIFT = "true";
+
+  window._env.SMILE_CDR_USERNAME = 'admin';
+  window._env.SMILE_CDR_PASSWORD = 'password';
 })(this);

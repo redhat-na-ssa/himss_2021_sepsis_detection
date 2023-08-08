@@ -87,7 +87,7 @@
             "name" : "JAVA_OPTIONS",
             "value" : "-Dvertx.metrics.options.enabled=true -Dvertx.metrics.options.registryName=prometheus"
           } ],
-          "image" : "quay.io/redhat_naps_da/sepsisdetection-risk:0.0.5",
+          "image" : "quay.io/redhat_naps_da/sepsisdetection-risk:0.0.6",
           "imagePullPolicy" : "Always",
           "livenessProbe" : {
             "failureThreshold" : 3,

@@ -24,6 +24,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class FHIREventConsumer {
 
 
+    private static final String PAYLOAD="payload";
+    private static final String PAYLOAD_ID="payloadId";
+    private static final String RESOURCE_TYPE="resourceType";
     private static Logger log = Logger.getLogger(FHIREventConsumer.class);
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -44,10 +47,14 @@ public class FHIREventConsumer {
     public String process(String event) throws JsonMappingException, JsonProcessingException {
         log.debugv("process() Received event: {0}", event);
         JsonNode rootNode = objectMapper.readTree(event);
-        JsonNode after = rootNode.get("data").get("payload").get("after");
-        JsonNode resType = after.get("res_type");
+        JsonNode payloadNode = rootNode.get(PAYLOAD).get(PAYLOAD);
+        String payloadNodeString = payloadNode.asText();
+        log.info("payloadNodeString = "+payloadNodeString);
+        JsonNode fhirResource = objectMapper.readTree(payloadNodeString);
+        JsonNode resType = fhirResource.get(RESOURCE_TYPE);
+        JsonNode resId = rootNode.get(PAYLOAD).get(PAYLOAD_ID);
+
         if (Util.RISK_ASSESSMENT.equals(resType.asText())){
-            JsonNode resId = after.get("res_id");
             log.info("process() resId = "+resId);
             riskAssessmentEmitter.sendAndForget(event);
         }

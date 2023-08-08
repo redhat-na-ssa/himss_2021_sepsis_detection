@@ -609,7 +609,8 @@ $ curl -X POST \
 -----
 $ curl -X POST \
        -H "Content-Type:application/fhir+json" \
-       $FHIR_SERVER_URL/fhir/RiskAssessment \
+       -u "admin:password" \
+       $FHIR_SERVER_URL/RiskAssessment \
        -d "@sepsisdetection-risk/src/test/resources/fhir/RiskAssessment.json"
 -----
 

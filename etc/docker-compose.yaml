@@ -227,7 +227,7 @@ services:
 
   sepsis-risk:
     container_name: sepsis-risk
-    image: quay.io/redhat_naps_da/sepsisdetection-risk:0.0.5
+    image: quay.io/redhat_naps_da/sepsisdetection-risk:0.0.6
     restart: always
     ports:
       - "3080:3080"
@@ -241,7 +241,7 @@ services:
 
   sepsis-sse:
     container_name: sepsis-sse
-    image: quay.io/redhat_naps_da/sepsisdetection-sse:0.0.5
+    image: quay.io/redhat_naps_da/sepsisdetection-sse:0.0.6
     restart: always
     ports:
       - "4199:4199"

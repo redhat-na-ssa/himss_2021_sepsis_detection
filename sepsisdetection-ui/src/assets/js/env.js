@@ -11,8 +11,8 @@
   window._env.DM_CONTAINER_ALIAS = '';
   window._env.PAM_CONTAINER_ALIAS = 'sepsisdetection-kjar-1.0.0';
   window._env.PROCESS_ID = 'sepsisdetection';
-  window._env.FHIR_SERVER_URL = 'http://rht:8000/';
-  window._env.FHIR_SSE_STREAMING_URL = 'http://rht:4199';
+  window._env.FHIR_SERVER_URL = 'http://localhost:8000/';
+  window._env.FHIR_SSE_STREAMING_URL = 'http://localhost:4199';
   window._env.PATIENT_VIEWER_URL = 'https://demo.healthflow.io/profile/5e3ad7fe-24fa-4dc2-8be5-25554a8efb2c';
   window._env.IS_OPENSHIFT = 'false';
   window._env.SMILE_CDR_USERNAME = 'admin';

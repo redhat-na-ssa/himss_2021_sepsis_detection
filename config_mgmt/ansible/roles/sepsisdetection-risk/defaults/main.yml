@@ -6,5 +6,5 @@ application_configmap: "{{ application_name }}"
 application_configmap_key: "{{ application_properties }}"
 binary_imagestream_template: binary-imagestream.yml 
 service_image: quay.io/redhat_naps_da/sepsisdetection-risk
-service_image_tag: 0.0.5
+service_image_tag: 0.0.6
 application_template: sepsisdetection-risk-service.yml
