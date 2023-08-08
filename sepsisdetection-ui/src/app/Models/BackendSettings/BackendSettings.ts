@@ -11,4 +11,6 @@ export interface BackendSettings {
     isOpenShift? : boolean;
     fhirserverURL? : string;
     patientViewerURL? : string;
+    smileCDRusername: string;
+    smileCDRpassword: string;
 }

@@ -15,11 +15,6 @@ export class BackendServices {
 
   bundleData: string;
 
-  // https://stackoverflow.com/questions/50694913/angular-6-httpclient-passing-basic-auth-in-httpoptions
-  var headers_object = new HttpHeaders();
-  headers_object.append('Content-Type', 'application/json');
-  headers_object.append("Authorization", "Basic " + btoa("admin:password"));
-
 
   /*
     The requests to various backends created in this class includes a default Authorization header similar to the following:
@@ -44,7 +39,9 @@ export class BackendServices {
         password: window['_env'].KIE_SERVER_PASSWORD,
         fhirserverURL: window['_env'].FHIR_SERVER_URL,
         patientViewerURL: window['_env'].PATIENT_VIEWER_URL,
-        isOpenShift: window['_env'].IS_OPENSHIFT
+        isOpenShift: window['_env'].IS_OPENSHIFT,
+        smileCDRusername: window['_env'].SMILE_CDR_USERNAME,
+        smileCDRpassword: window['_env'].SMILE_CDR_PASSWORD
       };
 
       this.cookieService.putObject("himms", this.backendSettings);
@@ -67,7 +64,10 @@ export class BackendServices {
      console.log("createBundle() fhirserverURL = "+this.backendSettings.fhirserverURL);
      let url = this.backendSettings.fhirserverURL;
      let postData = data;
-     const headers = { };
+     const headers = {
+      'Authorization': 'Basic ' + btoa(this.backendSettings.smileCDRusername + ":" + this.backendSettings.smileCDRpassword),
+      'content-type': 'application/json',
+      }
      return this.http.post(url, postData, { headers });
    } 
 

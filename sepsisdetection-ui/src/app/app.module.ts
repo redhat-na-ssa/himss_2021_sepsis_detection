@@ -40,6 +40,9 @@ function initializeKeycloak(keycloak: KeycloakService) {
         onLoad: 'check-sso',
         silentCheckSsoRedirectUri: window.location.origin + '/assets/silent-check-sso.html',
       },
+      bearerExcludedUrls : [
+          window['_env'].FHIR_SERVER_URL
+      ]
     });
 }
 
