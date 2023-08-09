@@ -511,10 +511,10 @@ export FHIR_SERVER_URL=http://localhost:8000
 +
 -----
 SEPSISDETECTION_RHPAM_URL=https://$(oc get route sepsisdetection-rhpam -n user1-sepsisdetection --template='{{ .spec.host }}')
-RHSSO_URL=https://$(oc get route sso -n sepsisdetection-sso --template='{{ .spec.host }}')/auth
+RHSSO_URL=https://$(oc get route sso -n redhat-rhoam-rhsso --template='{{ .spec.host }}')/auth
 REALM_ID=user1-sepsis
 retrieve_token_url="$RHSSO_URL/realms/$REALM_ID/protocol/openid-connect/token"
-FHIR_SERVER_URL=https://$(oc get route fhir-server -n user1-sepsisdetection --template='{{ .spec.host }}')
+FHIR_SERVER_URL=https://$(oc get route smilecdr-server -n user1-sepsisdetection --template='{{ .spec.host }}')
 -----
 
 === RH-SSO
