@@ -3,13 +3,16 @@
 :toc2:
 :linkattrs:
 
-= Sepsis Detection Demo
+= Sepsis Detection Demo - SmileCDR
 :numbered:
 
 == Overview
 
 The purpose of this project is to provide a reproducible demo of a patient (with a probability of link:https://en.wikipedia.org/wiki/Sepsis[sepsis]) _encounter_ at a hospital.
 This demo uses many Red Hat technologies.
+
+NOTE:  This branch of the demo uses the SmileCDR FHIR server (rather than the community hapi-fhir-server).
+
 
 Sepsis is a costly and life threatening condition resulting in multi-organ failure. Beating conditions like sepsis requires rapid detection and mitigation of risks. Recovery at home is often preferred, yet Medical teams often lack the capability to perform constant surveillance for emerging risks across their patient cohorts, especially in rural settings. We will demonstrate an early warning system driven by Clinical AI at the Edge, fed by at-home post-operative monitoring and automated Clinical care escalation and coordination processes.
 
@@ -225,15 +228,13 @@ Red Hat SSO is used as the OpenID Connect provider of access tokens needed by ot
 For the purpose of the demo, the RH-SSO consists a single SSO _realm_ configured with an SSO client and multiple users and roles to facilitate the use case.
 
 
-=== Hapi FHIR Server
+=== SmileCDR server
 
-image::docs/images/hapi_fhir_home.png[]
-
-The demo consists of a link:https://hapifhir.io/hapi-fhir/docs/server_jpa/[HAPI FHIR JPA server] .
+image::docs/images/hapi_fhir_home.png[]S
 
 This server maintains the state of all link:https://www.hl7.org/fhir/resourcelist.html[FHIR resources] involved in the _sepsis detection_ use case.
 
-The HAPI FHIR server is backed by a PostgreSQL database.
+The SMileCDR FHIR server is backed by a PostgreSQL database.
 
 === AMQ Streams / Kafdrop
 
