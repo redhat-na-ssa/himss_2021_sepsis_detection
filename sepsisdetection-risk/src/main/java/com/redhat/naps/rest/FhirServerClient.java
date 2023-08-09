@@ -23,11 +23,21 @@ import io.smallrye.mutiny.Uni;
 @RegisterRestClient
 public interface FhirServerClient {
     
+    @GET
+    @Path("/Subscription")
+    @Produces("application/fhir+json")
+    Response getSubscriptions();
+
+    @POST
+    @Path("/Subscription")
+    @Consumes("application/fhir+json")
+    Response postSubscription( String raJson);
 
     @GET
     @Path("/RiskAssessment")
     @Produces("application/fhir+json")
     Uni<Response> getRiskAssessments();
+
 
     @POST
     @Path("/RiskAssessment")

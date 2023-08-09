@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -24,17 +27,22 @@ import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.RiskAssessment;
+import org.hl7.fhir.r4.model.Subscription;
 import org.hl7.fhir.r4.model.RiskAssessment.RiskAssessmentPredictionComponent;
 import org.hl7.fhir.r4.model.RiskAssessment.RiskAssessmentStatus;
+import org.jboss.logging.Logger;
 
 import io.cloudevents.CloudEvent;
 import io.cloudevents.core.builder.CloudEventBuilder;
 import io.cloudevents.jackson.JsonFormat;
+import io.quarkus.runtime.StartupEvent;
 import io.quarkus.vertx.ConsumeEvent;
 import io.quarkus.vertx.core.runtime.VertxCoreRecorder;
 import io.smallrye.common.annotation.Blocking;
@@ -46,15 +54,14 @@ import jakarta.annotation.PostConstruct;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ca.uhn.fhir.context.FhirContext;
 
 @ApplicationScoped
+@Path("/")
 public class RiskAssessmentService {
 
-    private static final Logger log = LoggerFactory.getLogger("RiskAssessmentService");
+    private static final Logger log = Logger.getLogger("RiskAssessmentService");
+    private static final String SUBSCRIPTION_JSON_FILE_NAME = "fhir_subscription.json";
     private static ObjectMapper objectMapper = new ObjectMapper();
     private static FhirContext fhirCtx = FhirContext.forR4();
 
@@ -75,11 +82,13 @@ public class RiskAssessmentService {
     @ConfigProperty(name="com.redhat.naps.rest.smilecdr.authNuserIdpasswd")
     String authNuserIdpasswd;
 
+    @ConfigProperty(name="com.redhat.naps.rest.smilecdr.millisSleepForSmileCDRcall", defaultValue = "30000")
+    private long millisSleepForSmileCDRcall;
+
     @Inject
     EventBus eventBus;
 
-    @PostConstruct
-    public void start() {
+    public void start(@Observes StartupEvent ev) {
         // Prevents the following:
         //   com.fasterxml.jackson.databind.exc.InvalidDefinitionException: \
         //   No serializer found for class io.cloudevents.core.data.BytesCloudEventData and no properties discovered to create BeanSerializer \
@@ -87,6 +96,65 @@ public class RiskAssessmentService {
         objectMapper.registerModule(JsonFormat.getCloudEventJacksonModule());
 
         System.setProperty("com.redhat.naps.rest.smilecdr.authNuserIdpasswd", authNuserIdpasswd);
+        int sNum = 0;
+        for(int t=0; t<5; t++){
+            try{
+                Thread.sleep(this.millisSleepForSmileCDRcall);
+                sNum = this.getSubscriptionListSizeFromSmileCDR();
+                if(sNum < 1){
+                    postSubscriptionToSmileCDR();
+                    sNum++;
+                }else {
+                    log.info("start() no need to post subscription to SmileCDR. # of subs = "+sNum);
+                }
+                break;
+            }catch(Throwable x){
+                log.error("Following thrown when attempting to get subscription list from SmileCDR: "+x.getMessage());
+            }
+        }
+        if(sNum == 0)
+          throw new RuntimeException("unable to properly start due to problems managing subscriptions on SmileCDR server");
+    }
+
+    @POST
+    @Path("/sanityCheck")
+    public String sanityCheck(){
+        return "good to go!";
+    };
+
+    private int getSubscriptionListSizeFromSmileCDR(){
+        Response responseObj = null;
+        try{
+            responseObj = fhirServerClient.getSubscriptions();
+            String sJson = responseObj.readEntity(String.class);
+            Bundle bObj = this.fhirCtx.newJsonParser().parseResource(Bundle.class, sJson);
+            List<BundleEntryComponent> becs = bObj.getEntry();
+            log.info("start() # of Subscriptions = "+becs.size());
+            return becs.size();
+        }finally {
+            if(responseObj != null)
+              responseObj.close();
+        }
+    }
+
+    private String postSubscriptionToSmileCDR(){
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        Response responseObj = null;
+        try {
+            InputStream sResource = loader.getResourceAsStream(SUBSCRIPTION_JSON_FILE_NAME);
+            String sJson = IOUtils.toString(sResource, "UTF-8");
+            responseObj = fhirServerClient.postSubscription(sJson);
+            String smileJson = responseObj.readEntity(String.class);
+            Subscription sObj = this.fhirCtx.newJsonParser().parseResource(Subscription.class, smileJson);
+            log.infov("postSubscriptionToSmileCDR() just posted subscription with id {0}, Response status = {1} ", sObj.getId(), responseObj.getStatus());
+            return sObj.getId();
+        }catch(Exception x){
+            x.printStackTrace();
+            throw new RuntimeException("Unable to POST subscription to SmileCDR server: "+SUBSCRIPTION_JSON_FILE_NAME);
+        }finally {
+            if(responseObj != null)
+              responseObj.close();
+        }
     }
 
     public void publishRiskAssessment(Patient patient, String sepsisResponse, String observationId, String correlationKey) throws JsonProcessingException {
@@ -166,11 +234,8 @@ public class RiskAssessmentService {
         }catch(WebApplicationException x){
             responseObj = x.getResponse();
             log.error("postRiskAssessmentToFhirServer() Error with following status when posting to fhir server: "+responseObj.getStatus() );
-            Object rEntity = responseObj.getEntity();
-            if(rEntity != null) {
-                log.error("postRiskAssessmentToFhirServer() error message = "+IOUtils.toString((InputStream)rEntity, "UTF-8"));
-            }
-            x.printStackTrace();
+            String rEntity = responseObj.readEntity(String.class);
+            log.error("postRiskAssessmentToFhirServer() error message = "+rEntity);
 
         }catch(ProcessingException x){
             log.error("postRiskAssessmentToFhirServer() The following error thrown: "+x.getMessage());

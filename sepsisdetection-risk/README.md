@@ -9,8 +9,8 @@ $ kafka-console-producer.sh \
 $ ./mvnw clean package \
     -DskipTests \
     -Dquarkus.container-image.build=true \
-    -Dquarkus.container-image.tag=0.0.6
+    -Dquarkus.container-image.tag=0.0.7
 
-$ podman push quay.io/redhat_naps_da/sepsisdetection-risk:0.0.6
+$ podman push quay.io/redhat_naps_da/sepsisdetection-risk:0.0.7
 
 $ oc kustomize src/main/kustomize/overlays/production/

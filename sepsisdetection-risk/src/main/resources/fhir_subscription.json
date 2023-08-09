@@ -1,0 +1,10 @@
+{
+  "resourceType": "Subscription",
+  "status": "requested",
+  "criteria": "[Patient,Organization,RiskAssessment]",
+  "channel": {
+    "type": "message",
+    "endpoint": "channel:fhir_resources",
+    "payload": "application/json"
+  }
+}
