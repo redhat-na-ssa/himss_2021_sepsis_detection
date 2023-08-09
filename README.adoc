@@ -3,13 +3,15 @@
 :toc2:
 :linkattrs:
 
-= Sepsis Detection Demo
+= Sepsis Detection Demo - HAPI FHIR Server
 :numbered:
 
 == Overview
 
 The purpose of this project is to provide a reproducible demo of a patient (with a probability of link:https://en.wikipedia.org/wiki/Sepsis[sepsis]) _encounter_ at a hospital.
 This demo uses many Red Hat technologies.
+
+NOTE:  This branch of the project makes use of community HAPI FHIR server.  If you prefer to use SmileCDR, please refer to the link:https://github.com/redhat-na-ssa/himss_2021_sepsis_detection/tree/smilecdr[smilecdr] branch of this projet.
 
 Sepsis is a costly and life threatening condition resulting in multi-organ failure. Beating conditions like sepsis requires rapid detection and mitigation of risks. Recovery at home is often preferred, yet Medical teams often lack the capability to perform constant surveillance for emerging risks across their patient cohorts, especially in rural settings. We will demonstrate an early warning system driven by Clinical AI at the Edge, fed by at-home post-operative monitoring and automated Clinical care escalation and coordination processes.
 
