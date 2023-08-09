@@ -206,7 +206,7 @@ services:
   smilecdr:
     container_name: smilecdr
 
-    image: quay.io/redhat_naps_da/smilecdr:2023.05.R02
+    image: registry.gitlab.com/jbride-rht/smilecdr:2023.05.R02
 
     restart: always
     ports:

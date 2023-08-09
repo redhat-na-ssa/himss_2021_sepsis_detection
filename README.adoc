@@ -403,6 +403,31 @@ ansible [core 2.12.2]
 
 . *git* installed locally
 
+=== SmileCDR container image repo
+
+-----
+PRIVATE_IMAGE_REPO_ACCOUNT_NAME=<changeme>
+PRIVATE_IMAGE_REPO_ACCOUNT_PASSWORD=<changeme>
+
+oc registry login --registry="registry.gitlab.com/jbride-rht" \
+        --auth-basic="$PRIVATE_IMAGE_REPO_ACCOUNT_NAME:$PRIVATE_IMAGE_REPO_ACCOUNT_PASSWORD" \
+        --to=/tmp/private-image-repo-pull-secret.json
+
+oc set data secret/pull-secret \
+        -n openshift-config \
+        --from-file=.dockerconfigjson=/tmp/private-image-repo-pull-secret.json
+
+oc get secret/pull-secret \
+        -n openshift-config \
+        --template='{{index .data ".dockerconfigjson" | base64decode}}' \
+        | jq -r '.auths|to_entries | .[]|select(.key | contains("registry.gitlab.com"))'
+
+oc new-project user1-sepsisdetection
+oc get secret pull-secret -n openshift-config -o yaml \
+        | sed 's/namespace: .*/namespace: user1-sepsisdetection/' \
+        | oc apply -f -
+-----
+
 === Procedure:
 
 . Using the oc utility that corresponds to the version of OpenShift that you will deploy to, log into the cluster:

@@ -22,8 +22,8 @@ undeploy_fhir_db: "false"
 service_account: "{{ application_name }}"
 binary_imagestream_template: binary-imagestream.yml 
 
-# https://github.com/redhat-naps-da/hapi-fhir-jpaserver-starter
-service_image: quay.io/redhat_naps_da/smilecdr
+#service_image: quay.io/redhat_naps_da/smilecdr
+service_image: registry.gitlab.com/jbride-rht/smilecdr
 service_image_tag: 2023.05.R02
 
 application_template: smilecdr-service.yml
