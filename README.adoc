@@ -405,23 +405,50 @@ ansible [core 2.12.2]
 
 === SmileCDR container image repo
 
+. Download your existing OpenShift pull-secret to a temp file called _private-quay-enabled-pull-secret.json_:
++
+-----
+$ oc get secret/pull-secret \
+            -n openshift-config \
+            --template='{{index .data ".dockerconfigjson" | base64decode}}' \
+            > /tmp/private-image-repo-pull-secret.json
+-----
+
+. Set variables specific to gitlab image repo:
++
 -----
 PRIVATE_IMAGE_REPO_ACCOUNT_NAME=<changeme>
 PRIVATE_IMAGE_REPO_ACCOUNT_PASSWORD=<changeme>
+-----
 
+. Add credentials of private gitlab image repo account to pull secret:
++
+-----
 oc registry login --registry="registry.gitlab.com/jbride-rht" \
         --auth-basic="$PRIVATE_IMAGE_REPO_ACCOUNT_NAME:$PRIVATE_IMAGE_REPO_ACCOUNT_PASSWORD" \
         --to=/tmp/private-image-repo-pull-secret.json
+-----
 
+. Update pull secret for your OpenShift cluster:
++
+-----
 oc set data secret/pull-secret \
         -n openshift-config \
         --from-file=.dockerconfigjson=/tmp/private-image-repo-pull-secret.json
+-----
 
+. Verify your cluster pull-secret now contains two references to quay image repositories (similar to the following) :
++
+-----
 oc get secret/pull-secret \
         -n openshift-config \
         --template='{{index .data ".dockerconfigjson" | base64decode}}' \
         | jq -r '.auths|to_entries | .[]|select(.key | contains("registry.gitlab.com"))'
+-----
 
+. Optional:  Copy _pull-secret_ to a different namespace:
++
+-----
 oc new-project user1-sepsisdetection
 oc get secret pull-secret -n openshift-config -o yaml \
         | sed 's/namespace: .*/namespace: user1-sepsisdetection/' \
